@@ -9,13 +9,13 @@ defmodule Gt.ProjectController do
         initial_state = %{
             projects: Projects.load_projects(1)
         }
-        Gt.AuthController.render_react(conn, initial_state, true)
+        Gt.AuthController.render_elm(conn, initial_state, true)
     end
 
     def edit(conn, %{"id" => id}) do
         initial_state = %{
             projects: Map.merge(Projects.load_projects(1), Projects.load_project(id))
         }
-        Gt.AuthController.render_react(conn, initial_state, true)
+        Gt.AuthController.render_elm(conn, initial_state, true)
     end
 end

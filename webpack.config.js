@@ -30,11 +30,11 @@ if (env === 'development') {
 module.exports = {
     devtool: devtool,
     entry: [
-        './web/static/js/index.js',
-        './web/static/css/fonts.css',
-        'flexboxgrid/dist/flexboxgrid.css',
-        './web/static/css/material.min.css',
-        './web/static/css/app.css'
+        './web/static/js/index.js'
+        // './web/static/css/fonts.css',
+        // 'flexboxgrid/dist/flexboxgrid.css',
+        // './web/static/css/material.min.css',
+        // './web/static/css/app.css'
     ],
     output: {
         path: './priv/static',
@@ -42,18 +42,23 @@ module.exports = {
         publicPath: '/'
     },
     module: {
+        noParse: /\.elm$/,
         loaders: [{
             test: /\.js$/,
             exclude: /node_modules/,
             loader: 'babel',
             query: {
-                plugins: ['transform-decorators-legacy', 'transform-class-properties'],
-                presets: ['react', 'es2015', 'stage-2']
+                presets: ['es2015']
             }
         },
         {
             test: /\.css$/,
             loader: ExtractTextPlugin.extract('style', 'css?localIdentName=[hash:base64]!postcss')
+        },
+        {
+            test: /\.elm$/,
+            exclude: [/elm-stuff/, /node_modules/],
+            loader: 'elm-webpack'
         },
         {
             test: /\.png$/,
@@ -84,10 +89,11 @@ module.exports = {
         })
     ],
     resolve: {
-        extensions: ['', '.js', '.less', '.css'],
-        modulesDirectories: ['node_modules', __dirname + '/web/static/js'],
         alias: {
-            styles: __dirname + '/web/static/css'
+            phoenix_html:
+                __dirname + '/deps/phoenix_html/web/static/js/phoenix_html.js',
+            phoenix:
+                __dirname + './deps/phoenix/web/static/js/phoenix.js'
         }
     },
     plugins: [

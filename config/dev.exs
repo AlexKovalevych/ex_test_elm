@@ -1,15 +1,5 @@
 use Mix.Config
 
-webpack = fn(name) ->
-    {"node", [
-        "node_modules/webpack/bin/webpack.js",
-        "--watch-stdin",
-        "--colors",
-        "--config",
-        "webpack.#{name}.js"
-    ]}
-end
-
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
@@ -21,7 +11,10 @@ config :gt, Gt.Endpoint,
     debug_errors: true,
     code_reloader: true,
     check_origin: false,
-    watchers: ["config", "server.config"] |> Enum.map(&(webpack.(&1)))
+    watchers: [
+        {"node", ["node_modules/webpack/bin/webpack.js", "--watch-stdin", "--progress", "--colors"]},
+        {"node", ["node_modules/webpack/bin/webpack.js", "--watch-stdin", "--progress", "--colors", "--config", "webpack.server.config.js"]},
+    ]
 
 # Watch static and templates for browser reloading.
 config :gt, Gt.Endpoint,

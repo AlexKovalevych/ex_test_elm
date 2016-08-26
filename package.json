@@ -5,6 +5,8 @@
     "bootstrap": "^4.0.0-alpha.2",
     "classnames": "^2.2.5",
     "counterpart": "^0.17.2",
+    "elm-stdio": "git://github.com/AlexKovalevych/elm-stdio.git#elm-0.17",
+    "elm-webpack-loader": "^3.0.6",
     "flexboxgrid": "^6.3.0",
     "font-awesome": "^4.6.3",
     "highcharts": "^4.2.5",

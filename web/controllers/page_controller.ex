@@ -5,7 +5,7 @@ defmodule Gt.PageController do
     plug Gt.Guardian.EnsureAuthenticated, handler: Gt.AuthController
 
     def index(conn, _params) do
-        Gt.AuthController.render_react(conn, %{})
+        Gt.AuthController.render_elm(conn, %{})
     end
 end
 

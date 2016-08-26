@@ -1,5 +1,5 @@
 <div id="index"><%= raw(@html) %></div>
 
 <script type="text/javascript">
-    window.__INITIAL_STATE__ = <%= raw(@props) %>;
+    window.APP_DATA = <%= raw Poison.encode!(@data) %>;
 </script>

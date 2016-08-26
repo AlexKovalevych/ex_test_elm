@@ -13,7 +13,7 @@ const plugins = {
 
 module.exports = {
     entry: {
-        component: './web/static/js/containers/index.js'
+        component: './web/static/js/server_render.js'
     },
     output: {
         path: './priv/static/server/js',
@@ -22,21 +22,30 @@ module.exports = {
         libraryTarget: 'commonjs2'
     },
     module: {
+        noParse: /\.elm$/,
         loaders: [
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 loader: 'babel',
                 query: {
-                    plugins: ['transform-decorators-legacy', 'transform-class-properties'],
-                    presets: ['react', 'es2015', 'stage-2']
+                    presets: ['es2015']
                 }
+            },
+            {
+                test: /\.elm$/,
+                exclude: [/elm-stuff/, /node_modules/],
+                loader: 'elm-webpack'
             }
         ]
     },
     resolve: {
-        extensions: ['', '.js'],
-        modulesDirectories: ['node_modules', __dirname + '/web/static/js']
+        alias: {
+            phoenix_html:
+                __dirname + '/deps/phoenix_html/web/static/js/phoenix_html.js',
+            phoenix:
+                __dirname + './deps/phoenix/web/static/js/phoenix.js'
+        }
     },
     plugins: [
         // Important to keep React file size down

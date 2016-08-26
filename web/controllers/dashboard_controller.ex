@@ -10,6 +10,6 @@ defmodule Gt.DashboardController do
             pendingTasks: 1,
             dashboard: current_user(conn) |> Dashboard.load_data
         }
-        Gt.AuthController.render_react(conn, initial_state)
+        Gt.AuthController.render_elm(conn, initial_state)
     end
 end
