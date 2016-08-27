@@ -13,7 +13,7 @@ const plugins = {
 
 module.exports = {
     entry: {
-        component: './web/static/js/server_render.js'
+        component: './web/static/elm/server_render.js'
     },
     output: {
         path: './priv/static/server/js',

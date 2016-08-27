@@ -1,6 +1,7 @@
 defmodule Gt.AuthController do
     use Gt.Web, :controller
     alias Gt.Model.User
+    import Gt.Manager.Location, only: [create_location: 1]
 
     defmacro render_elm(conn, initial_state, admin_required \\ false) do
         quote do
@@ -11,10 +12,13 @@ defmodule Gt.AuthController do
                 redirect conn, to: "/login"
             else
                 initial_state = unquote initial_state
-                initial_state = Map.put(initial_state, :auth, %{user: current_user})
+                initial_state = Poison.encode!(
+                    initial_state
+                    |> Map.put(:auth, %{user: current_user})
+                    |> Map.put(:location, create_location(conn))
+                )
 
-                data = %{ getStorage: nil }
-
+                IO.inspect(create_location(conn))
 
                 # props = %{
                 #     "location" => conn.request_path,
@@ -24,13 +28,13 @@ defmodule Gt.AuthController do
 
                 {:ok, result} = Gt.ElmIo.json_call(%{
                     path: "./priv/static/server/js/app.js",
-                    component: "Index",
+                    component: "Main",
                     render: "embed",
                     id: "index",
-                    data: data,
+                    data: %{initialState: initial_state},
                 })
 
-                render(conn, Gt.PageView, "index.html", html: result["html"], data: data)
+                render(conn, Gt.PageView, "index.html", html: result["html"], data: initial_state)
             end
         end
     end
@@ -54,22 +58,23 @@ defmodule Gt.AuthController do
     end
 
     defp render_login(conn) do
-        initial_state = %{}
-        props = %{
-            "location" => conn.request_path,
-            "initial_state" => initial_state,
-            "user_agent" => conn |> get_req_header("user-agent") |> Enum.at(0)
-        }
+        initial_state = Poison.encode!(%{location: create_location(conn)})
+        # props = %{
+        #     "location" => conn.request_path,
+        #     "initial_state" => initial_state,
+        #     "user_agent" => conn |> get_req_header("user-agent") |> Enum.at(0)
+        # }
 
         {:ok, result} = Gt.ElmIo.json_call(%{
-            component: "./priv/static/server/js/app.js",
-            component: "Index",
+            path: "./priv/static/server/js/app.js",
+            component: "Main",
             render: "embed",
-            id: "index"
+            id: "index",
+            data: %{initialState: initial_state}
             # props: props,
         })
 
-        render(conn, Gt.PageView, "index.html", html: result["html"], props: Poison.encode!(props))
+        render(conn, Gt.PageView, "index.html", html: result["html"], data: initial_state)
     end
 
     def unauthenticated(conn, _params) do
