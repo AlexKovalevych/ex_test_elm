@@ -13,7 +13,7 @@ import Messages exposing (..)
 
 urlParser : Navigation.Parser ( Route, Location )
 urlParser =
-    Navigation.makeParser (.href >> matchUrl config)
+    Navigation.makeParser (matchUrl config)
 
 
 urlUpdate : ( Route, Location ) -> AppModel -> ( AppModel, Cmd Msg )

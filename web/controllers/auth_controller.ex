@@ -15,10 +15,7 @@ defmodule Gt.AuthController do
                 initial_state = Poison.encode!(
                     initial_state
                     |> Map.put(:auth, %{user: current_user})
-                    |> Map.put(:location, create_location(conn))
                 )
-
-                IO.inspect(create_location(conn))
 
                 # props = %{
                 #     "location" => conn.request_path,
@@ -31,10 +28,10 @@ defmodule Gt.AuthController do
                     component: "Main",
                     render: "embed",
                     id: "index",
-                    data: %{initialState: initial_state},
+                    data: %{initialState: initial_state, location: "/"},
                 })
 
-                render(conn, Gt.PageView, "index.html", html: result["html"], data: initial_state)
+                render(conn, Gt.PageView, "index.html", html: result["html"], data: initial_state, location: "/")
             end
         end
     end
@@ -58,7 +55,8 @@ defmodule Gt.AuthController do
     end
 
     defp render_login(conn) do
-        initial_state = Poison.encode!(%{location: create_location(conn)})
+        initial_state = %{}
+        # initial_state = Poison.encode!(%{location: create_location(conn)})
         # props = %{
         #     "location" => conn.request_path,
         #     "initial_state" => initial_state,
@@ -70,11 +68,11 @@ defmodule Gt.AuthController do
             component: "Main",
             render: "embed",
             id: "index",
-            data: %{initialState: initial_state}
+            data: %{initialState: initial_state, location: "/login"}
             # props: props,
         })
 
-        render(conn, Gt.PageView, "index.html", html: result["html"], data: initial_state)
+        render(conn, Gt.PageView, "index.html", html: result["html"], data: initial_state, location: "/login")
     end
 
     def unauthenticated(conn, _params) do
