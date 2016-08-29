@@ -31,27 +31,27 @@ urlUpdate ( route, location ) model =
 --    Maybe.withDefault {} initialState
 
 
-init : {initialState : String} -> ( Route, Location ) -> ( AppModel, Cmd Msg )
+init : {initialState : String, location : Maybe Navigation.Location} -> ( Route, Location ) -> ( AppModel, Cmd Msg )
 init flags ( route, location ) =
     ( {auth = EmptyAuth, route = route, location = location}, Cmd.none )
 
-initialLocation : Maybe Navigation.Location
-initialLocation = Just
-    { href = "http://localhost:4000/"
-    , host = "localhost:4000"
-    , hostname = "localhost"
-    , protocol = "http:"
-    , origin = "http://localhost:4000"
-    , port_ = "4000"
-    , pathname = "/"
-    , search = ""
-    , hash = ""
-    , username = ""
-    , password = ""
-    }
+--initialLocation : Maybe Navigation.Location
+--initialLocation = Just
+--    { href = "http://localhost:4000/"
+--    , host = "localhost:4000"
+--    , hostname = "localhost"
+--    , protocol = "http:"
+--    , origin = "http://localhost:4000"
+--    , port_ = "4000"
+--    , pathname = "/"
+--    , search = ""
+--    , hash = ""
+--    , username = ""
+--    , password = ""
+--    }
 
 
-main : Program {initialState : String}
+main : Program {initialState : String, location : Maybe Navigation.Location}
 main =
     Navigation.programWithFlags urlParser
         { init = init
@@ -59,7 +59,6 @@ main =
         , update = update
         , urlUpdate = urlUpdate
         , subscriptions = (always Sub.none)
-        , location = initialLocation
         }
 
 --port initialRoute : String
