@@ -30,11 +30,15 @@ urlUpdate ( route, location ) model =
 
 init : ( Route, Location ) -> ( Model, Cmd Msg )
 init ( route, location ) =
-    case getMaybe("jwtToken") of
-        Nothing -> ( { phxSocket = Phoenix.Socket.Socket NoOp, auth = EmptyAuth, route = LoginRoute, location = location}, Cmd.none )
-        Just token ->
-            Phoenix.Socket.init "/socket?token=" ++ token
-            ( {auth = EmptyAuth, route = LoginRoute, location = location}, Cmd.none )
+    let
+        model = {location = location, route = route, auth = EmptyAuth, phxSocket = Phoenix.Socket.init ""}
+    in
+        case getMaybe("jwtToken") of
+            Task _ Nothing ->
+                ( { model | route = LoginRoute}, Cmd.none )
+            Task _ (Just token) ->
+                let socket = Phoenix.Socket.init ("/socket?token=" ++ token)
+                in ( { model | phxSocket = socket, auth = EmptyAuth}, Cmd.none )
 
 main : Program Never
 main =
