@@ -5,7 +5,6 @@ module Storage.LocalStorage exposing
   , clear
   , keys
   , Error(..)
-  , getMaybe
   )
 
 {-|
@@ -66,7 +65,3 @@ clear =
 keys : Task x (List String)
 keys =
   Native.LocalStorage.keys
-
-getMaybe : String -> Task x (Maybe String)
-getMaybe key =
-  Task.toMaybe (get key)
