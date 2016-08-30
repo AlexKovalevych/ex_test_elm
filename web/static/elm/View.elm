@@ -10,7 +10,7 @@ import Routing exposing (..)
 --import Languages.View
 
 
-view : AppModel -> Html Msg
+view : Model -> Html Msg
 view model =
     div []
         [ menu model
@@ -18,7 +18,7 @@ view model =
         ]
 
 
-menu : AppModel -> Html Msg
+menu : Model -> Html Msg
 menu model =
     case model.route of
         LoginRoute ->
@@ -44,7 +44,7 @@ menuLink message viewId label =
         [ text label ]
 
 
-pageView : AppModel -> Html Msg
+pageView : Model -> Html Msg
 pageView model =
     case model.route of
         DashboardRoute ->
@@ -75,7 +75,7 @@ pageView model =
             notFoundView model
 
 
-notFoundView : AppModel -> Html msg
+notFoundView : Model -> Html msg
 notFoundView model =
     div []
         [ text "Not Found"

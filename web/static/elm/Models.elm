@@ -2,7 +2,10 @@ module Models exposing (..)
 
 import Hop.Types exposing (Location)
 import Routing exposing (Route)
-
+import Phoenix.Socket
+import Phoenix.Channel
+import Phoenix.Push
+import Messages exposing (..)
 
 type alias User =
     { email : String
@@ -19,13 +22,14 @@ type alias Auth =
 
 type AuthModel = EmptyAuth | Logged Auth
 
-type alias AppModel =
-    { auth : AuthModel
+type alias Model =
+    { phxSocket : Phoenix.Socket.Socket Msg
+    , auth : AuthModel
     , location : Location
     , route : Route
     }
 
 
-newAppModel : AppModel -> Route -> Location -> AppModel
+newAppModel : Model -> Route -> Location -> Model
 newAppModel initialModel route location =
     { initialModel | location = location, route = route }

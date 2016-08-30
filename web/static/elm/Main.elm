@@ -4,11 +4,14 @@ import Debug
 import Navigation
 import Hop exposing (matchUrl)
 import Hop.Types exposing (Location)
-import Routing exposing(Route, config)
+import Routing exposing(..)
 import Models exposing (..)
 import View exposing (..)
 import Update exposing (..)
 import Messages exposing (..)
+import Storage.LocalStorage exposing (..)
+import Phoenix.Socket
+import Task
 
 
 urlParser : Navigation.Parser ( Route, Location )
@@ -16,7 +19,7 @@ urlParser =
     Navigation.makeParser (.href >> matchUrl config)
 
 
-urlUpdate : ( Route, Location ) -> AppModel -> ( AppModel, Cmd Msg )
+urlUpdate : ( Route, Location ) -> Model -> ( Model, Cmd Msg )
 urlUpdate ( route, location ) model =
     let
         _ =
@@ -25,31 +28,13 @@ urlUpdate ( route, location ) model =
         ( { model | route = route, location = location }, Cmd.none )
 
 
---initialModel : AppModel
---initialModel = {}
---initialModel =
---    Maybe.withDefault {} initialState
-
-
-init : ( Route, Location ) -> ( AppModel, Cmd Msg )
+init : ( Route, Location ) -> ( Model, Cmd Msg )
 init ( route, location ) =
-    ( {auth = EmptyAuth, route = route, location = location}, Cmd.none )
-
---initialLocation : Maybe Navigation.Location
---initialLocation = Just
---    { href = "http://localhost:4000/"
---    , host = "localhost:4000"
---    , hostname = "localhost"
---    , protocol = "http:"
---    , origin = "http://localhost:4000"
---    , port_ = "4000"
---    , pathname = "/"
---    , search = ""
---    , hash = ""
---    , username = ""
---    , password = ""
---    }
-
+    case getMaybe("jwtToken") of
+        Nothing -> ( { phxSocket = Phoenix.Socket.Socket NoOp, auth = EmptyAuth, route = LoginRoute, location = location}, Cmd.none )
+        Just token ->
+            Phoenix.Socket.init "/socket?token=" ++ token
+            ( {auth = EmptyAuth, route = LoginRoute, location = location}, Cmd.none )
 
 main : Program Never
 main =
@@ -58,13 +43,9 @@ main =
         , view = view
         , update = update
         , urlUpdate = urlUpdate
-        , subscriptions = (always Sub.none)
+        , subscriptions = subscriptions
         }
 
---port initialRoute : String
-
---port initialState : (String -> msg) -> Sub msg
-
---subscriptions : AppModel -> Sub Msg
---subscriptions model =
---    initialState Init
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Phoenix.Socket.listen model.phxSocket PhoenixMsg

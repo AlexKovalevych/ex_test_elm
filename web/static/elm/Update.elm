@@ -7,6 +7,7 @@ import Hop.Types
 import Models exposing (..)
 import Routing exposing(..)
 import Messages exposing (..)
+import Phoenix.Socket
 
 
 navigationCmd : String -> Cmd a
@@ -14,9 +15,18 @@ navigationCmd path =
     Navigation.newUrl (makeUrl config path)
 
 
-update : Msg -> AppModel -> ( AppModel, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case Debug.log "message" message of
+        PhoenixMsg msg ->
+            let
+                ( phxSocket, phxCmd ) = Phoenix.Socket.update msg model.phxSocket
+            in
+                ( { model | phxSocket = phxSocket }
+                , Cmd.map PhoenixMsg phxCmd
+                )
+
+
         ShowDashboard ->
             let
                 path =
