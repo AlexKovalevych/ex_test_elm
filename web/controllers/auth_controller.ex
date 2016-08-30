@@ -23,15 +23,15 @@ defmodule Gt.AuthController do
                 #     "user_agent" => conn |> get_req_header("user-agent") |> Enum.at(0)
                 # }
 
-                {:ok, result} = Gt.ElmIo.json_call(%{
-                    path: "./priv/static/server/js/app.js",
-                    component: "Main",
-                    render: "embed",
-                    id: "index",
-                    data: %{initialState: initial_state, location: "/"},
-                })
+                # {:ok, result} = Gt.ElmIo.json_call(%{
+                #     path: "./priv/static/server/js/app.js",
+                #     component: "Main",
+                #     render: "embed",
+                #     id: "index",
+                #     data: %{initialState: initial_state, location: "/"},
+                # })
 
-                render(conn, Gt.PageView, "index.html", html: result["html"], data: initial_state, location: "/")
+                render(conn, Gt.PageView, "index.html")
             end
         end
     end
@@ -55,7 +55,7 @@ defmodule Gt.AuthController do
     end
 
     defp render_login(conn) do
-        initial_state = %{}
+        # initial_state = %{}
         # initial_state = Poison.encode!(%{location: create_location(conn)})
         # props = %{
         #     "location" => conn.request_path,
@@ -63,16 +63,16 @@ defmodule Gt.AuthController do
         #     "user_agent" => conn |> get_req_header("user-agent") |> Enum.at(0)
         # }
 
-        {:ok, result} = Gt.ElmIo.json_call(%{
-            path: "./priv/static/server/js/app.js",
-            component: "Main",
-            render: "embed",
-            id: "index",
-            data: %{initialState: initial_state, location: "/login"}
-            # props: props,
-        })
+        # {:ok, result} = Gt.ElmIo.json_call(%{
+        #     path: "./priv/static/server/js/app.js",
+        #     component: "Main",
+        #     render: "embed",
+        #     id: "index",
+        #     data: %{initialState: initial_state, location: "/login"}
+        #     # props: props,
+        # })
 
-        render(conn, Gt.PageView, "index.html", html: result["html"], data: initial_state, location: "/login")
+        render(conn, Gt.PageView, "index.html")
     end
 
     def unauthenticated(conn, _params) do

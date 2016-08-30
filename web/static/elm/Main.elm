@@ -13,7 +13,7 @@ import Messages exposing (..)
 
 urlParser : Navigation.Parser ( Route, Location )
 urlParser =
-    Navigation.makeParser (matchUrl config)
+    Navigation.makeParser (.href >> matchUrl config)
 
 
 urlUpdate : ( Route, Location ) -> AppModel -> ( AppModel, Cmd Msg )
@@ -31,8 +31,8 @@ urlUpdate ( route, location ) model =
 --    Maybe.withDefault {} initialState
 
 
-init : {initialState : String, location : Maybe Navigation.Location} -> ( Route, Location ) -> ( AppModel, Cmd Msg )
-init flags ( route, location ) =
+init : ( Route, Location ) -> ( AppModel, Cmd Msg )
+init ( route, location ) =
     ( {auth = EmptyAuth, route = route, location = location}, Cmd.none )
 
 --initialLocation : Maybe Navigation.Location
@@ -51,9 +51,9 @@ init flags ( route, location ) =
 --    }
 
 
-main : Program {initialState : String, location : Maybe Navigation.Location}
+main : Program Never
 main =
-    Navigation.programWithFlags urlParser
+    Navigation.program urlParser
         { init = init
         , view = view
         , update = update

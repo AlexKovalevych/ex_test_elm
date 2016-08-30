@@ -1,5 +1,1 @@
-<div id="index"><%= raw(@html) %></div>
-
-<script type="text/javascript">
-    window.APP_DATA = {initialState: '<%= raw @data %>', location: '<%= raw @location %>'};
-</script>
+<div id="index"></div>
