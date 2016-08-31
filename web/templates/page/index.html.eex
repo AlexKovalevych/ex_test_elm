@@ -1,1 +1,5 @@
 <div id="index"></div>
+
+<script type="text/javascript">
+    window.APP_DATA = <%= raw(@props) %>;
+</script>

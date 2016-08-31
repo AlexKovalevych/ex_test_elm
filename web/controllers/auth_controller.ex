@@ -1,7 +1,7 @@
 defmodule Gt.AuthController do
     use Gt.Web, :controller
     alias Gt.Model.User
-    import Gt.Manager.Location, only: [create_location: 1]
+    # import Gt.Manager.Location, only: [create_location: 1]
 
     defmacro render_elm(conn, initial_state, admin_required \\ false) do
         quote do
@@ -12,16 +12,14 @@ defmodule Gt.AuthController do
                 redirect conn, to: "/login"
             else
                 initial_state = unquote initial_state
-                initial_state = Poison.encode!(
-                    initial_state
+                initial_state = initial_state
                     |> Map.put(:auth, %{user: current_user})
-                )
 
-                # props = %{
+                props = %{
                 #     "location" => conn.request_path,
-                #     "initial_state" => initial_state,
+                    "initial_state" => initial_state,
                 #     "user_agent" => conn |> get_req_header("user-agent") |> Enum.at(0)
-                # }
+                }
 
                 # {:ok, result} = Gt.ElmIo.json_call(%{
                 #     path: "./priv/static/server/js/app.js",
@@ -31,7 +29,7 @@ defmodule Gt.AuthController do
                 #     data: %{initialState: initial_state, location: "/"},
                 # })
 
-                render(conn, Gt.PageView, "index.html")
+                render(conn, Gt.PageView, "index.html", props: Poison.encode!(props))
             end
         end
     end

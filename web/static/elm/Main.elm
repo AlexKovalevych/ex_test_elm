@@ -76,3 +76,6 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketM.PhoenixMsg)
+
+
+port state : (String -> msg) -> Sub msg
