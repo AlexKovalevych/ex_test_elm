@@ -1,16 +1,22 @@
-module Socket.Update exposing (..)
+module Socket.Update exposing (update)
 
 import Debug
-import Models exposing (..)
-import Messages exposing (..)
+import Socket.Models exposing (..)
+import Socket.Messages exposing (..)
+--import Messages exposing (Msg(PhoenixMsg))
 import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push
 import Native.Location
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+initPhxSocket : String -> Phoenix.Socket.Socket Msg
+initPhxSocket server =
+    Phoenix.Socket.init server
+    |> Phoenix.Socket.withDebug
+
+update : Msg -> Socket -> ( Socket, Cmd Msg )
 update message model =
-    case Debug.log "message" message of
+    case Debug.log "socket message" message of
         PhoenixMsg msg ->
             let
                 ( phxSocket, phxCmd ) = Phoenix.Socket.update msg model.phxSocket

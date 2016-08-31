@@ -13,7 +13,7 @@ config :gt, Gt.Endpoint,
     check_origin: false,
     watchers: [
         {"node", ["node_modules/webpack/bin/webpack.js", "--watch-stdin", "--progress", "--colors"]},
-        {"node", ["node_modules/webpack/bin/webpack.js", "--watch-stdin", "--progress", "--colors", "--config", "webpack.server.config.js"]},
+        # {"node", ["node_modules/webpack/bin/webpack.js", "--watch-stdin", "--progress", "--colors", "--config", "webpack.server.config.js"]},
     ]
 
 # Watch static and templates for browser reloading.

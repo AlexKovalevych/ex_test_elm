@@ -9,9 +9,11 @@ import Models exposing (..)
 import View exposing (..)
 import Update exposing (..)
 import Messages exposing (..)
+import Socket.Messages as SocketM
 import Storage.LocalStorage exposing (..)
 import Phoenix.Socket
 import Task
+import Platform.Sub
 
 
 urlParser : Navigation.Parser ( Route, Location )
@@ -44,12 +46,21 @@ urlUpdate ( route, location ) model =
 init : ( Route, Location ) -> ( Model, Cmd Msg )
 init ( route, location ) =
     let
-        cmd = Task.perform (\_ -> ShowLogin) InitSocket (get("jwtToken"))
+        redirectToLogin _ = ShowLogin
+        initSocket token =
+            let
+                _ = Debug.log "in perform" "!"
+            in
+                token
+                |> SocketM.InitSocket
+                |> SocketMsg
+
+        cmd = Task.perform redirectToLogin initSocket (get("jwtToken"))
     in
         ({location = location
         , route = route
         , auth = EmptyAuth
-        , phxSocket = Phoenix.Socket.init ""}
+        , socket = { phxSocket = Phoenix.Socket.init "", channels = [] } }
         , cmd)
 
 main : Program Never
@@ -64,4 +75,4 @@ main =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Phoenix.Socket.listen model.phxSocket PhoenixMsg
+    Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketM.PhoenixMsg)

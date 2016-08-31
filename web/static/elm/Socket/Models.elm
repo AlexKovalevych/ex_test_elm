@@ -1,18 +1,10 @@
 module Socket.Models exposing (..)
 
-type alias PlayerId =
-    Int
-
+import Phoenix.Socket
+import Phoenix.Channel exposing (Channel)
+import Socket.Messages exposing (Msg)
 
 type alias Socket =
     { phxSocket : Phoenix.Socket.Socket Msg
-    , channels : List (Phoenix.Socket.Channel)
+    , channels : List (Channel String)
     }
-
-
---new : Player
---new =
---    { id = 0
---    , name = ""
---    , level = 1
---    }

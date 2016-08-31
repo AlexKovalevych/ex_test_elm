@@ -11,46 +11,23 @@ import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push
 import Native.Location
+import Socket.Update
 
 navigationCmd : String -> Cmd a
 navigationCmd path =
     Navigation.newUrl (makeUrl config path)
 
 
-initPhxSocket : String -> Phoenix.Socket.Socket Msg
-initPhxSocket server =
-    Phoenix.Socket.init server
-    |> Phoenix.Socket.withDebug
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
-    case Debug.log "message" message of
-        PhoenixMsg msg ->
-            let
-                ( phxSocket, phxCmd ) = Phoenix.Socket.update msg model.phxSocket
-            in
-                ( { model | phxSocket = phxSocket }
-                , Cmd.map PhoenixMsg phxCmd
-                )
-
-        InitSocket token ->
-            let
-                location = Native.Location.getLocation ()
-                socket = initPhxSocket ("ws://" ++ location.host ++ "/socket/websocket?token=" ++ token)
-            in
-                ( { model | phxSocket = socket }
-                , Cmd.none
-                )
-
-        JoinChannel name ->
-            let
-                channel = Phoenix.Channel.init name
-                (phxSocket, phxCmd) = Phoenix.Socket.join channel model.phxSocket
-            in
-                ({ model | phxSocket = phxSocket }
-                , Cmd.map PhoenixMsg phxCmd
-                )
+    case Debug.log "main message" message of
+        SocketMsg subMsg ->
+            (model, Cmd.none)
+            --let
+            --    ( updatedSocket, cmd ) =
+            --        Socket.Update.update subMsg model.socket
+            --in
+            --    ( { model | socket = updatedSocket }, Cmd.map SocketMsg cmd )
 
         ShowDashboard ->
             let
@@ -65,3 +42,6 @@ update message model =
                     reverse LoginRoute
             in
                 ( model, navigationCmd path )
+
+        NoOp ->
+            model ! []

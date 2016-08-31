@@ -1,10 +1,9 @@
 module Messages exposing (..)
 
-import Phoenix.Socket
+import Socket.Messages
 
 type Msg
-    = ShowDashboard
-    | InitSocket String
-    | JoinChannel String
+    = SocketMsg Socket.Messages.Msg
+    | ShowDashboard
     | ShowLogin
-    | PhoenixMsg (Phoenix.Socket.Msg Msg)
+    | NoOp
