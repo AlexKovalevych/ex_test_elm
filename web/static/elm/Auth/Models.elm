@@ -1,18 +1,34 @@
 module Auth.Models exposing (..)
 
-type alias CurrentUser =
+type alias User =
     { email : String
     }
 
-type alias Auth =
-    { user : CurrentUser
-    , qrcodeUrl : Maybe String
-    , error : Maybe String
-    , smsSent : Maybe Bool
-    , serverTime: Maybe Int
+type alias Model =
+    { user : User
+    , status : Status
+--    , qrcodeUrl : Maybe String
+--    , error : Maybe String
+--    , smsSent : Maybe Bool
+--    , serverTime: Maybe Int
     }
 
-type AuthModel = EmptyAuth | Logged Auth
+--type AuthModel = EmptyAuth | Logged Auth
 
-initAuth : AuthModel
-initAuth = EmptyAuth
+--initAuth : AuthModel
+--initAuth = EmptyAuth
+
+type Status
+    = LoggedIn
+    | Anonymous
+
+initialModel : Model
+initialModel =
+    { user = userInitialModel
+    , status = Anonymous
+    }
+
+userInitialModel : User
+userInitialModel =
+    { email = ""
+    }
