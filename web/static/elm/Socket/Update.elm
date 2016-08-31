@@ -3,7 +3,6 @@ module Socket.Update exposing (update)
 import Debug
 import Socket.Models exposing (..)
 import Socket.Messages exposing (..)
---import Messages exposing (Msg(PhoenixMsg))
 import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push

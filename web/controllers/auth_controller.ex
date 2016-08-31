@@ -15,11 +15,11 @@ defmodule Gt.AuthController do
                 initial_state = initial_state
                     |> Map.put(:auth, %{user: current_user})
 
-                props = %{
+                # props = initial_state %{
                 #     "location" => conn.request_path,
-                    "initial_state" => initial_state,
+                    # "initial_state" => initial_state,
                 #     "user_agent" => conn |> get_req_header("user-agent") |> Enum.at(0)
-                }
+                # }
 
                 # {:ok, result} = Gt.ElmIo.json_call(%{
                 #     path: "./priv/static/server/js/app.js",
@@ -29,7 +29,7 @@ defmodule Gt.AuthController do
                 #     data: %{initialState: initial_state, location: "/"},
                 # })
 
-                render(conn, Gt.PageView, "index.html", props: Poison.encode!(props))
+                render(conn, Gt.PageView, "index.html", props: Poison.encode!(initial_state))
             end
         end
     end

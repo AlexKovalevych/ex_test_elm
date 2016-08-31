@@ -9,17 +9,16 @@ import Models exposing (..)
 import View exposing (..)
 import Update exposing (..)
 import Messages exposing (..)
+import Auth.Models exposing(CurrentUser)
 import Socket.Messages as SocketM
 import Storage.LocalStorage exposing (..)
 import Phoenix.Socket
+import Auth.Messages as AuthM
 import Task
-import Platform.Sub
-
 
 urlParser : Navigation.Parser ( Route, Location )
 urlParser =
     Navigation.makeParser (.href >> matchUrl config)
-
 
 urlUpdate : ( Route, Location ) -> Model -> ( Model, Cmd Msg )
 urlUpdate ( route, location ) model =
@@ -29,39 +28,16 @@ urlUpdate ( route, location ) model =
     in
         ( { model | route = route, location = location }, Cmd.none )
 
-
-
---cobalamin [10:31 PM]
---@a_kovalevych You want `Task`s to hand back `Msg`s, not model values. You should instead define `Msg`s to handle both – something like `RouteUpdated` and `InitSocket`
-
---[10:31]
---then figure out how to create `Msg`s from your `Task`, see `Task.perform`
-
---[10:31]
-
---and then handle those cases in `update`, very similar to what you're trying to put in `init` here
-
-
-
 init : ( Route, Location ) -> ( Model, Cmd Msg )
 init ( route, location ) =
     let
         redirectToLogin _ = ShowLogin
-        initSocket token =
-            let
-                _ = Debug.log "in perform" "!"
-            in
-                token
-                |> SocketM.InitSocket
-                |> SocketMsg
-
+        initSocket token = token
+            |> SocketM.InitSocket
+            |> SocketMsg
         cmd = Task.perform redirectToLogin initSocket (get("jwtToken"))
     in
-        ({location = location
-        , route = route
-        , auth = EmptyAuth
-        , socket = { phxSocket = Phoenix.Socket.init "", channels = [] } }
-        , cmd)
+        ( initialModel route location, cmd )
 
 main : Program Never
 main =
@@ -75,7 +51,9 @@ main =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketM.PhoenixMsg)
+    Sub.batch ([
+        Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketM.PhoenixMsg),
+        Sub.map AuthMsg (loggedUser AuthM.LoadCurrentUser)
+    ])
 
-
-port state : (String -> msg) -> Sub msg
+port loggedUser : (CurrentUser -> msg) -> Sub msg

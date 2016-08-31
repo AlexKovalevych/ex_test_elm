@@ -12,15 +12,22 @@ import Phoenix.Channel
 import Phoenix.Push
 import Native.Location
 import Socket.Update
+import Auth.Update
 
 navigationCmd : String -> Cmd a
 navigationCmd path =
     Navigation.newUrl (makeUrl config path)
 
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case Debug.log "main message" message of
+        AuthMsg subMsg ->
+            let
+                ( updatedAuth, cmd ) =
+                    Auth.Update.update subMsg model.auth
+            in
+                ( { model | auth = updatedAuth }, Cmd.map AuthMsg cmd )
+
         SocketMsg subMsg ->
             (model, Cmd.none)
             --let
