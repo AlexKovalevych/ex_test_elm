@@ -1,47 +1,86 @@
 module View exposing (..)
 
 import Html exposing (..)
-import Html.App
+import Html.App as App
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (id, class, href, style)
 import Models exposing (..)
 import Messages exposing (..)
 import Routing exposing (..)
---import Languages.View
-
+import Material.Scheme
+import Material.Layout as Layout
+import Material.Options as Options
+import Material.Color as Color
+import Material.Snackbar as Snackbar
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ menu model
-        , pageView model
-        ]
-
-
-menu : Model -> Html Msg
-menu model =
     case model.route of
         LoginRoute ->
             div [] []
         _ ->
-            div [ class "p2 white bg-black" ]
-                [ div []
-                    [ menuLink ShowDashboard "btnHome" "Dashboard"
-                    , text "|"
-                    , menuLink ShowLogin "btnLogin" "Login"
+                Layout.render Mdl model.mdl
+                    [ Layout.fixedHeader
+                    , Layout.fixedDrawer
                     ]
-                ]
+                    { header = header model
+                    , drawer = drawer model
+                    , tabs = ( [], [] )
+                    , main =
+                        [ div
+                            [ style [ ( "padding", "1rem" ) ] ]
+                            [ body model
+                            --, Snackbar.view model.snackbar |> App.map Snackbar
+                            ]
+                        ]
+                    }
+    --div []
+    --    [ menu model
+    --    , pageView model
+    --    ]
 
 
-menuLink : Msg -> String -> String -> Html Msg
-menuLink message viewId label =
-    a
-        [ id viewId
-        , href "javascript://"
-        , onClick message
-        , class "white px2"
-        ]
-        [ text label ]
+header : Model -> List (Html Msg)
+header model = [ text "Header" ]
+
+
+drawer : Model -> List (Html Msg)
+drawer model =
+    [ Layout.title []
+        [ text "Globotunes 3.0" ]
+    , Layout.navigation
+        [ Options.css "flex-grow" "1" ]
+        []
+    ]
+
+body : Model -> Html Msg
+body model =
+    text "Hello world"
+
+--menu : Model -> Html Msg
+--menu model =
+--    case model.route of
+--        LoginRoute ->
+--            div [] []
+--        _ ->
+--            div [ class "p2 white bg-black" ]
+--                [ div []
+--                    [ menuLink ShowDashboard "btnHome" "Dashboard"
+--                    , text "|"
+--                    , menuLink ShowLogin "btnLogin" "Login"
+--                    ]
+--                ]
+
+
+--menuLink : Msg -> String -> String -> Html Msg
+--menuLink message viewId label =
+--    a
+--        [ id viewId
+--        , href "javascript://"
+--        , onClick message
+--        , class "white px2"
+--        ]
+--        [ text label ]
 
 
 pageView : Model -> Html Msg

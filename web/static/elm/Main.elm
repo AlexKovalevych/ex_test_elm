@@ -6,8 +6,8 @@ import Hop exposing (matchUrl)
 import Hop.Types exposing (Location)
 import Routing exposing(..)
 import Models exposing (..)
-import View exposing (..)
-import Update exposing (..)
+import View
+import Update
 import Messages exposing (..)
 import Auth.Models exposing (CurrentUser)
 import Socket.Messages as SocketM
@@ -15,6 +15,7 @@ import Storage.LocalStorage exposing (..)
 import Phoenix.Socket
 import Auth.Messages as AuthM
 import Task
+import Material.Layout as Layout
 
 urlParser : Navigation.Parser ( Route, Location )
 urlParser =
@@ -37,14 +38,14 @@ init ( route, location ) =
             |> AuthMsg
         cmd = Task.perform redirectToLogin initSocket (get("jwtToken"))
     in
-        ( initialModel route location, cmd )
+        ( initialModel route location, Cmd.batch [cmd, Layout.sub0 Mdl] )
 
 main : Program Never
 main =
     Navigation.program urlParser
         { init = init
-        , view = view
-        , update = update
+        , view = View.view
+        , update = Update.update
         , urlUpdate = urlUpdate
         , subscriptions = subscriptions
         }
@@ -53,7 +54,8 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch ([
         Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketM.PhoenixMsg),
-        Sub.map AuthMsg (loggedUser AuthM.LoadCurrentUser)
+        Sub.map AuthMsg (loggedUser AuthM.LoadCurrentUser),
+        Layout.subs Mdl model.mdl
     ])
 
 port loggedUser : (CurrentUser -> msg) -> Sub msg

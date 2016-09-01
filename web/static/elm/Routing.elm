@@ -4,29 +4,24 @@ import Hop exposing (..)
 import Hop.Types exposing (Config, PathMatcher)
 import Hop.Matchers exposing (..)
 
-
 type Route
     = DashboardRoute
     | LoginRoute
     | NotFoundRoute
 
-
 matcherDashboard : PathMatcher Route
 matcherDashboard =
     match1 DashboardRoute ""
 
-
 matcherLogin : PathMatcher Route
 matcherLogin =
     match1 LoginRoute "/login"
-
 
 matchers : List (PathMatcher Route)
 matchers =
     [ matcherDashboard
     , matcherLogin
     ]
-
 
 config : Config Route
 config =
@@ -35,7 +30,6 @@ config =
     , matchers = matchers
     , notFound = NotFoundRoute
     }
-
 
 reverse : Route -> String
 reverse route =

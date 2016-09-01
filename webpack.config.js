@@ -30,11 +30,11 @@ if (env === 'development') {
 module.exports = {
     devtool: devtool,
     entry: [
-        './web/static/elm/index.js'
-        // './web/static/css/fonts.css',
+        './web/static/elm/index.js',
+        './web/static/css/material.min.css',
+        './web/static/css/fonts.css',
         // 'flexboxgrid/dist/flexboxgrid.css',
-        // './web/static/css/material.min.css',
-        // './web/static/css/app.css'
+        './web/static/css/app.css'
     ],
     output: {
         path: './priv/static',

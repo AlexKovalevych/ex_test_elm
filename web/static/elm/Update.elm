@@ -3,16 +3,15 @@ module Update exposing (..)
 import Debug
 import Navigation
 import Hop exposing (makeUrl)
-import Hop.Types
 import Models exposing (..)
 import Routing exposing(..)
 import Messages exposing (..)
 import Socket.Messages as SocketMessages
-import Native.Location
 import Socket.Update
 import Auth.Update
 import Auth.Messages as AuthMessages
 import Auth.Models as AuthModels
+import Material
 
 navigationCmd : String -> Cmd a
 navigationCmd path =
@@ -76,6 +75,9 @@ adminsChannel (model, cmd) =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case Debug.log "message: " message of
+        Mdl message' ->
+          Material.update message' model
+
         AuthMsg subMsg ->
             Auth.Update.update subMsg model.auth
             |> mergeModel model
