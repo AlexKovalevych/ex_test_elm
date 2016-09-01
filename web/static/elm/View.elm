@@ -12,13 +12,10 @@ import Routing exposing (..)
 
 view : Model -> Html Msg
 view model =
-    let
-        _ = Debug.log "model: " model
-    in
-        div []
-            [ menu model
-            , pageView model
-            ]
+    div []
+        [ menu model
+        , pageView model
+        ]
 
 
 menu : Model -> Html Msg

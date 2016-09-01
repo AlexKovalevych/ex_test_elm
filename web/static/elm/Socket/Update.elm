@@ -15,7 +15,7 @@ initPhxSocket server =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
-    case Debug.log "socket message" message of
+    case message of
         PhoenixMsg msg ->
             let
                 ( phxSocket, phxCmd ) = Phoenix.Socket.update msg model.phxSocket

@@ -20,7 +20,7 @@ navigationCmd path =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
-    case Debug.log "main message" message of
+    case Debug.log "message: " message of
         AuthMsg subMsg ->
             let
                 ( updatedAuth, cmd ) =
@@ -29,12 +29,11 @@ update message model =
                 ( { model | auth = updatedAuth }, Cmd.map AuthMsg cmd )
 
         SocketMsg subMsg ->
-            (model, Cmd.none)
-            --let
-            --    ( updatedSocket, cmd ) =
-            --        Socket.Update.update subMsg model.socket
-            --in
-            --    ( { model | socket = updatedSocket }, Cmd.map SocketMsg cmd )
+            let
+                ( updatedSocket, cmd ) =
+                    Socket.Update.update subMsg model.socket
+            in
+                ( { model | socket = updatedSocket }, Cmd.map SocketMsg cmd )
 
         ShowDashboard ->
             let
