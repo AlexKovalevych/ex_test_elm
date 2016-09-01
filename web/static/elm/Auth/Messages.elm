@@ -1,7 +1,8 @@
 module Auth.Messages exposing (..)
 
-import Auth.Models exposing (User)
+import Auth.Models exposing (CurrentUser)
 
 type Msg
-    = LoadCurrentUser User
+    = LoadCurrentUser CurrentUser
     | SetToken String
+    | Logout

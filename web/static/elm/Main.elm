@@ -9,7 +9,7 @@ import Models exposing (..)
 import View exposing (..)
 import Update exposing (..)
 import Messages exposing (..)
-import Auth.Models exposing (User)
+import Auth.Models exposing (CurrentUser)
 import Socket.Messages as SocketM
 import Storage.LocalStorage exposing (..)
 import Phoenix.Socket
@@ -56,4 +56,4 @@ subscriptions model =
         Sub.map AuthMsg (loggedUser AuthM.LoadCurrentUser)
     ])
 
-port loggedUser : (User -> msg) -> Sub msg
+port loggedUser : (CurrentUser -> msg) -> Sub msg

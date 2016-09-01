@@ -1,12 +1,15 @@
 module Auth.Models exposing (..)
 
-type alias User =
-    { email : String
+type alias CurrentUser =
+    { id : String
+    , email : String
+    , is_admin : Bool
     }
+
+type User = Guest | LoggedUser CurrentUser
 
 type alias Model =
     { user : User
-    , status : Status
     , token : String
 --    , qrcodeUrl : Maybe String
 --    , error : Maybe String
@@ -14,23 +17,24 @@ type alias Model =
 --    , serverTime: Maybe Int
     }
 
---type AuthModel = EmptyAuth | Logged Auth
-
---initAuth : AuthModel
---initAuth = EmptyAuth
-
 type Status
     = LoggedIn
     | Anonymous
 
 initialModel : Model
 initialModel =
-    { user = userInitialModel
-    , status = Anonymous
+    { user = Guest
     , token = ""
     }
 
-userInitialModel : User
-userInitialModel =
-    { email = ""
-    }
+isLogged : User -> Bool
+isLogged user =
+    case user of
+        Guest -> False
+        LoggedUser _ -> True
+
+--userInitialModel : User
+--userInitialModel =
+--    { email = ""
+--    , is_admin = False
+--    }

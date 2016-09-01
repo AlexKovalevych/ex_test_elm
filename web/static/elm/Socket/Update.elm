@@ -37,6 +37,7 @@ update message model =
             let
                 channel = Phoenix.Channel.init name
                 (phxSocket, phxCmd) = Phoenix.Socket.join channel model.phxSocket
+                _ = Debug.log "joined channel: " phxCmd
             in
                 ({ model | phxSocket = phxSocket }
                 , Cmd.map PhoenixMsg phxCmd
