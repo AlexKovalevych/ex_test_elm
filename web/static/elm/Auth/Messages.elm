@@ -1,6 +1,6 @@
 module Auth.Messages exposing (..)
 
-import Auth.Models exposing (CurrentUser)
+import Auth.Models exposing (User)
 
 type Msg
-    = LoadCurrentUser CurrentUser
+    = LoadCurrentUser User

@@ -6,4 +6,3 @@ type Msg
     = InitSocket String
     | JoinChannel String
     | PhoenixMsg (Phoenix.Socket.Msg Msg)
-    | NoOp

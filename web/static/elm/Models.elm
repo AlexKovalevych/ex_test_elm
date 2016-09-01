@@ -21,7 +21,7 @@ type alias Model =
 --    , socket = { phxSocket = Phoenix.Socket.init "", channels = [] }
 --    }
 
-initialModel : Model
+initialModel : Route -> Location -> Model
 initialModel route location =
   { location = location
   , route = route

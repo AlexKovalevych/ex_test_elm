@@ -13,7 +13,7 @@ initPhxSocket server =
     Phoenix.Socket.init server
     |> Phoenix.Socket.withDebug
 
-update : Msg -> Socket -> ( Socket, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case Debug.log "socket message" message of
         PhoenixMsg msg ->
