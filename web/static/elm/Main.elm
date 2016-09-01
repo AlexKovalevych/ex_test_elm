@@ -33,8 +33,8 @@ init ( route, location ) =
     let
         redirectToLogin _ = ShowLogin
         initSocket token = token
-            |> SocketM.InitSocket
-            |> SocketMsg
+            |> AuthM.SetToken
+            |> AuthMsg
         cmd = Task.perform redirectToLogin initSocket (get("jwtToken"))
     in
         ( initialModel route location, cmd )

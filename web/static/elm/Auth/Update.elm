@@ -11,3 +11,8 @@ update message model =
             ( { model | user = user }
             , Cmd.none
             )
+
+        SetToken token ->
+            ( { model | token = token }
+            , Cmd.none
+            )

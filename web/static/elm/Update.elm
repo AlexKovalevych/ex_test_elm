@@ -7,6 +7,7 @@ import Hop.Types
 import Models exposing (..)
 import Routing exposing(..)
 import Messages exposing (..)
+import Socket.Messages as SocketMessages
 import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push
@@ -25,8 +26,13 @@ update message model =
             let
                 ( updatedAuth, cmd ) =
                     Auth.Update.update subMsg model.auth
+                newModel =
+                    { model | auth = updatedAuth }
             in
-                ( { model | auth = updatedAuth }, Cmd.map AuthMsg cmd )
+                if updatedAuth.user.email /= "" && updatedAuth.token /= "" then
+                    update (SocketMsg (SocketMessages.InitSocket updatedAuth.token)) newModel
+                else
+                    ( newModel , Cmd.map AuthMsg cmd )
 
         SocketMsg subMsg ->
             let

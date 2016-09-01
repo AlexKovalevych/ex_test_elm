@@ -7,6 +7,7 @@ type alias User =
 type alias Model =
     { user : User
     , status : Status
+    , token : String
 --    , qrcodeUrl : Maybe String
 --    , error : Maybe String
 --    , smsSent : Maybe Bool
@@ -26,6 +27,7 @@ initialModel : Model
 initialModel =
     { user = userInitialModel
     , status = Anonymous
+    , token = ""
     }
 
 userInitialModel : User
