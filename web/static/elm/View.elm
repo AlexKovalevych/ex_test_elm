@@ -12,6 +12,8 @@ import Material.Layout as Layout
 import Material.Options as Options
 import Material.Color as Color
 import Material.Snackbar as Snackbar
+import Material.Grid exposing (grid, noSpacing, maxWidth, cell, size, offset, Device(..))
+import Material.Icon as Icon
 
 view : Model -> Html Msg
 view model =
@@ -41,7 +43,31 @@ view model =
 
 
 header : Model -> List (Html Msg)
-header model = [ text "Header" ]
+header model =
+    [ Layout.row
+        []
+        [ Layout.title [] [ text "Page title here" ]
+        , Layout.spacer
+        , Layout.navigation []
+            [ Layout.link
+                []
+                [ text "elm-package" ]
+            , Layout.link
+                [ Layout.href "http://package.elm-lang.org/packages/debois/elm-mdl/latest/" ]
+                [ Icon.i "photo" ]
+            ]
+        ]
+    ]
+    --[
+    --    grid [ Options.css "width" "100%" ]
+    --        [ cell [ size All 8 ]
+    --            [ text "Page Title goes here"
+    --            ]
+    --        , cell [ size All 4 ]
+    --            [ div [] [text "Logout and username goes here"]
+    --            ]
+    --        ]
+    --]
 
 
 drawer : Model -> List (Html Msg)
