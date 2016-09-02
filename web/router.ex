@@ -41,7 +41,7 @@ defmodule Gt.Router do
         pipe_through [:browser, :browser_session] # Use the default browser stack
 
         get "/login", AuthController, :login
-        get "/logout", AuthController, :logout
+        # get "/logout", AuthController, :logout
         get "/", DashboardController, :index
         get "/settings/user/list", UserController, :list
         get "/settings/user/create", UserController, :create

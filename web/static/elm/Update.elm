@@ -8,10 +8,12 @@ import Routing exposing(..)
 import Messages exposing (..)
 import Socket.Messages as SocketMessages
 import Socket.Update
+import Storage.LocalStorage exposing (..)
 import Auth.Update
 import Auth.Messages as AuthMessages
 import Auth.Models as AuthModels
 import Material
+import Task
 
 navigationCmd : String -> Cmd a
 navigationCmd path =
@@ -72,18 +74,39 @@ adminsChannel (model, cmd) =
             AuthModels.Guest ->
                     (model , cmd)
 
+
+initConnection : AuthMessages.Msg -> Model -> ( Model, Cmd Msg )
+initConnection msg model =
+    Auth.Update.update msg model.auth
+    |> mergeModel model
+    |> initSocket
+    |> usersChannel
+    |> adminsChannel
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case Debug.log "message: " message of
         Mdl message' ->
-          Material.update message' model
+            Material.update message' model
 
         AuthMsg subMsg ->
-            Auth.Update.update subMsg model.auth
-            |> mergeModel model
-            |> initSocket
-            |> usersChannel
-            |> adminsChannel
+            case subMsg of
+                AuthMessages.LoadCurrentUser _ ->
+                    initConnection subMsg model
+                AuthMessages.SetToken _ ->
+                    initConnection subMsg model
+                AuthMessages.Logout ->
+                    (model, Cmd.none)
+                AuthMessages.RemoveToken ->
+                    let
+                        (model, cmd) =
+                            Auth.Update.update subMsg model.auth
+                            |> mergeModel model
+                        in
+                            model ! [cmd, Task.perform (\_ -> NoOp) (\_ -> ShowLogin) (remove("jwtToken"))]
+                _ ->
+                    Auth.Update.update subMsg model.auth
+                    |> mergeModel model
 
         SocketMsg subMsg ->
             let

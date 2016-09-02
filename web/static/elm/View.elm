@@ -7,6 +7,8 @@ import Html.Attributes exposing (id, class, href, style)
 import Models exposing (..)
 import Messages exposing (..)
 import Routing exposing (..)
+import Auth.Models exposing(User(Guest, LoggedUser), CurrentUser)
+import Auth.Messages as AuthMessages
 import Material.Scheme
 import Material.Layout as Layout
 import Material.Options as Options
@@ -17,33 +19,38 @@ import Material.Icon as Icon
 
 view : Model -> Html Msg
 view model =
-    case model.route of
-        LoginRoute ->
+    case model.auth.user of
+        Guest ->
             div [] []
-        _ ->
-                Layout.render Mdl model.mdl
-                    [ Layout.fixedHeader
-                    , Layout.fixedDrawer
-                    ]
-                    { header = header model
-                    , drawer = drawer model
-                    , tabs = ( [], [] )
-                    , main =
-                        [ div
-                            [ style [ ( "padding", "1rem" ) ] ]
-                            [ body model
-                            --, Snackbar.view model.snackbar |> App.map Snackbar
-                            ]
+
+        LoggedUser user ->
+            Layout.render Mdl model.mdl
+                [ Layout.fixedHeader
+                , Layout.fixedDrawer
+                ]
+                { header = header user
+                , drawer = drawer model
+                , tabs = ( [], [] )
+                , main =
+                    [ div
+                        [ style [ ( "padding", "1rem" ) ] ]
+                        [ body model
+                        --, Snackbar.view model.snackbar |> App.map Snackbar
                         ]
-                    }
+                    ]
+                }
+
+    --case model.route of
+    --    LoginRoute ->
+    --    _ ->
     --div []
     --    [ menu model
     --    , pageView model
     --    ]
 
 
-header : Model -> List (Html Msg)
-header model =
+header : CurrentUser -> List (Html Msg)
+header user =
     [ Layout.row
         []
         [ Layout.title [] [ text "Page title here" ]
@@ -51,10 +58,11 @@ header model =
         , Layout.navigation []
             [ Layout.link
                 []
-                [ text "elm-package" ]
+                [ text user.email ]
             , Layout.link
-                [ Layout.href "http://package.elm-lang.org/packages/debois/elm-mdl/latest/" ]
-                [ Icon.i "photo" ]
+                [ Layout.onClick <| AuthMsg (AuthMessages.Logout)
+                ]
+                [ Icon.i "exit_to_app" ]
             ]
         ]
     ]
