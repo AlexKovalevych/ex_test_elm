@@ -53,7 +53,7 @@ defmodule Gt.AuthController do
     end
 
     defp render_login(conn) do
-        # initial_state = %{}
+        initial_state = %{}
         # initial_state = Poison.encode!(%{location: create_location(conn)})
         # props = %{
         #     "location" => conn.request_path,
@@ -70,7 +70,7 @@ defmodule Gt.AuthController do
         #     # props: props,
         # })
 
-        render(conn, Gt.PageView, "index.html")
+        render(conn, Gt.PageView, "index.html", props: Poison.encode!(initial_state))
     end
 
     def unauthenticated(conn, _params) do

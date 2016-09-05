@@ -95,8 +95,6 @@ update message model =
                     initConnection subMsg model
                 AuthMessages.SetToken _ ->
                     initConnection subMsg model
-                AuthMessages.Logout ->
-                    (model, Cmd.none)
                 AuthMessages.RemoveToken ->
                     let
                         (model, cmd) =

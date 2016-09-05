@@ -2,8 +2,8 @@ module View exposing (..)
 
 import Html exposing (..)
 import Html.App as App
-import Html.Events exposing (onClick)
-import Html.Attributes exposing (id, class, href, style)
+import Html.Events exposing (onClick, onSubmit)
+import Html.Attributes exposing (id, class, href, style, src, alt)
 import Models exposing (..)
 import Messages exposing (..)
 import Routing exposing (..)
@@ -15,13 +15,45 @@ import Material.Options as Options
 import Material.Color as Color
 import Material.Snackbar as Snackbar
 import Material.Grid exposing (grid, noSpacing, maxWidth, cell, size, offset, Device(..))
+import Material.Textfield as Textfield
+import Material.Button as Button
+import Material.Elevation as Elevation
 import Material.Icon as Icon
 
 view : Model -> Html Msg
 view model =
     case model.auth.user of
         Guest ->
-            div [] []
+            grid []
+                [ cell
+                    [ Elevation.e2
+                    , offset All 4
+                    , size All 4
+                    , Options.css "text-align" "center"
+                    ]
+                    [ img [ src "/images/logo.png", alt "logo" ] []
+                    , form [ style [ ("padding", "20px") ] {- onSubmit Login -} ] [
+                        Textfield.render Mdl [0] model.mdl
+                            [ Textfield.label "form.email"
+                            , Textfield.autofocus
+                            , Textfield.floatingLabel
+                            , Options.css "width" "100%"
+                            ]
+                        , Textfield.render Mdl [1] model.mdl
+                            [ Textfield.label "form.password"
+                            , Textfield.password
+                            , Textfield.floatingLabel
+                            , Options.css "width" "100%"
+                            ]
+                        , Button.render Mdl [2] model.mdl
+                            [ Button.raised
+                            , Button.ripple
+                            --, Button.onClick Login
+                            ]
+                            [ text "form.login"]
+                        ]
+                    ]
+                ]
 
         LoggedUser user ->
             Layout.render Mdl model.mdl

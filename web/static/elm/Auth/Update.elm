@@ -19,7 +19,12 @@ logout decoder =
         }
         task = fromJson decoder (send defaultSettings request)
     in
-        Task.perform (\_ -> NoOp) (\_ -> RemoveToken) task
+        Task.perform (\e ->
+            let _ = Debug.log "error: " e
+            in
+                NoOp) (\v ->
+                let _ = Debug.log "success: " v
+                in RemoveToken) task
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -30,11 +35,12 @@ update message model =
             )
 
         --Need to do:
-        --1. Logout ajax request (Set guest as user to model)
+        --1. Logout ajax request
         --2. Remove token from the storage
-        --3. Redirect to login page
+        --3. Set guest as user to model
+        --4. Redirect to login page
         Logout ->
-            ( { model | user = Guest }
+            ( model
             , logout (Json.string)
             )
 
@@ -44,7 +50,7 @@ update message model =
             )
 
         RemoveToken ->
-            ( { model | token = "" }
+            ( { model | token = "", user = Guest }
             , Cmd.none
             )
 
