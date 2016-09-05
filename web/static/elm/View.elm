@@ -2,7 +2,7 @@ module View exposing (..)
 
 import Html exposing (..)
 import Html.App as App
-import Html.Events exposing (onClick, onSubmit)
+import Html.Events exposing (onClick)
 import Html.Attributes exposing (id, class, href, style, src, alt)
 import Models exposing (..)
 import Messages exposing (..)
@@ -15,51 +15,15 @@ import Material.Options as Options
 import Material.Color as Color
 import Material.Snackbar as Snackbar
 import Material.Grid exposing (grid, noSpacing, maxWidth, cell, size, offset, Device(..))
-import Material.Textfield as Textfield
-import Material.Button as Button
-import Material.Elevation as Elevation
 import Material.Icon as Icon
 import Translation exposing (..)
+import Auth.View as AuthView
 
 view : Model -> Html Msg
 view model =
     case model.auth.user of
         Guest ->
-            grid []
-                [ cell
-                    [ Elevation.e2
-                    , offset All 4
-                    , size All 4
-                    , Options.css "text-align" "center"
-                    ]
-                    [ img [ src "/images/logo.png", alt "logo" ] []
-                    , form [ style [ ("padding", "20px") ] {- onSubmit Login -} ] [
-                        Textfield.render Mdl [0] model.mdl
-                            [ Textfield.label (translate model.locale Email)
-                            , Textfield.autofocus
-                            , Textfield.floatingLabel
-                            , Textfield.value model.auth.loginForm.email
-                            , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginEmail)
-                            , Options.css "width" "100%"
-                            ]
-                        , Textfield.render Mdl [1] model.mdl
-                            [ Textfield.label (translate model.locale Password)
-                            , Textfield.password
-                            , Textfield.value model.auth.loginForm.password
-                            , Textfield.floatingLabel
-                            , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginPassword)
-                            , Options.css "width" "100%"
-                            ]
-                        , Button.render Mdl [2] model.mdl
-                            [ Button.raised
-                            , Button.ripple
-                            , Button.colored
-                            --, Button.onClick Login
-                            ]
-                            [ text <| translate model.locale Login ]
-                        ]
-                    ]
-                ]
+            AuthView.view model
 
         LoggedUser user ->
             Layout.render Mdl model.mdl

@@ -19,6 +19,7 @@ type alias Model =
     , token : String
     , loginFormEmail : String
     , loginFormPassword : String
+    , loginFormError : String
 --    , qrcodeUrl : Maybe String
 --    , error : Maybe String
 --    , smsSent : Maybe Bool
@@ -35,6 +36,7 @@ initialModel =
     , token = ""
     , loginFormEmail = ""
     , loginFormPassword = ""
+    , loginFormError = ""
     }
 
 isLogged : User -> Bool

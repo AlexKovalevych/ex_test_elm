@@ -107,10 +107,10 @@ defmodule Gt.Model.User do
         user.authenticationType == "sms"
     end
 
-    def signin(params) do
-        email = Map.get(params, "email", "")
+    def signin(email, password) do
+        # email = Map.get(params, "email", "")
         email = if is_nil(email), do: "", else: email
-        password = Map.get(params, "password", "")
+        # password = Map.get(params, "password", "")
         password = if is_nil(password), do: "", else: password
         __MODULE__
         |> Repo.get_by(email: String.downcase(email))
@@ -126,7 +126,7 @@ defmodule Gt.Model.User do
         if user.enabled do
             case Comeonin.Bcrypt.checkpw(password, hash) do
                 true -> {:ok, user}
-                false -> {:error, "validation.invalid_email_password"}
+                false -> {:error, "invalid_email_password"}
             end
         else
             {:error, "login.disabled"}
@@ -136,7 +136,7 @@ defmodule Gt.Model.User do
         if Mix.env == :prod do
             Comeonin.Bcrypt.dummy_checkpw()
         end
-        {:error, "validation.invalid_email_password"}
+        {:error, "invalid_email_password"}
     end
 
     def by_id(query, user_id) do

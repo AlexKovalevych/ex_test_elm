@@ -13,6 +13,7 @@ type TranslationId
     = Email
     | Login
     | Password
+    | Validation String
     | RU
     | EN
 
@@ -30,6 +31,10 @@ translate lang trans =
 
             Password ->
                 TranslationSet "Password" "Пароль"
+
+            Validation msg -> case msg of
+                "invalid_email_password" -> TranslationSet "Invalid email or password" "Неправильный логин или пароль"
+                _ -> TranslationSet "" ""
 
             Login ->
                 TranslationSet "Login" "Войти"

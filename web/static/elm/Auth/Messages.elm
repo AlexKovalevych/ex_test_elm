@@ -4,6 +4,7 @@ import Auth.Models exposing (CurrentUser)
 
 type Msg
     = LoadCurrentUser CurrentUser
+    | LoginFailed String
     | LoginRequest
     | ChangeLoginEmail String
     | ChangeLoginPassword String

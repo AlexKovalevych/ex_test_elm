@@ -4,7 +4,7 @@ defmodule Gt.Api.V1.AuthController do
     import Gt.Manager.TwoFactor, only: [verify_code: 2, generate_code: 1, google_qrcode_url: 1]
     import Ecto.Changeset
 
-    plug :scrub_params, "auth" when action in [:auth]
+    # plug :scrub_params, "auth" when action in [:auth]
 
     def save_to_session(conn, k, v) do
         conn
@@ -12,8 +12,8 @@ defmodule Gt.Api.V1.AuthController do
         |> put_session(k, v)
     end
 
-    def auth(conn, %{"auth" => auth_params}) do
-        case User.signin(auth_params) do
+    def auth(conn, %{"email" => email, "password" => password}) do
+        case User.signin(email, password) do
             {:ok, user} ->
                 conn = save_to_session(conn, :current_user, user.id)
                 {conn, user} = cond do

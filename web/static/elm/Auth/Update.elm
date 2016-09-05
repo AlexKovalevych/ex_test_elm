@@ -3,36 +3,21 @@ module Auth.Update exposing (update)
 import Auth.Models exposing (Model, User(Guest, LoggedUser))
 import Auth.Messages exposing (..)
 import Http exposing (fromJson, send, defaultSettings, empty)
-import Json.Decode as Json
-import Task
+import Json.Decode as JD
 import Json.Encode as JE
-import Xhr exposing (post)
+import Task
+import Xhr exposing (post, stringFromHttpError)
+import Auth.Encoders exposing (encodeLogin)
+import Auth.Decoders exposing (userDecoder)
 
-login : Json.Decoder value -> Cmd Msg
-login decoder =
+login : JE.Value -> Cmd Msg
+login body =
     let
-        task = fromJson decoder (post "/api/v1/auth")
+        task = fromJson userDecoder (post "/api/v1/auth" body)
     in
-        Task.perform
-            (\e ->
-                let _ = Debug.log "error: " e
-                in
-                    NoOp
-            )
-            (\v ->
-                let _ = Debug.log "success: " v
-                in LoadCurrentUser v
-            )
-            task
+        Task.perform (\e -> LoginFailed <| stringFromHttpError e) LoadCurrentUser task
 
-encodeLogin : Model -> JE.Value
-encodeLogin model =
-    JE.object
-        [ ( "email", JE.string model.loginFormEmail )
-        , ( "password", JE.string model.loginFormPassword )
-        ]
-
-logout : Json.Decoder value -> Cmd Msg
+logout : JD.Decoder value -> Cmd Msg
 logout decoder =
     let request =
         { verb = "DELETE"
@@ -56,12 +41,17 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         LoadCurrentUser user ->
-            ( { model | user = LoggedUser user }
+            ( { model | user = LoggedUser user, loginFormEmail = "", loginFormPassword = "", loginFormError = "" }
             , Cmd.none
             )
 
         LoginRequest ->
             model ! [login <| encodeLogin model ]
+
+        LoginFailed msg ->
+            ( { model | loginFormError = msg }
+            , Cmd.none
+            )
 
         ChangeLoginEmail msg ->
             ( { model | loginFormEmail = msg }
@@ -78,7 +68,7 @@ update message model =
         --4. Redirect to login page
         Logout ->
             ( model
-            , logout (Json.string)
+            , logout (JD.string)
             )
 
         SetToken token ->
