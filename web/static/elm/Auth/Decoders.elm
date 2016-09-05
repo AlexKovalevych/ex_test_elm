@@ -1,6 +1,6 @@
 module Auth.Decoders exposing (..)
 
-import Json.Decode exposing (Decoder, string, bool, (:=), object3)
+import Json.Decode exposing (..)
 import Auth.Models exposing (CurrentUser)
 
 userDecoder : Decoder CurrentUser
@@ -9,3 +9,7 @@ userDecoder =
         ("id" := string)
         ("email" := string)
         ("is_admin" := bool)
+
+userErrorDecoder : Decoder String
+userErrorDecoder =
+    at ["error"] string

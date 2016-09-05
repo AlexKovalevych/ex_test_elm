@@ -11,7 +11,7 @@ import Update
 import Messages exposing (..)
 import Auth.Models exposing (CurrentUser)
 import Socket.Messages as SocketM
-import Storage.LocalStorage exposing (..)
+import LocalStorage exposing (..)
 import Phoenix.Socket
 import Auth.Messages as AuthM
 import Task

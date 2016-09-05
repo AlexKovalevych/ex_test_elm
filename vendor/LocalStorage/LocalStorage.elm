@@ -1,4 +1,5 @@
-module Storage.LocalStorage exposing
+--Not released yet https://github.com/elm-lang/local-storage
+module LocalStorage exposing
   ( get
   , set
   , remove

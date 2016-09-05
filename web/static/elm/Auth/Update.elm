@@ -8,14 +8,20 @@ import Json.Encode as JE
 import Task
 import Xhr exposing (post, stringFromHttpError)
 import Auth.Encoders exposing (encodeLogin)
-import Auth.Decoders exposing (userDecoder)
+import Auth.Decoders exposing (userDecoder, userErrorDecoder)
+
+decodeLoginError : String -> String
+decodeLoginError msg =
+    case JD.decodeString userErrorDecoder msg of
+        Ok error -> error
+        Err _ -> ""
 
 login : JE.Value -> Cmd Msg
 login body =
     let
         task = fromJson userDecoder (post "/api/v1/auth" body)
     in
-        Task.perform (\e -> LoginFailed <| stringFromHttpError e) LoadCurrentUser task
+        Task.perform (stringFromHttpError >> decodeLoginError >> LoginFailed) LoadCurrentUser task
 
 logout : JD.Decoder value -> Cmd Msg
 logout decoder =
@@ -30,12 +36,16 @@ logout decoder =
         }
         task = fromJson decoder (send defaultSettings request)
     in
-        Task.perform (\e ->
-            let _ = Debug.log "error: " e
-            in
-                NoOp) (\v ->
+        Task.perform
+            (\e ->
+                let _ = Debug.log "error: " e
+                in
+                    NoOp
+            )
+            (\v ->
                 let _ = Debug.log "success: " v
-                in RemoveToken) task
+                in RemoveToken
+            ) task
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =

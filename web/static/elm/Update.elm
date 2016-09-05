@@ -8,7 +8,7 @@ import Routing exposing(..)
 import Messages exposing (..)
 import Socket.Messages as SocketMessages
 import Socket.Update
-import Storage.LocalStorage exposing (..)
+import LocalStorage exposing (..)
 import Auth.Update
 import Auth.Messages as AuthMessages
 import Auth.Models as AuthModels
