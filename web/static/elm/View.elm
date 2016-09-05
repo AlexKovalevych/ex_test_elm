@@ -19,6 +19,7 @@ import Material.Textfield as Textfield
 import Material.Button as Button
 import Material.Elevation as Elevation
 import Material.Icon as Icon
+import Translation exposing (..)
 
 view : Model -> Html Msg
 view model =
@@ -34,13 +35,13 @@ view model =
                     [ img [ src "/images/logo.png", alt "logo" ] []
                     , form [ style [ ("padding", "20px") ] {- onSubmit Login -} ] [
                         Textfield.render Mdl [0] model.mdl
-                            [ Textfield.label "form.email"
+                            [ Textfield.label (translate model.locale Email)
                             , Textfield.autofocus
                             , Textfield.floatingLabel
                             , Options.css "width" "100%"
                             ]
                         , Textfield.render Mdl [1] model.mdl
-                            [ Textfield.label "form.password"
+                            [ Textfield.label (translate model.locale Password)
                             , Textfield.password
                             , Textfield.floatingLabel
                             , Options.css "width" "100%"
@@ -48,9 +49,10 @@ view model =
                         , Button.render Mdl [2] model.mdl
                             [ Button.raised
                             , Button.ripple
+                            , Button.colored
                             --, Button.onClick Login
                             ]
-                            [ text "form.login"]
+                            [ text <| translate model.locale Login ]
                         ]
                     ]
                 ]
