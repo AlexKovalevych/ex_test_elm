@@ -21,26 +21,28 @@ import Auth.View as AuthView
 
 view : Model -> Html Msg
 view model =
-    case model.auth.user of
-        Guest ->
-            AuthView.view model
-
-        LoggedUser user ->
-            Layout.render Mdl model.mdl
-                [ Layout.fixedHeader
-                , Layout.fixedDrawer
-                ]
-                { header = header user
-                , drawer = drawer model
-                , tabs = ( [], [] )
-                , main =
-                    [ div
-                        [ style [ ( "padding", "1rem" ) ] ]
-                        [ body model
-                        --, Snackbar.view model.snackbar |> App.map Snackbar
-                        ]
+    if model.auth.token == ""
+    then
+        AuthView.view model
+    else
+        case model.auth.user of
+            LoggedUser user ->
+                Layout.render Mdl model.mdl
+                    [ Layout.fixedHeader
+                    , Layout.fixedDrawer
                     ]
-                }
+                    { header = header user
+                    , drawer = drawer model
+                    , tabs = ( [], [] )
+                    , main =
+                        [ div
+                            [ style [ ( "padding", "1rem" ) ] ]
+                            [ body model
+                            --, Snackbar.view model.snackbar |> App.map Snackbar
+                            ]
+                        ]
+                    }
+            Guest -> AuthView.view model
 
     --case model.route of
     --    LoginRoute ->

@@ -8,7 +8,7 @@ import Json.Encode as JE
 import Task
 import Xhr exposing (post, stringFromHttpError)
 import Auth.Encoders exposing (encodeLogin)
-import Auth.Decoders exposing (userDecoder, userErrorDecoder)
+import Auth.Decoders exposing (userSuccessDecoder, userErrorDecoder, logoutDecoder)
 
 decodeLoginError : String -> String
 decodeLoginError msg =
@@ -19,9 +19,20 @@ decodeLoginError msg =
 login : JE.Value -> Cmd Msg
 login body =
     let
-        task = fromJson userDecoder (post "/api/v1/auth" body)
+        task = fromJson userSuccessDecoder (post "/api/v1/auth" body)
     in
-        Task.perform (stringFromHttpError >> decodeLoginError >> LoginFailed) LoadCurrentUser task
+        Task.perform
+        (stringFromHttpError >> decodeLoginError >> LoginFailed)
+        LoginUser
+        --(\response ->
+        --    if response.url == Nothing && response.serverTime == Nothing
+        --    then Cmd.batch ([ LoadCurrentUser response.user ])
+        --    else Cmd.batch ([
+        --        LoadCurrentUser response.user,
+        --        SetQrData response.url response.serverTime
+        --    ])
+        --)
+        task
 
 logout : JD.Decoder value -> Cmd Msg
 logout decoder =
@@ -63,6 +74,19 @@ update message model =
             , Cmd.none
             )
 
+        LoginUser response ->
+            let
+                user = response.user
+                model =
+                    { model
+                    | qrcodeUrl = response.url
+                    , serverTime = response.serverTime
+                    , user = (LoggedUser user)
+                    , token = response.jwt
+                    }
+            in
+                update (LoadCurrentUser user) model
+
         ChangeLoginEmail msg ->
             ( { model | loginFormEmail = msg }
             , Cmd.none )
@@ -78,7 +102,7 @@ update message model =
         --4. Redirect to login page
         Logout ->
             ( model
-            , logout (JD.string)
+            , logout logoutDecoder
             )
 
         SetToken token ->

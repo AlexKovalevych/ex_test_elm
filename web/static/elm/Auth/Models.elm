@@ -4,6 +4,7 @@ type alias CurrentUser =
     { id : String
     , email : String
     , is_admin : Bool
+    , authenticationType : String
     }
 
 type User = Guest | LoggedUser CurrentUser
@@ -20,10 +21,10 @@ type alias Model =
     , loginFormEmail : String
     , loginFormPassword : String
     , loginFormError : String
---    , qrcodeUrl : Maybe String
+    , qrcodeUrl : Maybe String
+    , serverTime: Maybe Int
 --    , error : Maybe String
 --    , smsSent : Maybe Bool
---    , serverTime: Maybe Int
     }
 
 type Status
@@ -37,6 +38,8 @@ initialModel =
     , loginFormEmail = ""
     , loginFormPassword = ""
     , loginFormError = ""
+    , qrcodeUrl = Nothing
+    , serverTime = Nothing
     }
 
 isLogged : User -> Bool

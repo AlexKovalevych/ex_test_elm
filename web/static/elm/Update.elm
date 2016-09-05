@@ -29,6 +29,13 @@ mergeCmd : Cmd Msg -> (Model, Cmd Msg) -> (Model, Cmd Msg)
 mergeCmd cmd (model, newCmd) =
     model ! [cmd, newCmd]
 
+mergeMsg : Msg -> (Model, Cmd Msg) -> (Model, Cmd Msg)
+mergeMsg msg (model, cmd) =
+    let
+        (newModel, newCmd) = update msg model
+    in
+        newModel ! [cmd, newCmd]
+
 initSocket : (Model, Cmd Msg) -> (Model, Cmd Msg)
 initSocket (model, cmd) =
     let
@@ -93,6 +100,13 @@ update message model =
             case subMsg of
                 AuthMessages.LoadCurrentUser _ ->
                     initConnection subMsg model
+                --AuthMessages.LoginUser response ->
+                --    Auth.Update.update subMsg response
+                --    |> mergeModel model
+                    --|> initSocket
+                    --|> usersChannel
+                    --|> adminsChannel
+                    --|> mergeMsg ShowDashboard
                 AuthMessages.SetToken _ ->
                     initConnection subMsg model
                 AuthMessages.RemoveToken ->
@@ -100,6 +114,7 @@ update message model =
                         (model, cmd) =
                             Auth.Update.update subMsg model.auth
                             |> mergeModel model
+                        _ = Debug.log "wtg" model
                         in
                             model ! [cmd, Task.perform (\_ -> NoOp) (\_ -> ShowLogin) (remove("jwtToken"))]
                 _ ->

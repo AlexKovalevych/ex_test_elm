@@ -3,13 +3,39 @@ module Auth.Decoders exposing (..)
 import Json.Decode exposing (..)
 import Auth.Models exposing (CurrentUser)
 
+type alias LoginResponse =
+    { user : CurrentUser
+    , jwt : String
+    , url : Maybe String
+    , serverTime : Maybe Int
+    }
+
+userSuccessDecoder : Decoder LoginResponse
+userSuccessDecoder =
+    object4 LoginResponse
+        ("user" := userDecoder)
+        ("jwt" := string)
+        (maybe ("url" := string))
+        (maybe ("serverTime" := int))
+
 userDecoder : Decoder CurrentUser
 userDecoder =
-    object3 CurrentUser
+    object4 CurrentUser
         ("id" := string)
         ("email" := string)
         ("is_admin" := bool)
+        ("authenticationType" := string)
 
 userErrorDecoder : Decoder String
 userErrorDecoder =
     at ["error"] string
+
+
+type alias LogoutResponse =
+    { ok : Bool
+    }
+
+logoutDecoder : Decoder LogoutResponse
+logoutDecoder =
+    object1 LogoutResponse
+        ("ok" := bool)

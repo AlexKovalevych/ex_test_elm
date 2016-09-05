@@ -1,6 +1,7 @@
 module Auth.Messages exposing (..)
 
 import Auth.Models exposing (CurrentUser)
+import Auth.Decoders exposing (LoginResponse)
 
 type Msg
     = LoadCurrentUser CurrentUser
@@ -9,6 +10,7 @@ type Msg
     | ChangeLoginEmail String
     | ChangeLoginPassword String
     | SetToken String
+    | LoginUser LoginResponse
     | RemoveToken
     | Logout
     | NoOp
