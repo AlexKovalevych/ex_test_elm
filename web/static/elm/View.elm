@@ -38,12 +38,16 @@ view model =
                             [ Textfield.label (translate model.locale Email)
                             , Textfield.autofocus
                             , Textfield.floatingLabel
+                            , Textfield.value model.auth.loginForm.email
+                            , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginEmail)
                             , Options.css "width" "100%"
                             ]
                         , Textfield.render Mdl [1] model.mdl
                             [ Textfield.label (translate model.locale Password)
                             , Textfield.password
+                            , Textfield.value model.auth.loginForm.password
                             , Textfield.floatingLabel
+                            , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginPassword)
                             , Options.css "width" "100%"
                             ]
                         , Button.render Mdl [2] model.mdl

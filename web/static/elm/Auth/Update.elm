@@ -5,6 +5,32 @@ import Auth.Messages exposing (..)
 import Http exposing (fromJson, send, defaultSettings, empty)
 import Json.Decode as Json
 import Task
+import Json.Encode as JE
+import Xhr exposing (post)
+
+login : Json.Decoder value -> Cmd Msg
+login decoder =
+    let
+        task = fromJson decoder (post "/api/v1/auth")
+    in
+        Task.perform
+            (\e ->
+                let _ = Debug.log "error: " e
+                in
+                    NoOp
+            )
+            (\v ->
+                let _ = Debug.log "success: " v
+                in LoadCurrentUser v
+            )
+            task
+
+encodeLogin : Model -> JE.Value
+encodeLogin model =
+    JE.object
+        [ ( "email", JE.string model.loginFormEmail )
+        , ( "password", JE.string model.loginFormPassword )
+        ]
 
 logout : Json.Decoder value -> Cmd Msg
 logout decoder =
@@ -33,6 +59,17 @@ update message model =
             ( { model | user = LoggedUser user }
             , Cmd.none
             )
+
+        LoginRequest ->
+            model ! [login <| encodeLogin model ]
+
+        ChangeLoginEmail msg ->
+            ( { model | loginFormEmail = msg }
+            , Cmd.none )
+
+        ChangeLoginPassword msg ->
+            ( { model | loginFormPassword = msg }
+            , Cmd.none )
 
         --Need to do:
         --1. Logout ajax request

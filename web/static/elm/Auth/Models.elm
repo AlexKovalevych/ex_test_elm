@@ -8,9 +8,17 @@ type alias CurrentUser =
 
 type User = Guest | LoggedUser CurrentUser
 
+type alias LoginForm =
+    { email : String
+    , password : String
+    --, error : Maybe String
+    }
+
 type alias Model =
     { user : User
     , token : String
+    , loginFormEmail : String
+    , loginFormPassword : String
 --    , qrcodeUrl : Maybe String
 --    , error : Maybe String
 --    , smsSent : Maybe Bool
@@ -25,6 +33,8 @@ initialModel : Model
 initialModel =
     { user = Guest
     , token = ""
+    , loginFormEmail = ""
+    , loginFormPassword = ""
     }
 
 isLogged : User -> Bool
