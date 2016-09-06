@@ -86,7 +86,9 @@ defmodule Gt.Api.V1.AuthController do
     end
 
     def delete(conn, _) do
-         case Guardian.Plug.claims(conn) do
+        conn = conn |> fetch_session
+        user_id = get_session(conn, :current_user)
+        case Guardian.Plug.claims(conn) do
             {:ok, claims} -> conn
                 |> Guardian.Plug.current_token
                 |> Guardian.revoke!(claims)
@@ -94,6 +96,7 @@ defmodule Gt.Api.V1.AuthController do
         end
 
         conn = clear_session(conn)
+        Gt.Endpoint.broadcast("users_socket:#{user_id}", "disconnect", %{})
         conn
         |> render(Gt.Api.V1.AuthView, "delete.json")
     end

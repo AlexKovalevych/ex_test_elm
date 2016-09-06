@@ -43,11 +43,11 @@ update message model =
                 , Cmd.map PhoenixMsg phxCmd
                 )
 
-        LeaveChannel name ->
-            let
-                (phxSocket, phxCmd) = Phoenix.Socket.leave name model.phxSocket
-                _ = Debug.log "leave channel: " phxCmd
-            in
-                ({ model | phxSocket = phxSocket }
-                , Cmd.map PhoenixMsg phxCmd
-                )
+        --LeaveChannel name ->
+        --    let
+        --        (phxSocket, phxCmd) = Phoenix.Socket.leave name model.phxSocket
+        --        _ = Debug.log "leave channel: " phxCmd
+        --    in
+        --        ({ model | phxSocket = phxSocket }
+        --        , Cmd.map PhoenixMsg phxCmd
+        --        )

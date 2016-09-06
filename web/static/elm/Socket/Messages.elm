@@ -5,5 +5,5 @@ import Phoenix.Socket
 type Msg
     = InitSocket String
     | JoinChannel String
-    | LeaveChannel String
+    --| LeaveChannel String
     | PhoenixMsg (Phoenix.Socket.Msg Msg)
