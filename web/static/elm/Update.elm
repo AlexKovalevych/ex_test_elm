@@ -14,6 +14,7 @@ import Auth.Messages as AuthMessages
 import Auth.Models as AuthModels
 import Material
 import Task
+import Auth.Models exposing (User(Guest))
 
 navigationCmd : String -> Cmd a
 navigationCmd path =
@@ -64,7 +65,7 @@ usersChannel (model, cmd) =
                 else
                     (model , cmd)
             AuthModels.Guest ->
-                    (model , cmd)
+                (model , cmd)
 
 adminsChannel : (Model, Cmd Msg) -> (Model, Cmd Msg)
 adminsChannel (model, cmd) =
@@ -79,8 +80,34 @@ adminsChannel (model, cmd) =
                 else
                     (model , cmd)
             AuthModels.Guest ->
-                    (model , cmd)
+                (model , cmd)
 
+leaveUsersChannel : (Model, Cmd Msg) -> (Model, Cmd Msg)
+leaveUsersChannel (model, cmd) =
+    let
+        user = model.auth.user
+    in
+        case user of
+            AuthModels.LoggedUser currentUser ->
+                update (SocketMsg (SocketMessages.LeaveChannel <| "users:" ++ currentUser.id)) model
+                |> mergeCmd cmd
+            AuthModels.Guest ->
+                (model , cmd)
+
+leaveAdminsChannel : (Model, Cmd Msg) -> (Model, Cmd Msg)
+leaveAdminsChannel (model, cmd) =
+    let
+        user = model.auth.user
+    in
+        case user of
+            AuthModels.LoggedUser currentUser ->
+                if currentUser.is_admin then
+                    update (SocketMsg (SocketMessages.LeaveChannel <| "admins:" ++ currentUser.id)) model
+                    |> mergeCmd cmd
+                else
+                    (model , cmd)
+            AuthModels.Guest ->
+                (model , cmd)
 
 initConnection : AuthMessages.Msg -> Model -> ( Model, Cmd Msg )
 initConnection msg model =
@@ -110,7 +137,9 @@ update message model =
                         (model, cmd) =
                             Auth.Update.update subMsg model.auth
                             |> mergeModel model
-                        _ = Debug.log "wtg" model
+                            |> leaveUsersChannel
+                            |> leaveAdminsChannel
+                            |> mergeMsg (AuthMsg AuthMessages.RemoveCurrentUser)
                         in
                             model ! [cmd, Task.perform (\_ -> NoOp) (\_ -> ShowLogin) (remove("jwtToken"))]
                 _ ->

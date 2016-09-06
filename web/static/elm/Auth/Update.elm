@@ -50,6 +50,9 @@ update message model =
             , Cmd.none
             )
 
+        RemoveCurrentUser ->
+            ( {model | user = Guest}, Cmd.none )
+
         LoginRequest ->
             model ! [login <| encodeLogin model ]
 
@@ -90,7 +93,7 @@ update message model =
             )
 
         RemoveToken ->
-            ( { model | token = "", user = Guest }
+            ( { model | token = "" }
             , Cmd.none
             )
 

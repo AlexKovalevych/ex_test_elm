@@ -5,6 +5,7 @@ import Auth.Decoders exposing (LoginResponse)
 
 type Msg
     = LoadCurrentUser CurrentUser
+    | RemoveCurrentUser
     | LoginFailed String
     | LoginRequest
     | ChangeLoginEmail String
