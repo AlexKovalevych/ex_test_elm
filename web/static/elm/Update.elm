@@ -15,6 +15,11 @@ import Auth.Models as AuthModels
 import Material
 import Task
 import Auth.Models exposing (User(Guest, LoggedUser))
+import Material.Snackbar as Snackbar
+import Json.Decode as JD
+import Xhr exposing (post)
+import Http exposing (fromJson, empty)
+import Material.Helpers exposing (map1st, map2nd)
 
 navigationCmd : String -> Cmd a
 navigationCmd path =
@@ -98,11 +103,38 @@ initConnection msg model =
         |> usersChannel
         |> adminsChannel
 
+resendSms : Cmd Msg
+resendSms =
+    let
+        task = fromJson JD.string (post "/api/v1/send_sms" empty)
+    in
+        Task.perform
+        (\_ -> NoOp)
+        (AddToast "Sms was sent")
+        task
+
+
+add : String -> Model -> (Model, Cmd Msg)
+add msg model =
+    let
+        (snackbar, effect) =
+            Snackbar.add (Snackbar.toast msg) model.snackbar
+            |> map2nd (Cmd.map Snackbar)
+    in
+        { model | snackbar = snackbar } ! [ effect ]
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case Debug.log "message: " message of
         Mdl message' ->
             Material.update message' model
+
+        Snackbar msg ->
+            Snackbar.update msg model.snackbar
+            |> map1st (\s -> { model | snackbar = s })
+            |> map2nd (Cmd.map Snackbar)
+
+        AddToast msg -> add msg model
 
         AuthMsg subMsg ->
             case subMsg of
@@ -122,6 +154,8 @@ update message model =
                             |> mergeMsg (SocketMsg SocketMessages.RemoveSocket)
                         in
                             model ! [cmd, Task.perform (\_ -> NoOp) (\_ -> ShowLogin) (remove("jwtToken"))]
+                AuthMessages.SendSms ->
+                    model ! [resendSms]
                 _ ->
                     Auth.Update.update subMsg model.auth
                     |> mergeModel model

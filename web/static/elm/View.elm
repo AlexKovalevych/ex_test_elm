@@ -38,7 +38,7 @@ view model =
                         [ div
                             [ style [ ( "padding", "1rem" ) ] ]
                             [ body model
-                            --, Snackbar.view model.snackbar |> App.map Snackbar
+                            , Snackbar.view model.snackbar |> App.map Snackbar
                             ]
                         ]
                     }

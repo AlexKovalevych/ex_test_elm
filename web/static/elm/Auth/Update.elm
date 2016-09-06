@@ -102,7 +102,7 @@ update message model =
             { model | token = "" } ! []
 
         SendSms ->
-            --Not implemented yet
+            -- Handled at the top level
             model ! []
 
         TwoFactor ->
