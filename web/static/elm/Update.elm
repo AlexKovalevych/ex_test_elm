@@ -100,13 +100,9 @@ update message model =
             case subMsg of
                 AuthMessages.LoadCurrentUser _ ->
                     initConnection subMsg model
-                --AuthMessages.LoginUser response ->
-                --    Auth.Update.update subMsg response
-                --    |> mergeModel model
-                    --|> initSocket
-                    --|> usersChannel
-                    --|> adminsChannel
-                    --|> mergeMsg ShowDashboard
+                AuthMessages.LoginUser response ->
+                    initConnection (AuthMessages.LoginUser response) model
+                    |> mergeMsg ShowDashboard
                 AuthMessages.SetToken _ ->
                     initConnection subMsg model
                 AuthMessages.RemoveToken ->

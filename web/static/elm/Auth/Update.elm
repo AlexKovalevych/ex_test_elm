@@ -9,6 +9,7 @@ import Task
 import Xhr exposing (post, stringFromHttpError)
 import Auth.Encoders exposing (encodeLogin)
 import Auth.Decoders exposing (userSuccessDecoder, userErrorDecoder, logoutDecoder)
+import LocalStorage exposing (..)
 
 decodeLoginError : String -> String
 decodeLoginError msg =
@@ -24,14 +25,6 @@ login body =
         Task.perform
         (stringFromHttpError >> decodeLoginError >> LoginFailed)
         LoginUser
-        --(\response ->
-        --    if response.url == Nothing && response.serverTime == Nothing
-        --    then Cmd.batch ([ LoadCurrentUser response.user ])
-        --    else Cmd.batch ([
-        --        LoadCurrentUser response.user,
-        --        SetQrData response.url response.serverTime
-        --    ])
-        --)
         task
 
 logout : JD.Decoder value -> Cmd Msg
@@ -47,16 +40,7 @@ logout decoder =
         }
         task = fromJson decoder (send defaultSettings request)
     in
-        Task.perform
-            (\e ->
-                let _ = Debug.log "error: " e
-                in
-                    NoOp
-            )
-            (\v ->
-                let _ = Debug.log "success: " v
-                in RemoveToken
-            ) task
+        Task.perform (\_ -> NoOp) (\_ -> RemoveToken) task
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -85,7 +69,7 @@ update message model =
                     , token = response.jwt
                     }
             in
-                update (LoadCurrentUser user) model
+                model ! [Task.perform (\_ -> NoOp) (\_ -> NoOp) (set "jwtToken" response.jwt)]
 
         ChangeLoginEmail msg ->
             ( { model | loginFormEmail = msg }
@@ -95,11 +79,6 @@ update message model =
             ( { model | loginFormPassword = msg }
             , Cmd.none )
 
-        --Need to do:
-        --1. Logout ajax request
-        --2. Remove token from the storage
-        --3. Set guest as user to model
-        --4. Redirect to login page
         Logout ->
             ( model
             , logout logoutDecoder
