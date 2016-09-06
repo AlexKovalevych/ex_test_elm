@@ -14,8 +14,10 @@ type TranslationId
     | Login
     | Password
     | Validation String
+    | SmsSent String
     | RU
     | EN
+    | ServerTime Int
 
 type Language
     = English
@@ -44,6 +46,17 @@ translate lang trans =
 
             EN ->
                 TranslationSet "English" "Английский"
+
+            SmsSent phoneNumber ->
+                TranslationSet
+                    ("SMS with confirmation code was sent to your phone number (" ++ phoneNumber ++ "). Please contact site administration if you didn\'t receive it.")
+                    ("На ваш номер (" ++ phoneNumber ++ ") отправлено сообщение с кодом подтверждения. Если вы не получили код, обратитесь к администрации.")
+
+            ServerTime time ->
+                let time = toString(time)
+                in TranslationSet
+                    ("Warning! Generated code is sensitive to the time set at your phone. Maximum difference with server time may be ± 1 minute. Server time: " ++ time)
+                    ("Внимание! Код, генерируемый вашим телефоном, чувствителен ко времени, установленном в телефоне. Максимальная разница с серверным временем может быть ± 1 минуту. Серверное время: " ++ time)
     in
         case lang of
             English ->

@@ -62,17 +62,30 @@ update message model =
             )
 
         LoginUser response ->
-            let
-                user = response.user
-                model =
-                    { model
-                    | qrcodeUrl = response.url
-                    , serverTime = response.serverTime
-                    , user = (LoggedUser user)
-                    , token = response.jwt
-                    }
-            in
-                model ! [Task.perform (\_ -> NoOp) (\_ -> NoOp) (set "jwtToken" response.jwt)]
+            case response.jwt of
+                Nothing ->
+                    let
+                        user = response.user
+                        model =
+                            { model
+                            | qrcodeUrl = response.url
+                            , serverTime = response.serverTime
+                            , user = (LoggedUser user)
+                            }
+                    in
+                        model ! []
+                Just token ->
+                    let
+                        user = response.user
+                        model =
+                            { model
+                            | qrcodeUrl = response.url
+                            , serverTime = response.serverTime
+                            , user = (LoggedUser user)
+                            , token = response.jwt
+                            }
+                    in
+                        model ! [Task.perform (\_ -> NoOp) (\_ -> NoOp) (set "jwtToken" response.jwt)]
 
         ChangeLoginEmail msg ->
             ( { model | loginFormEmail = msg }
@@ -96,6 +109,9 @@ update message model =
             ( { model | token = "" }
             , Cmd.none
             )
+
+        TwoFactor ->
+            model ! []
 
         NoOp ->
             model ! []

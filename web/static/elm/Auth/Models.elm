@@ -5,6 +5,7 @@ type alias CurrentUser =
     , email : String
     , is_admin : Bool
     , authenticationType : String
+    , securePhoneNumber : String
     }
 
 type User = Guest | LoggedUser CurrentUser
@@ -47,9 +48,3 @@ isLogged user =
     case user of
         Guest -> False
         LoggedUser _ -> True
-
---userInitialModel : User
---userInitialModel =
---    { email = ""
---    , is_admin = False
---    }

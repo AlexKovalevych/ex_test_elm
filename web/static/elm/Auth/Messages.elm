@@ -12,6 +12,7 @@ type Msg
     | ChangeLoginPassword String
     | SetToken String
     | LoginUser LoginResponse
+    | TwoFactor
     | RemoveToken
     | Logout
     | NoOp

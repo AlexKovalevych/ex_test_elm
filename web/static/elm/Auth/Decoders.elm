@@ -5,7 +5,7 @@ import Auth.Models exposing (CurrentUser)
 
 type alias LoginResponse =
     { user : CurrentUser
-    , jwt : String
+    , jwt : Maybe String
     , url : Maybe String
     , serverTime : Maybe Int
     }
@@ -14,22 +14,22 @@ userSuccessDecoder : Decoder LoginResponse
 userSuccessDecoder =
     object4 LoginResponse
         ("user" := userDecoder)
-        ("jwt" := string)
+        (maybe ("jwt" := string))
         (maybe ("url" := string))
         (maybe ("serverTime" := int))
 
 userDecoder : Decoder CurrentUser
 userDecoder =
-    object4 CurrentUser
+    object5 CurrentUser
         ("id" := string)
         ("email" := string)
         ("is_admin" := bool)
         ("authenticationType" := string)
+        ("securePhoneNumber" := string)
 
 userErrorDecoder : Decoder String
 userErrorDecoder =
     at ["error"] string
-
 
 type alias LogoutResponse =
     { ok : Bool
