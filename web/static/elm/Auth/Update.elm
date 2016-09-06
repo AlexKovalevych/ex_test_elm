@@ -51,7 +51,7 @@ update message model =
             )
 
         RemoveCurrentUser ->
-            ( {model | user = Guest}, Cmd.none )
+            ( {model | user = Guest, loginFormEmail = "", loginFormPassword = "", loginFormError = ""}, Cmd.none )
 
         LoginRequest ->
             model ! [login <| encodeLogin model ]

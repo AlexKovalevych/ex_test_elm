@@ -95,8 +95,8 @@ defmodule Gt.Api.V1.AuthController do
             {:error, _} -> conn
         end
 
-        conn = clear_session(conn)
         Gt.Endpoint.broadcast("users_socket:#{user_id}", "disconnect", %{})
+        conn = clear_session(conn)
         conn
         |> render(Gt.Api.V1.AuthView, "delete.json")
     end

@@ -82,40 +82,15 @@ adminsChannel (model, cmd) =
             AuthModels.Guest ->
                 (model , cmd)
 
---leaveUsersChannel : (Model, Cmd Msg) -> (Model, Cmd Msg)
---leaveUsersChannel (model, cmd) =
---    let
---        user = model.auth.user
---    in
---        case user of
---            AuthModels.LoggedUser currentUser ->
---                update (SocketMsg (SocketMessages.LeaveChannel <| "users:" ++ currentUser.id)) model
---                |> mergeCmd cmd
---            AuthModels.Guest ->
---                (model , cmd)
-
---leaveAdminsChannel : (Model, Cmd Msg) -> (Model, Cmd Msg)
---leaveAdminsChannel (model, cmd) =
---    let
---        user = model.auth.user
---    in
---        case user of
---            AuthModels.LoggedUser currentUser ->
---                if currentUser.is_admin then
---                    update (SocketMsg (SocketMessages.LeaveChannel <| "admins:" ++ currentUser.id)) model
---                    |> mergeCmd cmd
---                else
---                    (model , cmd)
---            AuthModels.Guest ->
---                (model , cmd)
-
 initConnection : AuthMessages.Msg -> Model -> ( Model, Cmd Msg )
 initConnection msg model =
-    Auth.Update.update msg model.auth
-    |> mergeModel model
-    |> initSocket
-    |> usersChannel
-    |> adminsChannel
+    let _ = Debug.log "open socket" model
+    in
+        Auth.Update.update msg model.auth
+        |> mergeModel model
+        |> initSocket
+        |> usersChannel
+        |> adminsChannel
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -137,9 +112,8 @@ update message model =
                         (model, cmd) =
                             Auth.Update.update subMsg model.auth
                             |> mergeModel model
-                            --|> leaveUsersChannel
-                            --|> leaveAdminsChannel
                             |> mergeMsg (AuthMsg AuthMessages.RemoveCurrentUser)
+                            |> mergeMsg (SocketMsg SocketMessages.RemoveSocket)
                         in
                             model ! [cmd, Task.perform (\_ -> NoOp) (\_ -> ShowLogin) (remove("jwtToken"))]
                 _ ->
