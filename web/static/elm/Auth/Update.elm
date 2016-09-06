@@ -46,20 +46,16 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         LoadCurrentUser user ->
-            ( { model | user = LoggedUser user, loginFormEmail = "", loginFormPassword = "", loginFormError = "" }
-            , Cmd.none
-            )
+            { model | user = LoggedUser user, loginFormEmail = "", loginFormPassword = "", loginFormError = "" } ! []
 
         RemoveCurrentUser ->
-            ( {model | user = Guest, loginFormEmail = "", loginFormPassword = "", loginFormError = ""}, Cmd.none )
+            { model | user = Guest, loginFormEmail = "", loginFormPassword = "", loginFormError = "" } ! []
 
         LoginRequest ->
-            model ! [login <| encodeLogin model ]
+            model ! [ login <| encodeLogin model ]
 
         LoginFailed msg ->
-            ( { model | loginFormError = msg }
-            , Cmd.none
-            )
+            { model | loginFormError = msg } ! []
 
         LoginUser response ->
             case response.jwt of
@@ -82,35 +78,35 @@ update message model =
                             | qrcodeUrl = response.url
                             , serverTime = response.serverTime
                             , user = (LoggedUser user)
-                            , token = response.jwt
+                            , token = token
                             }
                     in
-                        model ! [Task.perform (\_ -> NoOp) (\_ -> NoOp) (set "jwtToken" response.jwt)]
+                        model ! [Task.perform (\_ -> NoOp) (\_ -> NoOp) (set "jwtToken" token)]
 
         ChangeLoginEmail msg ->
-            ( { model | loginFormEmail = msg }
-            , Cmd.none )
+            { model | loginFormEmail = msg } ! []
 
         ChangeLoginPassword msg ->
-            ( { model | loginFormPassword = msg }
-            , Cmd.none )
+            { model | loginFormPassword = msg } ! []
+
+        ChangeLoginCode msg ->
+            { model | loginCode = msg } ! []
 
         Logout ->
-            ( model
-            , logout logoutDecoder
-            )
+            model ! [logout logoutDecoder]
 
         SetToken token ->
-            ( { model | token = token }
-            , Cmd.none
-            )
+            { model | token = token } ! []
 
         RemoveToken ->
-            ( { model | token = "" }
-            , Cmd.none
-            )
+            { model | token = "" } ! []
+
+        SendSms ->
+            --Not implemented yet
+            model ! []
 
         TwoFactor ->
+            --Not implemented yet
             model ! []
 
         NoOp ->

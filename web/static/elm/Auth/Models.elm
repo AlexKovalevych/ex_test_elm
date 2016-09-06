@@ -22,6 +22,7 @@ type alias Model =
     , loginFormEmail : String
     , loginFormPassword : String
     , loginFormError : String
+    , loginCode : String
     , qrcodeUrl : Maybe String
     , serverTime: Maybe Int
 --    , error : Maybe String
@@ -39,6 +40,7 @@ initialModel =
     , loginFormEmail = ""
     , loginFormPassword = ""
     , loginFormError = ""
+    , loginCode = ""
     , qrcodeUrl = Nothing
     , serverTime = Nothing
     }

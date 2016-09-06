@@ -18,6 +18,8 @@ type TranslationId
     | RU
     | EN
     | ServerTime Int
+    | SmsCode
+    | ResendSms
 
 type Language
     = English
@@ -57,6 +59,12 @@ translate lang trans =
                 in TranslationSet
                     ("Warning! Generated code is sensitive to the time set at your phone. Maximum difference with server time may be ± 1 minute. Server time: " ++ time)
                     ("Внимание! Код, генерируемый вашим телефоном, чувствителен ко времени, установленном в телефоне. Максимальная разница с серверным временем может быть ± 1 минуту. Серверное время: " ++ time)
+
+            SmsCode ->
+                TranslationSet "SMS code" "SMS код"
+
+            ResendSms ->
+                TranslationSet "Send SMS again" "Отправить SMS еще раз"
     in
         case lang of
             English ->

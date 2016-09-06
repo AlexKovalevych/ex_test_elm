@@ -77,7 +77,31 @@ loginForm model =
                     form
                         [ onSubmit (AuthMsg AuthMessages.TwoFactor)
                         ]
-                        [ div [] [ text <| translate model.locale (SmsSent user.securePhoneNumber) ]
+                        [ div [ style [ ( "padding", "1rem" ) ] ]
+                            [ text <| translate model.locale (SmsSent user.securePhoneNumber)
+                            , Textfield.render Mdl [0] model.mdl
+                                [ Textfield.label (translate model.locale SmsCode)
+                                , Textfield.value model.auth.loginCode
+                                , Textfield.floatingLabel
+                                , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginCode)
+                                , Options.css "width" "100%"
+                                ]
+                            , Button.render Mdl [1] model.mdl
+                                [ Button.raised
+                                , Button.ripple
+                                , Button.primary
+                                , Button.type' "submit"
+                                ]
+                                [ text <| translate model.locale Login ]
+                            , Button.render Mdl [2] model.mdl
+                                [ Button.raised
+                                , Button.ripple
+                                , Button.onClick (AuthMsg AuthMessages.SendSms)
+                                , Button.type' "button"
+                                , Options.css "margin-left" "1rem"
+                                ]
+                                [ text <| translate model.locale ResendSms ]
+                            ]
                         ]
                 _ ->
                     form
@@ -178,9 +202,12 @@ view model =
     grid
         []
         [ cell
-            [ Elevation.e2
-            , offset All 4
-            , size All 4
+            [ Elevation.e4
+            , offset Desktop 4
+            , offset Tablet 1
+            , size Phone 12
+            , size Tablet 6
+            , size Desktop 4
             , Options.css "text-align" "center"
             ]
             [ img [ src "/images/logo.png", alt "logo" ] []

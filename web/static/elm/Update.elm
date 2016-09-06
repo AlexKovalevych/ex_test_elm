@@ -14,7 +14,7 @@ import Auth.Messages as AuthMessages
 import Auth.Models as AuthModels
 import Material
 import Task
-import Auth.Models exposing (User(Guest))
+import Auth.Models exposing (User(Guest, LoggedUser))
 
 navigationCmd : String -> Cmd a
 navigationCmd path =
@@ -36,6 +36,12 @@ mergeMsg msg (model, cmd) =
         (newModel, newCmd) = update msg model
     in
         newModel ! [cmd, newCmd]
+
+redirectToDashboard : (Model, Cmd Msg) -> (Model, Cmd Msg)
+redirectToDashboard (model, cmd) =
+    case model.auth.token of
+        "" -> mergeMsg NoOp (model, cmd)
+        _ -> mergeMsg ShowDashboard (model, cmd)
 
 initSocket : (Model, Cmd Msg) -> (Model, Cmd Msg)
 initSocket (model, cmd) =
@@ -104,7 +110,7 @@ update message model =
                     initConnection subMsg model
                 AuthMessages.LoginUser response ->
                     initConnection (AuthMessages.LoginUser response) model
-                    |> mergeMsg ShowDashboard
+                    |> redirectToDashboard
                 AuthMessages.SetToken _ ->
                     initConnection subMsg model
                 AuthMessages.RemoveToken ->
@@ -132,14 +138,14 @@ update message model =
                 path =
                     reverse DashboardRoute
             in
-                ( model, navigationCmd path )
+                model ! [ navigationCmd path ]
 
         ShowLogin ->
             let
                 path =
                     reverse LoginRoute
             in
-                ( model, navigationCmd path )
+                model ! [ navigationCmd path ]
 
         NoOp ->
             model ! []

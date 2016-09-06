@@ -10,9 +10,11 @@ type Msg
     | LoginRequest
     | ChangeLoginEmail String
     | ChangeLoginPassword String
+    | ChangeLoginCode String
     | SetToken String
     | LoginUser LoginResponse
     | TwoFactor
     | RemoveToken
+    | SendSms
     | Logout
     | NoOp
