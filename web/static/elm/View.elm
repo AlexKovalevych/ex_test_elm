@@ -18,6 +18,7 @@ import Material.Grid exposing (grid, noSpacing, maxWidth, cell, size, offset, De
 import Material.Icon as Icon
 import Translation exposing (..)
 import Auth.View as AuthView
+import Routing exposing (..)
 
 view : Model -> Html Msg
 view model =
@@ -77,8 +78,43 @@ drawer model =
         [ text "Globotunes 3.0" ]
     , Layout.navigation
         [ Options.css "flex-grow" "1" ]
-        []
+        (List.map (drawerMenuItem model) <| menuItems model)
     ]
+
+type alias MenuItem =
+    { text : String
+    , iconName : String
+    , route : Maybe Route
+    }
+
+menuItems : Model -> List MenuItem
+menuItems model =
+    [ { text = translate model.locale (Menu "dashboard"), iconName = "dashboard", route = Just DashboardRoute }
+    --, { text = "Users", iconName = "group", route = Just Users }
+    --, { text = "Last Activity", iconName = "alarm", route = Nothing }
+    --, { text = "Timesheets", iconName = "event", route = Nothing }
+    --, { text = "Reports", iconName = "list", route = Nothing }
+    --, { text = "Organizations", iconName = "store", route = Just Organizations }
+    --, { text = "Projects", iconName = "view_list", route = Just Projects }
+    ]
+
+
+drawerMenuItem : Model -> MenuItem -> Html Msg
+drawerMenuItem model menuItem =
+    Layout.link []
+--        [ Layout.onClick (NavigateTo menuItem.route)
+--        , (Color.text <| Color.accent) `when` (model.route == menuItem.route)
+--        , Options.css "font-weight" "500"
+--        , Options.css "cursor" "pointer"
+--          -- http://outlinenone.com/ TODO: tl;dr don't do this
+--          -- Should be using ":focus { outline: 0 }" for this but can't do that with inline styles so this is a hack til I get a proper stylesheet on here.
+--        , Options.css "outline" "none"
+--        ]
+        [ Icon.view menuItem.iconName
+            [ Options.css "margin-right" "8px"
+            ]
+        , text menuItem.text
+        ]
 
 body : Model -> Html Msg
 body model =

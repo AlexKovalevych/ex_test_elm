@@ -25,6 +25,7 @@ type TranslationId
     | ResendSms
     | SmsWasSent
     | GoogleCode
+    | Menu String
 
 type Language
     = English
@@ -46,6 +47,38 @@ translate lang trans =
                 "invalid_sms_code" -> TranslationSet "Invalid sms code" "Неправильный код из SMS"
                 "invalid_google_code" -> TranslationSet "Invalid code" "Неправильный код"
                 "disabled" -> TranslationSet "Your account is disabled. Contact system administrator" "Ваш аккаунт отключен. Свяжитесь с администратором"
+                _ -> TranslationSet "" ""
+
+            Menu msg -> case msg of
+                "dashboard" -> TranslationSet "Project indicators" "Показатели проектов"
+                "finance" -> TranslationSet "Finance" "Финансы"
+                "statistics" -> TranslationSet "Statistics" "Статистика"
+                "calendar_events" -> TranslationSet "Events calendar" "Календарь событий"
+                "players" -> TranslationSet "Players" "Игроки"
+                "settings" -> TranslationSet "Settings" "Настройки"
+                "payments_check" -> TranslationSet "Payments check" "Сверка платежей"
+                "payment_systems" -> TranslationSet "PS Config" "Конфиг ПС"
+                "monthly_balance" -> TranslationSet "Monthly balance" "Месячные балансы"
+                "incoming_reports" -> TranslationSet "Incoming reports" "Входящие отчеты"
+                "funds_flow" -> TranslationSet "Funds flow" "Движение средств"
+                "timeline_report" -> TranslationSet "Timeline report" "Таймлайн отчет"
+                "segments_report" -> TranslationSet "Segments report" "Отчет по сегментам"
+                "retention" -> TranslationSet "Retention" "Ретеншены"
+                "ltv_report" -> TranslationSet "LTV report" "LTV отчет"
+                "consolidated_report" -> TranslationSet "Consolidated report" "Сводный отчет"
+                "cohorts_report" -> TranslationSet "Cohorts report" "Отчет по когортам"
+                "activity_waves" -> TranslationSet "Activity waves" "Всплески активности"
+                "events_types_list" -> TranslationSet "Events types list" "Типы событий"
+                "events_list" -> TranslationSet "Events list" "Список событий"
+                "events_groups_list" -> TranslationSet "Events groups list" "Группы событий"
+                "signup_channels" -> TranslationSet "Signup channels" "Каналы регистрации"
+                "multiaccounts" -> TranslationSet "Multiaccounts" "Мультиаккаунты"
+                "user" -> TranslationSet "Users" "Пользователи"
+                "project" -> TranslationSet "Projects" "Проекты"
+                "notification" -> TranslationSet "Notifications" "Оповещения"
+                "permissions" -> TranslationSet "Permissions" "Права доступа"
+                "data_source" -> TranslationSet "Data sources" "Источники данных"
+                "smtp_server" -> TranslationSet "SMTP server" "SMTP сервера"
                 _ -> TranslationSet "" ""
 
             Login ->
