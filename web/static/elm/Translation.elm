@@ -45,6 +45,7 @@ translate lang trans =
                 "invalid_email_password" -> TranslationSet "Invalid email or password" "Неправильный логин или пароль"
                 "invalid_sms_code" -> TranslationSet "Invalid sms code" "Неправильный код из SMS"
                 "invalid_google_code" -> TranslationSet "Invalid code" "Неправильный код"
+                "disabled" -> TranslationSet "Your account is disabled. Contact system administrator" "Ваш аккаунт отключен. Свяжитесь с администратором"
                 _ -> TranslationSet "" ""
 
             Login ->

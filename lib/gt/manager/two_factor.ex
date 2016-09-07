@@ -15,7 +15,7 @@ defmodule Gt.Manager.TwoFactor do
 
     def verify_code(user, code) do
         if user.failedLoginCount > @failed_login_limit do
-            {:error, "login.disabled"}
+            {:error, "disabled"}
         else
             case user.authenticationType do
                 "sms" ->

@@ -129,7 +129,7 @@ defmodule Gt.Model.User do
                 false -> {:error, "invalid_email_password"}
             end
         else
-            {:error, "login.disabled"}
+            {:error, "disabled"}
         end
     end
     defp check_password(nil, _password) do
