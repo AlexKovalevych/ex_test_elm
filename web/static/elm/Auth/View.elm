@@ -1,6 +1,7 @@
 module Auth.View exposing (..)
 
 import Html exposing (..)
+import Html.App as App
 import Material.Elevation as Elevation
 import Material.Options as Options
 import Auth.Messages as AuthMessages
@@ -13,6 +14,7 @@ import Translation exposing (..)
 import Material.Grid exposing (grid, cell, size, offset, Device(..))
 import Html.Attributes exposing (style, src, alt, href, target, width, height)
 import Messages exposing (..)
+import Material.Snackbar as Snackbar
 
 googleAuthLinks : Html Msg
 googleAuthLinks =
@@ -199,7 +201,9 @@ emailProperties model =
 
 view : Model -> Html Msg
 view model =
-    grid
+    div []
+    [ Snackbar.view model.snackbar |> App.map Snackbar
+    , grid
         []
         [ cell
             [ Elevation.e4
@@ -214,3 +218,4 @@ view model =
             , loginForm model
             ]
         ]
+    ]

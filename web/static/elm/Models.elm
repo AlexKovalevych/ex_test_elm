@@ -16,7 +16,7 @@ type alias Model =
     , route : Route
     , socket : Socket.Model
     , auth : Auth.Model
-    , snackbar : Snackbar.Model (Maybe Msg)
+    , snackbar : Snackbar.Model Msg
     }
 
 initialModel : Route -> Location -> Model

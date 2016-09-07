@@ -16,5 +16,6 @@ type Msg
     | TwoFactor
     | RemoveToken
     | SendSms
+    | SmsWasSent
     | Logout
     | NoOp

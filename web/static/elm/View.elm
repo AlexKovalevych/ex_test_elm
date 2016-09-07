@@ -70,17 +70,6 @@ header user =
             ]
         ]
     ]
-    --[
-    --    grid [ Options.css "width" "100%" ]
-    --        [ cell [ size All 8 ]
-    --            [ text "Page Title goes here"
-    --            ]
-    --        , cell [ size All 4 ]
-    --            [ div [] [text "Logout and username goes here"]
-    --            ]
-    --        ]
-    --]
-
 
 drawer : Model -> List (Html Msg)
 drawer model =

@@ -80,7 +80,7 @@ defmodule Gt.Api.V1.AuthController do
                 login_error(conn)
             else
                 generate_code(user)
-                conn |> send_resp(200, Poison.encode!(%{}))
+                conn |> send_resp(200, Poison.encode!(""))
             end
         end
     end

@@ -17,9 +17,11 @@ import Task
 import Auth.Models exposing (User(Guest, LoggedUser))
 import Material.Snackbar as Snackbar
 import Json.Decode as JD
+import Json.Encode as JE
 import Xhr exposing (post)
 import Http exposing (fromJson, empty)
 import Material.Helpers exposing (map1st, map2nd)
+import Translation exposing (..)
 
 navigationCmd : String -> Cmd a
 navigationCmd path =
@@ -106,22 +108,22 @@ initConnection msg model =
 resendSms : Cmd Msg
 resendSms =
     let
-        task = fromJson JD.string (post "/api/v1/send_sms" empty)
+        task = fromJson JD.string (post "/api/v1/send_sms" JE.null)
     in
         Task.perform
-        (\_ -> NoOp)
-        (AddToast "Sms was sent")
+        (\e ->
+            let _ = Debug.log "somethign wrong" e
+            in NoOp)
+        (\_ -> AuthMsg AuthMessages.SmsWasSent)
         task
-
 
 add : String -> Model -> (Model, Cmd Msg)
 add msg model =
     let
         (snackbar, effect) =
-            Snackbar.add (Snackbar.toast msg) model.snackbar
-            |> map2nd (Cmd.map Snackbar)
+            Snackbar.add (Snackbar.toast NoOp msg) model.snackbar
     in
-        { model | snackbar = snackbar } ! [ effect ]
+        { model | snackbar = snackbar } ! [ Cmd.map Snackbar effect ]
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -130,9 +132,10 @@ update message model =
             Material.update message' model
 
         Snackbar msg ->
-            Snackbar.update msg model.snackbar
-            |> map1st (\s -> { model | snackbar = s })
-            |> map2nd (Cmd.map Snackbar)
+            let
+                (snackbar, cmd) = Snackbar.update msg model.snackbar
+            in
+                {model | snackbar = snackbar} ! [ Cmd.map Snackbar cmd ]
 
         AddToast msg -> add msg model
 
@@ -156,6 +159,8 @@ update message model =
                             model ! [cmd, Task.perform (\_ -> NoOp) (\_ -> ShowLogin) (remove("jwtToken"))]
                 AuthMessages.SendSms ->
                     model ! [resendSms]
+                AuthMessages.SmsWasSent ->
+                    update (AddToast (translate model.locale SmsWasSent)) model
                 _ ->
                     Auth.Update.update subMsg model.auth
                     |> mergeModel model

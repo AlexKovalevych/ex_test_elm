@@ -8,7 +8,7 @@ import Material.Snackbar as Snackbar
 type Msg
     = SocketMsg Socket.Messages.Msg
     | Mdl (Material.Msg Msg)
-    | Snackbar (Snackbar.Msg (Maybe Msg))
+    | Snackbar (Snackbar.Msg Msg)
     | AddToast String
     | AuthMsg Auth.Messages.Msg
     | ShowDashboard

@@ -20,6 +20,7 @@ type TranslationId
     | ServerTime Int
     | SmsCode
     | ResendSms
+    | SmsWasSent
 
 type Language
     = English
@@ -65,6 +66,9 @@ translate lang trans =
 
             ResendSms ->
                 TranslationSet "Send SMS again" "Отправить SMS еще раз"
+
+            SmsWasSent ->
+                TranslationSet "SMS was sent" "SMS было отправлено"
     in
         case lang of
             English ->
