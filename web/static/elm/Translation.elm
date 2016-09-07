@@ -21,6 +21,7 @@ type TranslationId
     | SmsCode
     | ResendSms
     | SmsWasSent
+    | GoogleCode
 
 type Language
     = English
@@ -40,6 +41,7 @@ translate lang trans =
             Validation msg -> case msg of
                 "invalid_email_password" -> TranslationSet "Invalid email or password" "Неправильный логин или пароль"
                 "invalid_sms_code" -> TranslationSet "Invalid sms code" "Неправильный код из SMS"
+                "invalid_google_code" -> TranslationSet "Invalid code" "Неправильный код"
                 _ -> TranslationSet "" ""
 
             Login ->
@@ -64,6 +66,9 @@ translate lang trans =
 
             SmsCode ->
                 TranslationSet "SMS code" "SMS код"
+
+            GoogleCode ->
+                TranslationSet "Authentication code" "Код аутентификации"
 
             ResendSms ->
                 TranslationSet "Send SMS again" "Отправить SMS еще раз"

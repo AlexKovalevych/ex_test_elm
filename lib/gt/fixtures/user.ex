@@ -2,6 +2,7 @@ defmodule Gt.Fixtures.User do
     alias Gt.Repo
     alias Gt.Model.{User, Project}
     import Gt.Manager.Permissions, only: [add: 3]
+    import Gt.Manager.TwoFactor, only: [generate_code: 1]
     require Logger
 
     @permissions Application.get_env(:gt, :permissions)
@@ -53,7 +54,7 @@ defmodule Gt.Fixtures.User do
         }
         user = case authenticated_type do
             "sms" -> Map.put(user, :smsCode, "123")
-            "google" -> Map.put(user, :showGoogleCode, true)
+            "google" -> Map.put(user, :showGoogleCode, true) |> generate_code
             "none" -> user
         end
         Repo.insert!(User.changeset(%User{}, user))

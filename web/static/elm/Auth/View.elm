@@ -19,23 +19,38 @@ import Material.Snackbar as Snackbar
 googleAuthLinks : Html Msg
 googleAuthLinks =
     div []
-    [ a
-        [ href "https://itunes.apple.com/ua/app/google-authenticator/id388497605?mt=8"
-        , target "_blank"
-        ]
-        [ img [ src "/images/button_app_store.png", width 150, height 44 ] []
-        ]
-    , a
-        [ href "http://apps.microsoft.com/windows/en-us/app/google-authenticator/7ea6de74-dddb-47df-92cb-40afac4d38bb"
-        , target "_blank"
-        ]
-        [ img [ src "/images/button_windows_store.png", width 150, height 44 ] []
-        ]
-    , a
-        [ href "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
-        , target "_blank"
-        ]
-        [ img [ src "/images/button_play_store.png", width 150, height 44 ] []
+    [ grid
+        []
+        [ cell
+            [ size All 12
+            ]
+            [ a
+                [ href "https://itunes.apple.com/ua/app/google-authenticator/id388497605?mt=8"
+                , target "_blank"
+                ]
+                [ img [ src "/images/button_app_store.png", width 150, height 44 ] []
+                ]
+            ]
+        , cell
+            [ size All 12
+            ]
+            [ a
+                [ href "http://apps.microsoft.com/windows/en-us/app/google-authenticator/7ea6de74-dddb-47df-92cb-40afac4d38bb"
+                , target "_blank"
+                ]
+                [ img [ src "/images/button_windows_store.png", width 150, height 44 ] []
+                ]
+            ]
+        , cell
+            [ size All 12
+            ]
+            [ a
+                [ href "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
+                , target "_blank"
+                ]
+                [ img [ src "/images/button_play_store.png", width 150, height 44 ] []
+                ]
+            ]
         ]
     ]
 
@@ -104,76 +119,21 @@ loginForm model =
                         [ onSubmit (AuthMsg AuthMessages.TwoFactor)
                         ]
                         [ div []
-                            [ img [ src <| qrCodeUrl model ]  []
+                            [ img [ src <| qrCodeUrl model ] []
                             ]
-                        , div []
+                        , div [ style [ ( "padding", "1rem" ) ] ]
                             [ text <| translate model.locale (ServerTime <| serverTime model)
+                            , Textfield.render Mdl [0] model.mdl (googleProperties model)
+                            , Button.render Mdl [1] model.mdl
+                                [ Button.raised
+                                , Button.ripple
+                                , Button.primary
+                                , Button.type' "submit"
+                                ]
+                                [ text <| translate model.locale Login ]
                             ]
                         , googleAuthLinks
                         ]
-        --    <form onSubmit={this.onTwoFactorSubmit.bind(this)}>
-        --        <div style={{padding: 16}}>
-        --            <Translate content="login.sms_sent" phone={this.props.user.securePhoneNumber} />
-        --        </div>
-        --        <Divider />
-        --        <TextField
-        --            hintText={<Translate content="form.sms_code" />}
-        --            floatingLabelText={<Translate content="form.sms_code" />}
-        --            ref="twoFactor"
-        --            id="twoFactor"
-        --            underlineShow={false}
-        --            fullWidth={true}
-        --            errorText={error}
-        --        />
-        --        <div>
-        --            {
-        --                this.props.smsSent && (
-        --                    <h6 style={{margin: 0}}>
-        --                        <Translate content="login.sms_was_sent" />
-        --                    </h6>
-        --                )
-        --            }
-        --            <RaisedButton
-        --                type="submit"
-        --                label={<Translate content="form.login" />}
-        --                primary={true}
-        --                style={styles.button}
-        --            />
-        --            <RaisedButton
-        --                label={<Translate content="form.sms_resend" />}
-        --                style={styles.button}
-        --                onMouseUp={this.onResendSms.bind(this)}
-        --            />
-        --        </div>
-        --    </form>
-        --else
-        --    <form onSubmit={this.onTwoFactorSubmit.bind(this)}>
-        --        <div>
-        --            <img src={this.props.qrcodeUrl} />
-        --        </div>
-        --        <div>
-        --            <Translate content="login.server_time" />
-        --            <b>{formatter.formatDaytime(this.state.serverTime)}</b>
-        --        </div>
-        --        <TextField
-        --            onChange={this.onChangeCode.bind(this)}
-        --            hintText={<Translate content="form.google_code" />}
-        --            ref="twoFactor"
-        --            id="twoFactor"
-        --            underlineShow={false}
-        --            fullWidth={true}
-        --            errorText={error}
-        --        />
-        --        <div>
-        --            <RaisedButton
-        --                type="submit"
-        --                label={<Translate content="form.login" />}
-        --                primary={true}
-        --                style={styles.button}
-        --            />
-        --        </div>
-        --    </form>
-        --    googleAuthLinks
 
 emailProperties : Model -> List (Textfield.Property Msg)
 emailProperties model =
@@ -200,6 +160,23 @@ smsProperties model =
         locale = model.locale
         props =
             [ Textfield.label (translate model.locale SmsCode)
+            , Textfield.value model.auth.loginCode
+            , Textfield.floatingLabel
+            , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginCode)
+            , Options.css "width" "100%"
+            ]
+    in
+        case error of
+            "" -> props
+            _ -> Textfield.error (translate locale (Validation error)) :: props
+
+googleProperties : Model -> List (Textfield.Property Msg)
+googleProperties model =
+    let
+        error = model.auth.loginFormError
+        locale = model.locale
+        props =
+            [ Textfield.label (translate model.locale GoogleCode)
             , Textfield.value model.auth.loginCode
             , Textfield.floatingLabel
             , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginCode)
