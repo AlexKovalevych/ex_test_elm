@@ -57,7 +57,7 @@ defmodule Gt.Api.V1.AuthController do
                 login_error(conn)
             else
                 case verify_code(user, code) do
-                    :ok ->
+                    {:ok, user} ->
                         conn = save_to_session(conn, :is_two_factor, true)
                         login_success(conn, user)
                     {:error, message} -> login_error(conn, message)

@@ -27,10 +27,10 @@ defmodule Gt.Manager.TwoFactor do
                     end
                 "google" ->
                     if :pot.valid_totp(code, user.googleSecret) do
-                        user = user
+                        user
                         |> change(%{showGoogleCode: false})
                         |> apply_changes
-                        success_code(user)
+                        |> success_code
                     else
                         error_code(user)
                         {:error, "invalid_google_code"}
@@ -40,11 +40,11 @@ defmodule Gt.Manager.TwoFactor do
     end
 
     defp success_code(user) do
-        user
+        user = user
         |> change(%{failedLoginCount: 0})
         |> apply_changes
-        |> Gt.Repo.update
-        :ok
+        |> Gt.Repo.update!
+        {:ok, user}
     end
 
     defp error_code(user) do
