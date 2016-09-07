@@ -4,6 +4,9 @@ module Translation exposing
     , translate
     )
 
+import Date.Format exposing(format)
+import Date
+
 type alias TranslationSet =
     { english : String
     , russian : String
@@ -59,10 +62,12 @@ translate lang trans =
                     ("На ваш номер (" ++ phoneNumber ++ ") отправлено сообщение с кодом подтверждения. Если вы не получили код, обратитесь к администрации.")
 
             ServerTime time ->
-                let time = toString(time)
-                in TranslationSet
-                    ("Warning! Generated code is sensitive to the time set at your phone. Maximum difference with server time may be ± 1 minute. Server time: " ++ time)
-                    ("Внимание! Код, генерируемый вашим телефоном, чувствителен ко времени, установленном в телефоне. Максимальная разница с серверным временем может быть ± 1 минуту. Серверное время: " ++ time)
+                let
+                    formattedTime = format "%H:%M:%S" (Date.fromTime <| toFloat time)
+                in
+                    TranslationSet
+                        ("Warning! Generated code is sensitive to the time set at your phone. Maximum difference with server time may be ± 1 minute. Server time: " ++ formattedTime)
+                        ("Внимание! Код, генерируемый вашим телефоном, чувствителен ко времени, установленном в телефоне. Максимальная разница с серверным временем может быть ± 1 минуту. Серверное время: " ++ formattedTime)
 
             SmsCode ->
                 TranslationSet "SMS code" "SMS код"

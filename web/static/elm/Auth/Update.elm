@@ -122,5 +122,10 @@ update message model =
         TwoFactor ->
             model ! [ twoFactor <| encodeTwoFactor model ]
 
+        Tick _ ->
+            case model.serverTime of
+                Nothing -> model ! []
+                Just time -> { model | serverTime = Just (time + 1000) } ! []
+
         NoOp ->
             model ! []

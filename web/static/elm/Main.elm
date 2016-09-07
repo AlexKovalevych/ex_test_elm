@@ -13,9 +13,10 @@ import Auth.Models exposing (CurrentUser)
 import Socket.Messages as SocketM
 import LocalStorage exposing (..)
 import Phoenix.Socket
-import Auth.Messages as AuthM
+import Auth.Messages as AuthMessages
 import Task
 import Material.Layout as Layout
+import Time exposing (Time, every, second)
 
 urlParser : Navigation.Parser ( Route, Location )
 urlParser =
@@ -34,7 +35,7 @@ init ( route, location ) =
     let
         redirectToLogin _ = ShowLogin
         initSocket token = token
-            |> AuthM.SetToken
+            |> AuthMessages.SetToken
             |> AuthMsg
         cmd = Task.perform redirectToLogin initSocket (get("jwtToken"))
     in
@@ -54,8 +55,9 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch ([
         Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketM.PhoenixMsg),
-        Sub.map AuthMsg (loggedUser AuthM.LoadCurrentUser),
-        Layout.subs Mdl model.mdl
+        Sub.map AuthMsg (loggedUser AuthMessages.LoadCurrentUser),
+        Layout.subs Mdl model.mdl,
+        Sub.map AuthMsg (every second AuthMessages.Tick)
     ])
 
 port loggedUser : (CurrentUser -> msg) -> Sub msg

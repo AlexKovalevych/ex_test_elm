@@ -18,4 +18,5 @@ type Msg
     | SendSms
     | SmsWasSent
     | Logout
+    | Tick Float
     | NoOp

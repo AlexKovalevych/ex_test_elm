@@ -10,12 +10,6 @@ type alias CurrentUser =
 
 type User = Guest | LoggedUser CurrentUser
 
-type alias LoginForm =
-    { email : String
-    , password : String
-    --, error : Maybe String
-    }
-
 type alias Model =
     { user : User
     , token : String
@@ -25,8 +19,7 @@ type alias Model =
     , loginCode : String
     , qrcodeUrl : Maybe String
     , serverTime: Maybe Int
---    , error : Maybe String
---    , smsSent : Maybe Bool
+    , currentServerTime : Int
     }
 
 type Status
@@ -43,6 +36,7 @@ initialModel =
     , loginCode = ""
     , qrcodeUrl = Nothing
     , serverTime = Nothing
+    , currentServerTime = 0
     }
 
 isLogged : User -> Bool
