@@ -81,13 +81,7 @@ loginForm model =
                         ]
                         [ div [ style [ ( "padding", "1rem" ) ] ]
                             [ text <| translate model.locale (SmsSent user.securePhoneNumber)
-                            , Textfield.render Mdl [0] model.mdl
-                                [ Textfield.label (translate model.locale SmsCode)
-                                , Textfield.value model.auth.loginCode
-                                , Textfield.floatingLabel
-                                , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginCode)
-                                , Options.css "width" "100%"
-                                ]
+                            , Textfield.render Mdl [0] model.mdl (smsProperties model)
                             , Button.render Mdl [1] model.mdl
                                 [ Button.raised
                                 , Button.ripple
@@ -192,6 +186,23 @@ emailProperties model =
             , Textfield.floatingLabel
             , Textfield.value model.auth.loginFormEmail
             , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginEmail)
+            , Options.css "width" "100%"
+            ]
+    in
+        case error of
+            "" -> props
+            _ -> Textfield.error (translate locale (Validation error)) :: props
+
+smsProperties : Model -> List (Textfield.Property Msg)
+smsProperties model =
+    let
+        error = model.auth.loginFormError
+        locale = model.locale
+        props =
+            [ Textfield.label (translate model.locale SmsCode)
+            , Textfield.value model.auth.loginCode
+            , Textfield.floatingLabel
+            , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginCode)
             , Options.css "width" "100%"
             ]
     in

@@ -23,7 +23,7 @@ defmodule Gt.Manager.TwoFactor do
                         success_code(user)
                     else
                         error_code(user)
-                        {:error, "login.invalid_sms_code"}
+                        {:error, "invalid_sms_code"}
                     end
                 "google" ->
                     if :pot.valid_totp(code, user.googleSecret) do
@@ -33,7 +33,7 @@ defmodule Gt.Manager.TwoFactor do
                         success_code(user)
                     else
                         error_code(user)
-                        {:error, "login.invalid_google_code"}
+                        {:error, "invalid_google_code"}
                     end
             end
         end

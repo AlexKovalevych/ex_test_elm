@@ -7,7 +7,7 @@ import Json.Decode as JD
 import Json.Encode as JE
 import Task
 import Xhr exposing (post, stringFromHttpError)
-import Auth.Encoders exposing (encodeLogin)
+import Auth.Encoders exposing (encodeLogin, encodeTwoFactor)
 import Auth.Decoders exposing (userSuccessDecoder, userErrorDecoder, logoutDecoder)
 import LocalStorage exposing (..)
 
@@ -42,14 +42,24 @@ logout decoder =
     in
         Task.perform (\_ -> NoOp) (\_ -> RemoveToken) task
 
+twoFactor : JE.Value -> Cmd Msg
+twoFactor body =
+    let
+        task = fromJson userSuccessDecoder (post "/api/v1/two_factor" body)
+    in
+        Task.perform
+        (stringFromHttpError >> decodeLoginError >> LoginFailed)
+        LoginUser
+        task
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         LoadCurrentUser user ->
-            { model | user = LoggedUser user, loginFormEmail = "", loginFormPassword = "", loginFormError = "" } ! []
+            { model | user = LoggedUser user, loginFormEmail = "", loginFormPassword = "", loginFormError = "", loginCode = "" } ! []
 
         RemoveCurrentUser ->
-            { model | user = Guest, loginFormEmail = "", loginFormPassword = "", loginFormError = "" } ! []
+            { model | user = Guest, loginFormEmail = "", loginFormPassword = "", loginFormError = "", loginCode = "" } ! []
 
         LoginRequest ->
             model ! [ login <| encodeLogin model ]
@@ -105,9 +115,12 @@ update message model =
             -- Handled at the top level
             model ! []
 
-        TwoFactor ->
-            --Not implemented yet
+        SmsWasSent ->
+            -- Handled at the top level
             model ! []
+
+        TwoFactor ->
+            model ! [ twoFactor <| encodeTwoFactor model ]
 
         NoOp ->
             model ! []

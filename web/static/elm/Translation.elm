@@ -39,6 +39,7 @@ translate lang trans =
 
             Validation msg -> case msg of
                 "invalid_email_password" -> TranslationSet "Invalid email or password" "Неправильный логин или пароль"
+                "invalid_sms_code" -> TranslationSet "Invalid sms code" "Неправильный код из SMS"
                 _ -> TranslationSet "" ""
 
             Login ->

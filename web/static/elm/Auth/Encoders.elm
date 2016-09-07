@@ -9,3 +9,9 @@ encodeLogin model =
         [ ( "email", string model.loginFormEmail )
         , ( "password", string model.loginFormPassword )
         ]
+
+encodeTwoFactor : Model -> Value
+encodeTwoFactor model =
+    object
+        [ ( "code", string model.loginCode )
+        ]
