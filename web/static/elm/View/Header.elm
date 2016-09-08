@@ -3,10 +3,9 @@ module View.Header exposing (..)
 import Html exposing (..)
 import Messages exposing (..)
 import Models exposing (..)
-import Auth.Models exposing(CurrentUser)
+import Auth.Models exposing (CurrentUser)
 import Auth.Messages as AuthMessages
 import Material.Layout as Layout
-import Material.Toggles as Toggles
 import Material.Icon as Icon
 import Material.Menu as Menu
 import Html.Attributes exposing (src, width, style)

@@ -2,13 +2,8 @@ module Auth.Update exposing (..)
 
 import Auth.Models exposing (Model, User(Guest, LoggedUser))
 import Auth.Messages exposing (..)
-import Http exposing (fromJson, send, defaultSettings, empty)
-import Json.Decode as JD
-import Json.Encode as JE
+--import Json.Encode as JE
 import Task
-import Xhr exposing (post, stringFromHttpError)
-import Auth.Encoders exposing (encodeLogin, encodeTwoFactor)
-import Auth.Decoders exposing (userSuccessDecoder, userErrorDecoder, logoutDecoder)
 import LocalStorage exposing (..)
 import Translation exposing (..)
 import Auth.Api exposing (logout, login, twoFactor, sendSms)
@@ -26,7 +21,7 @@ update message model =
             let
                 newModel = resetLoginForm model
             in
-                { newModel | user = LoggedUser user } ! [ Cmd.map ForSelf (Cmd.map (\_ -> InitConnection) Cmd.none) ]
+                { newModel | user = LoggedUser user } ! [ Cmd.map (ForSelf << (\_ -> InitConnection)) Cmd.none ]
 
         RemoveCurrentUser ->
             let
@@ -35,11 +30,9 @@ update message model =
                 { newModel | user = Guest } ! []
 
         LoginRequest ->
-            model ! [ Cmd.map ForSelf <| login <| encodeLogin model ]
+            model ! [ login model ]
 
         LoginFailed msg ->
-            let _ = Debug.log "failed: " msg
-            in
             { model | loginFormError = msg } ! []
 
         LoginUser response ->
@@ -97,7 +90,7 @@ update message model =
                 model ! [ Cmd.map ForParent (Cmd.map (\_ -> AddToast msg) Cmd.none) ]
 
         TwoFactor ->
-            model ! [ twoFactor <| encodeTwoFactor model ]
+            model ! [ twoFactor model ]
 
         Tick _ ->
             case model.serverTime of

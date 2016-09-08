@@ -1,7 +1,9 @@
 module Auth.Api exposing (..)
 
+import Auth.Encoders exposing (encodeLogin, encodeTwoFactor)
 import Auth.Decoders exposing (logoutDecoder, userSuccessDecoder, userErrorDecoder)
 import Auth.Messages exposing (..)
+import Auth.Models exposing (Model)
 import Json.Encode as JE
 import Json.Decode as JD
 import Http exposing (fromJson, send, defaultSettings, empty)
@@ -9,15 +11,12 @@ import Task
 import Xhr exposing (post)
 import Translation exposing (..)
 
-login : JE.Value -> Cmd InternalMsg
-login body =
+login : Model -> Cmd Msg
+login model =
     let
-        task = fromJson userSuccessDecoder (post "/api/v1/auth" body)
+        task = fromJson userSuccessDecoder (post "/api/v1/auth" <| encodeLogin model)
     in
-        Task.perform
-        (userErrorDecoder >> LoginFailed)
-        LoginUser
-        task
+        Cmd.map ForSelf <| Task.perform (userErrorDecoder >> LoginFailed) LoginUser task
 
 logout : Cmd Msg
 logout =
@@ -34,10 +33,10 @@ logout =
     in
         Cmd.map ForSelf <| Task.perform (\_ -> NoOp) (\_ -> RemoveToken) task
 
-twoFactor : JE.Value -> Cmd Msg
-twoFactor body =
+twoFactor : Model -> Cmd Msg
+twoFactor model =
     let
-        task = fromJson userSuccessDecoder (post "/api/v1/two_factor" body)
+        task = fromJson userSuccessDecoder (post "/api/v1/two_factor" <| encodeTwoFactor model)
     in
         Cmd.map ForSelf <| Task.perform (userErrorDecoder >> LoginFailed) LoginUser task
 

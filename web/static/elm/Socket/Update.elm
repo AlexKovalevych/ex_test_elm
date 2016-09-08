@@ -1,15 +1,15 @@
 module Socket.Update exposing (..)
 
 import Debug
-import Socket.Models exposing (Model, initialModel)
-import Socket.Messages exposing (..)
+import Dict
+import List
+import Native.Location
 import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push
-import Native.Location
-import Dict
+import Socket.Models exposing (Model, initialModel)
+import Socket.Messages exposing (..)
 import String
-import List
 import Translation exposing (Language)
 
 update : InternalMsg -> Model -> ( Model, Cmd Msg )
@@ -19,7 +19,7 @@ update message model =
             let
                 ( phxSocket, phxCmd ) = Phoenix.Socket.update msg model.phxSocket
             in
-                { model | phxSocket = phxSocket } ! [ Cmd.map ForSelf (Cmd.map PhoenixMsg phxCmd) ]
+                { model | phxSocket = phxSocket } ! [ Cmd.map (ForSelf << PhoenixMsg) phxCmd ]
 
         InitSocket token ->
             let
@@ -35,7 +35,7 @@ update message model =
                 _ = Debug.log "joined channel: " phxCmd
                 newChannels = Dict.insert (getChannelShortName name) name model.channels
             in
-                { model | channels = newChannels, phxSocket = phxSocket } ! [ Cmd.map ForSelf (Cmd.map PhoenixMsg phxCmd) ]
+                { model | channels = newChannels, phxSocket = phxSocket } ! [ Cmd.map (ForSelf << PhoenixMsg) phxCmd ]
 
         PushMessage msg channel payload ->
             let
@@ -43,7 +43,7 @@ update message model =
                     |> Phoenix.Push.withPayload payload
                 ( phxSocket, phxCmd ) = Phoenix.Socket.push push model.phxSocket
             in
-                { model | phxSocket = phxSocket } ! [ Cmd.map ForSelf (Cmd.map PhoenixMsg phxCmd) ]
+                { model | phxSocket = phxSocket } ! [ Cmd.map (ForSelf << PhoenixMsg) phxCmd ]
 
         RemoveSocket ->
             initialModel ! []

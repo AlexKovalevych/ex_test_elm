@@ -1,7 +1,6 @@
 module Socket.Models exposing (..)
 
 import Phoenix.Socket
-import Phoenix.Channel exposing (Channel)
 import Socket.Messages exposing (InternalMsg)
 import Dict exposing (Dict, empty)
 
