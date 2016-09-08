@@ -1,4 +1,4 @@
-module Auth.Update exposing (update)
+module Auth.Update exposing (..)
 
 import Auth.Models exposing (Model, User(Guest, LoggedUser))
 import Auth.Messages exposing (..)
@@ -10,59 +10,30 @@ import Xhr exposing (post, stringFromHttpError)
 import Auth.Encoders exposing (encodeLogin, encodeTwoFactor)
 import Auth.Decoders exposing (userSuccessDecoder, userErrorDecoder, logoutDecoder)
 import LocalStorage exposing (..)
+import Translation exposing (..)
 
-decodeLoginError : String -> String
-decodeLoginError msg =
-    case JD.decodeString userErrorDecoder msg of
-        Ok error -> error
-        Err _ -> ""
-
-login : JE.Value -> Cmd Msg
-login body =
-    let
-        task = fromJson userSuccessDecoder (post "/api/v1/auth" body)
-    in
-        Task.perform
-        (stringFromHttpError >> decodeLoginError >> LoginFailed)
-        LoginUser
-        task
-
-logout : JD.Decoder value -> Cmd Msg
-logout decoder =
-    let request =
-        { verb = "DELETE"
-        , headers = [
-            ("Accept", "application/json"),
-            ("Content-Type", "application/json")
-        ]
-        , url = "/api/v1/auth"
-        , body = empty
-        }
-        task = fromJson decoder (send defaultSettings request)
-    in
-        Task.perform (\_ -> NoOp) (\_ -> RemoveToken) task
-
-twoFactor : JE.Value -> Cmd Msg
-twoFactor body =
-    let
-        task = fromJson userSuccessDecoder (post "/api/v1/two_factor" body)
-    in
-        Task.perform
-        (stringFromHttpError >> decodeLoginError >> LoginFailed)
-        LoginUser
-        task
-
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : InternalMsg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
+        InitConnection ->
+            case model.user of
+                Guest -> model ! []
+                LoggedUser user -> model ! [ Cmd.map ForParent (Cmd.map (\_ -> SocketInit model.token) Cmd.none) ]
+
         LoadCurrentUser user ->
-            { model | user = LoggedUser user, loginFormEmail = "", loginFormPassword = "", loginFormError = "", loginCode = "" } ! []
+            let
+                newModel = resetLoginForm model
+            in
+                { newModel | user = LoggedUser user } ! []
 
         RemoveCurrentUser ->
-            { model | user = Guest, loginFormEmail = "", loginFormPassword = "", loginFormError = "", loginCode = "" } ! []
+            let
+                newModel = resetLoginForm model
+            in
+                { newModel | user = Guest } ! []
 
         LoginRequest ->
-            model ! [ login <| encodeLogin model ]
+            model ! [ Cmd.map ForSelf <| login <| encodeLogin model ]
 
         LoginFailed msg ->
             { model | loginFormError = msg } ! []
@@ -91,7 +62,7 @@ update message model =
                             , token = token
                             }
                     in
-                        model ! [Task.perform (\_ -> NoOp) (\_ -> NoOp) (set "jwtToken" token)]
+                        model ! [Task.perform (\_ -> ForSelf NoOp) (\_ -> ForSelf NoOp) (set "jwtToken" token)]
 
         ChangeLoginEmail msg ->
             { model | loginFormEmail = msg } ! []
@@ -103,7 +74,7 @@ update message model =
             { model | loginCode = msg } ! []
 
         Logout ->
-            model ! [logout logoutDecoder]
+            model ! [ Cmd.map ForSelf <| logout logoutDecoder]
 
         SetToken token ->
             { model | token = token } ! []
@@ -112,15 +83,23 @@ update message model =
             { model | token = "" } ! []
 
         SendSms ->
-            -- Handled at the top level
-            model ! []
+            let
+                task = fromJson JD.string (post "/api/v1/send_sms" JE.null)
+            in
+                model ! [Task.perform
+                    (\e -> ForSelf NoOp)
+                    (\_ -> ForSelf SmsWasSent)
+                    task
+                ]
 
         SmsWasSent ->
-            -- Handled at the top level
-            model ! []
+            let
+                msg = Login "sms_was_sent"
+            in
+                model ! [ Cmd.map ForParent (Cmd.map (\e -> AddToast msg) Cmd.none) ]
 
         TwoFactor ->
-            model ! [ twoFactor <| encodeTwoFactor model ]
+            model ! [ Cmd.map ForSelf <| twoFactor <| encodeTwoFactor model ]
 
         Tick _ ->
             case model.serverTime of
@@ -129,3 +108,74 @@ update message model =
 
         NoOp ->
             model ! []
+
+type alias TranslationDictionary msg =
+    { onInternalMessage : InternalMsg -> msg
+    , onSocketInit : String -> msg
+    , onAddToast : TranslationId -> msg
+    }
+
+type alias Translator msg =
+    Msg -> msg
+
+translator : TranslationDictionary msg -> Translator msg
+translator { onInternalMessage, onSocketInit, onAddToast } msg =
+    case msg of
+        ForSelf internal ->
+            onInternalMessage internal
+
+        ForParent (SocketInit token) ->
+            onSocketInit token
+
+        ForParent (AddToast msg) ->
+            onAddToast msg
+
+resetLoginForm : Model -> Model
+resetLoginForm model =
+    { model
+    | loginFormEmail = ""
+    , loginFormPassword = ""
+    , loginFormError = ""
+    , loginCode = ""
+    }
+
+decodeLoginError : String -> String
+decodeLoginError msg =
+    case JD.decodeString userErrorDecoder msg of
+        Ok error -> error
+        Err _ -> ""
+
+login : JE.Value -> Cmd InternalMsg
+login body =
+    let
+        task = fromJson userSuccessDecoder (post "/api/v1/auth" body)
+    in
+        Task.perform
+        (stringFromHttpError >> decodeLoginError >> LoginFailed)
+        LoginUser
+        task
+
+logout : JD.Decoder value -> Cmd InternalMsg
+logout decoder =
+    let request =
+        { verb = "DELETE"
+        , headers = [
+            ("Accept", "application/json"),
+            ("Content-Type", "application/json")
+        ]
+        , url = "/api/v1/auth"
+        , body = empty
+        }
+        task = fromJson decoder (send defaultSettings request)
+    in
+        Task.perform (\_ -> NoOp) (\_ -> RemoveToken) task
+
+twoFactor : JE.Value -> Cmd InternalMsg
+twoFactor body =
+    let
+        task = fromJson userSuccessDecoder (post "/api/v1/two_factor" body)
+    in
+        Task.perform
+        (stringFromHttpError >> decodeLoginError >> LoginFailed)
+        LoginUser
+        task

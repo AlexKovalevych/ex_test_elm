@@ -4,7 +4,7 @@ module Translation exposing
     , translate
     )
 
-import Date.Format exposing(format)
+import Date.Format exposing (format)
 import Date
 
 type alias TranslationSet =
@@ -13,18 +13,12 @@ type alias TranslationSet =
     }
 
 type TranslationId
-    = Email
-    | Login
-    | Password
-    | Validation String
+    = Login String
+    --| Validation String
     | SmsSent String
     | RU
     | EN
     | ServerTime Int
-    | SmsCode
-    | ResendSms
-    | SmsWasSent
-    | GoogleCode
     | Menu String
 
 type Language
@@ -36,18 +30,22 @@ translate lang trans =
     let
         translationSet =
         case trans of
-            Email ->
-                TranslationSet "Email" "Email"
-
-            Password ->
-                TranslationSet "Password" "Пароль"
-
-            Validation msg -> case msg of
+            Login msg -> case msg of
+                "email" -> TranslationSet "Email" "Email"
+                "passsword" -> TranslationSet "Password" "Пароль"
                 "invalid_email_password" -> TranslationSet "Invalid email or password" "Неправильный логин или пароль"
                 "invalid_sms_code" -> TranslationSet "Invalid sms code" "Неправильный код из SMS"
                 "invalid_google_code" -> TranslationSet "Invalid code" "Неправильный код"
                 "disabled" -> TranslationSet "Your account is disabled. Contact system administrator" "Ваш аккаунт отключен. Свяжитесь с администратором"
+                "sms_was_sent" -> TranslationSet "SMS was sent" "SMS было отправлено"
+                "submit" -> TranslationSet "Login" "Войти"
+                "sms_code" -> TranslationSet "SMS code" "SMS код"
+                "google_code" -> TranslationSet "Authentication code" "Код аутентификации"
+                "resend_sms" -> TranslationSet "Send SMS again" "Отправить SMS еще раз"
                 _ -> TranslationSet "" ""
+
+            --Validation msg -> case msg of
+            --    _ -> TranslationSet "" ""
 
             Menu msg -> case msg of
                 "dashboard" -> TranslationSet "Project indicators" "Показатели проектов"
@@ -81,14 +79,11 @@ translate lang trans =
                 "smtp_server" -> TranslationSet "SMTP server" "SMTP сервера"
                 _ -> TranslationSet "" ""
 
-            Login ->
-                TranslationSet "Login" "Войти"
-
             RU ->
-                TranslationSet "Russian" "Русский"
+                TranslationSet "Русский" "Русский"
 
             EN ->
-                TranslationSet "English" "Английский"
+                TranslationSet "English" "English"
 
             SmsSent phoneNumber ->
                 TranslationSet
@@ -103,17 +98,6 @@ translate lang trans =
                         ("Warning! Generated code is sensitive to the time set at your phone. Maximum difference with server time may be ± 1 minute. Server time: " ++ formattedTime)
                         ("Внимание! Код, генерируемый вашим телефоном, чувствителен ко времени, установленном в телефоне. Максимальная разница с серверным временем может быть ± 1 минуту. Серверное время: " ++ formattedTime)
 
-            SmsCode ->
-                TranslationSet "SMS code" "SMS код"
-
-            GoogleCode ->
-                TranslationSet "Authentication code" "Код аутентификации"
-
-            ResendSms ->
-                TranslationSet "Send SMS again" "Отправить SMS еще раз"
-
-            SmsWasSent ->
-                TranslationSet "SMS was sent" "SMS было отправлено"
     in
         case lang of
             English ->

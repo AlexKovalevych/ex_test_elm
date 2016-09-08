@@ -35,9 +35,3 @@ initialModel =
     , serverTime = Nothing
     , currentServerTime = 0
     }
-
-isLogged : User -> Bool
-isLogged user =
-    case user of
-        Guest -> False
-        LoggedUser _ -> True

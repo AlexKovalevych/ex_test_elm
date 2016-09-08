@@ -4,15 +4,22 @@ import Socket.Messages
 import Auth.Messages
 import Material
 import Material.Snackbar as Snackbar
-import Translation exposing (Language)
+import Translation exposing (Language, TranslationId)
 
 type Msg
-    = SocketMsg Socket.Messages.Msg
-    | Mdl (Material.Msg Msg)
-    | SetLocale Language
+    = Mdl (Material.Msg Msg)
     | Snackbar (Snackbar.Msg Msg)
-    | AddToast String
-    | AuthMsg Auth.Messages.Msg
+    | AddToast TranslationId
+    | SetLocale Language
+
+    --Socket messages
+    | SocketMsg Socket.Messages.InternalMsg
+
+    --Auth messages
+    | AuthMsg Auth.Messages.InternalMsg
+
+    --Route messages
     | ShowDashboard
     | ShowLogin
+
     | NoOp

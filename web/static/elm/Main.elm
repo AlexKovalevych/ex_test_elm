@@ -11,7 +11,7 @@ import Update
 import Material
 import Messages exposing (..)
 import Auth.Models exposing (CurrentUser)
-import Socket.Messages as SocketM
+import Socket.Messages as SocketMessages
 import LocalStorage exposing (..)
 import Phoenix.Socket
 import Auth.Messages as AuthMessages
@@ -39,8 +39,9 @@ init ( route, location ) =
             |> AuthMessages.SetToken
             |> AuthMsg
         cmd = Task.perform redirectToLogin initSocket (get("jwtToken"))
+        model = initialModel route location
     in
-        ( initialModel route location, Cmd.batch [cmd, Layout.sub0 Mdl] )
+        model ! [ cmd, Layout.sub0 Mdl ]
 
 main : Program Never
 main =
@@ -55,7 +56,7 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch ([
-        Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketM.PhoenixMsg),
+        Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketMessages.PhoenixMsg),
         Sub.map AuthMsg (loggedUser AuthMessages.LoadCurrentUser),
         Layout.subs Mdl model.mdl,
         Sub.map AuthMsg (every second AuthMessages.Tick),

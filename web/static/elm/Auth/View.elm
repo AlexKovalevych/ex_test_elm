@@ -11,46 +11,47 @@ import Material.Button as Button
 import Models exposing (..)
 import Html.Events exposing (onSubmit)
 import Translation exposing (..)
-import Material.Grid exposing (grid, cell, size, offset, Device(..))
+import Material.Grid exposing (Cell, grid, cell, size, offset, Device(..))
 import Html.Attributes exposing (style, src, alt, href, target, width, height)
 import Messages exposing (..)
 import Material.Snackbar as Snackbar
 
-googleAuthLinks : Html Msg
-googleAuthLinks =
+view : Model -> Html Msg
+view model =
     div []
-    [ grid
+    [ Snackbar.view model.snackbar |> App.map Snackbar
+    , grid
         []
         [ cell
-            [ size All 12
+            [ Elevation.e4
+            , offset Desktop 4
+            , offset Tablet 1
+            , size Phone 12
+            , size Tablet 6
+            , size Desktop 4
+            , Options.css "text-align" "center"
             ]
-            [ a
-                [ href "https://itunes.apple.com/ua/app/google-authenticator/id388497605?mt=8"
-                , target "_blank"
-                ]
-                [ img [ src "/images/button_app_store.png", width 150, height 44 ] []
-                ]
+            [ img [ src "/images/logo.png", alt "logo" ] []
+            , loginForm model
             ]
-        , cell
-            [ size All 12
-            ]
-            [ a
-                [ href "http://apps.microsoft.com/windows/en-us/app/google-authenticator/7ea6de74-dddb-47df-92cb-40afac4d38bb"
-                , target "_blank"
-                ]
-                [ img [ src "/images/button_windows_store.png", width 150, height 44 ] []
-                ]
-            ]
-        , cell
-            [ size All 12
-            ]
-            [ a
-                [ href "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
-                , target "_blank"
-                ]
-                [ img [ src "/images/button_play_store.png", width 150, height 44 ] []
-                ]
-            ]
+        ]
+    ]
+
+storeLinks : List ((String, String))
+storeLinks =
+    [ ("https://itunes.apple.com/ua/app/google-authenticator/id388497605?mt=8", "/images/button_app_store.png")
+    , ("http://apps.microsoft.com/windows/en-us/app/google-authenticator/7ea6de74-dddb-47df-92cb-40afac4d38bb", "/images/button_windows_store.png")
+    , ("https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2", "/images/button_play_store.png")
+    ]
+
+renderStoreLink : (String, String) -> Cell Msg
+renderStoreLink (linkUrl, imgUrl) =
+    cell [size All 12]
+    [ a
+        [ href linkUrl
+        , target "_blank"
+        ]
+        [ img [ src imgUrl, width 150, height 44 ] []
         ]
     ]
 
@@ -74,19 +75,14 @@ loginForm model =
                 ]
                 [ Textfield.render Mdl [0] model.mdl (emailProperties model)
                 , Textfield.render Mdl [1] model.mdl
-                    [ Textfield.label (translate model.locale Password)
+                    [ Textfield.label (translate model.locale <| Login "password")
                     , Textfield.password
                     , Textfield.value model.auth.loginFormPassword
                     , Textfield.floatingLabel
                     , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginPassword)
                     , Options.css "width" "100%"
                     ]
-                , Button.render Mdl [2] model.mdl
-                    [ Button.raised
-                    , Button.ripple
-                    , Button.colored
-                    ]
-                    [ text <| translate model.locale Login ]
+                , submitButton model 2 <| Login "submit"
                 ]
         LoggedUser user ->
             case user.authenticationType of
@@ -96,14 +92,8 @@ loginForm model =
                         ]
                         [ div [ style [ ( "padding", "1rem" ) ] ]
                             [ text <| translate model.locale (SmsSent user.securePhoneNumber)
-                            , Textfield.render Mdl [0] model.mdl (smsProperties model)
-                            , Button.render Mdl [1] model.mdl
-                                [ Button.raised
-                                , Button.ripple
-                                , Button.primary
-                                , Button.type' "submit"
-                                ]
-                                [ text <| translate model.locale Login ]
+                            , twoFactorInput model <| Login "sms_code"
+                            , submitButton model 1 <| Login "submit"
                             , Button.render Mdl [2] model.mdl
                                 [ Button.raised
                                 , Button.ripple
@@ -111,7 +101,7 @@ loginForm model =
                                 , Button.type' "button"
                                 , Options.css "margin-left" "1rem"
                                 ]
-                                [ text <| translate model.locale ResendSms ]
+                                [ text <| translate model.locale <| Login "resend_sms" ]
                             ]
                         ]
                 _ ->
@@ -123,17 +113,23 @@ loginForm model =
                             ]
                         , div [ style [ ( "padding", "1rem" ) ] ]
                             [ text <| translate model.locale (ServerTime <| serverTime model)
-                            , Textfield.render Mdl [0] model.mdl (googleProperties model)
-                            , Button.render Mdl [1] model.mdl
-                                [ Button.raised
-                                , Button.ripple
-                                , Button.primary
-                                , Button.type' "submit"
-                                ]
-                                [ text <| translate model.locale Login ]
+                            , twoFactorInput model <| Login "google_code"
+                            , submitButton model 1 <| Login "submit"
                             ]
-                        , googleAuthLinks
+                        , div []
+                            [ grid [] (List.map renderStoreLink storeLinks)
+                            ]
                         ]
+
+submitButton : Model -> Int -> TranslationId -> Html Msg
+submitButton model key translationId =
+    Button.render Mdl [key] model.mdl
+        [ Button.raised
+        , Button.ripple
+        , Button.primary
+        , Button.type' "submit"
+        ]
+        [ text <| translate model.locale translationId ]
 
 emailProperties : Model -> List (Textfield.Property Msg)
 emailProperties model =
@@ -141,7 +137,7 @@ emailProperties model =
         error = model.auth.loginFormError
         locale = model.locale
         props =
-            [ Textfield.label (translate locale Email)
+            [ Textfield.label (translate locale <| Login "email")
             , Textfield.autofocus
             , Textfield.floatingLabel
             , Textfield.value model.auth.loginFormEmail
@@ -151,59 +147,23 @@ emailProperties model =
     in
         case error of
             "" -> props
-            _ -> Textfield.error (translate locale (Validation error)) :: props
+            _ -> Textfield.error (translate locale <| Login error) :: props
 
-smsProperties : Model -> List (Textfield.Property Msg)
-smsProperties model =
+twoFactorInput : Model -> TranslationId -> Html Msg
+twoFactorInput model translationId =
     let
         error = model.auth.loginFormError
         locale = model.locale
         props =
-            [ Textfield.label (translate model.locale SmsCode)
+            [ Textfield.label (translate model.locale translationId)
             , Textfield.value model.auth.loginCode
             , Textfield.floatingLabel
             , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginCode)
             , Options.css "width" "100%"
             ]
-    in
-        case error of
+        propsWithError = case error of
             "" -> props
-            _ -> Textfield.error (translate locale (Validation error)) :: props
-
-googleProperties : Model -> List (Textfield.Property Msg)
-googleProperties model =
-    let
-        error = model.auth.loginFormError
-        locale = model.locale
-        props =
-            [ Textfield.label (translate model.locale GoogleCode)
-            , Textfield.value model.auth.loginCode
-            , Textfield.floatingLabel
-            , Textfield.onInput (AuthMsg << AuthMessages.ChangeLoginCode)
-            , Options.css "width" "100%"
-            ]
+            _ -> Textfield.error (translate locale <| Login error) :: props
     in
-        case error of
-            "" -> props
-            _ -> Textfield.error (translate locale (Validation error)) :: props
+        Textfield.render Mdl [0] model.mdl props
 
-view : Model -> Html Msg
-view model =
-    div []
-    [ Snackbar.view model.snackbar |> App.map Snackbar
-    , grid
-        []
-        [ cell
-            [ Elevation.e4
-            , offset Desktop 4
-            , offset Tablet 1
-            , size Phone 12
-            , size Tablet 6
-            , size Desktop 4
-            , Options.css "text-align" "center"
-            ]
-            [ img [ src "/images/logo.png", alt "logo" ] []
-            , loginForm model
-            ]
-        ]
-    ]

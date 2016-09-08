@@ -39,7 +39,11 @@ header user model =
         ]
     ]
 
+currentLocale : Model -> Html Msg
 currentLocale model =
-    case model.locale of
-        Russian -> img [ src "/images/flags/ru_2.png", width 25, style [ ( "margin-right", "1rem" ) ] ] []
-        English -> img [ src "/images/flags/en_2.png", width 25, style [ ( "margin-right", "1rem" ) ] ] []
+    let
+        props url = [ src url, width 25, style [ ( "margin-right", "1rem" ) ] ]
+    in
+        case model.locale of
+            Russian -> img (props "/images/flags/ru_2.png") []
+            English -> img (props "/images/flags/en_2.png") []

@@ -46,15 +46,6 @@ view model =
                     }
             Guest -> AuthView.view model
 
-    --case model.route of
-    --    LoginRoute ->
-    --    _ ->
-    --div []
-    --    [ menu model
-    --    , pageView model
-    --    ]
-
-
 drawer : Model -> List (Html Msg)
 drawer model =
     [ Layout.title []

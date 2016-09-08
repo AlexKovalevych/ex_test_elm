@@ -1,22 +1,8 @@
 module Xhr exposing (..)
 
 import Task exposing (Task)
-import Models exposing (..)
 import Json.Encode as JE
---import Json.Decode as JD
 import Http exposing (send, defaultSettings, string, RawError, Response, Error)
---import Translation exposing (..)
---import HttpBuilder exposing (..)
-
-
---post : String -> JE.Value -> RequestBuilder
---post path body =
---  HttpBuilder.post path
---    |> withJsonBody body
---    |> withHeader "Content-Type" "application/json"
---    --|> withTimeout (10 * Time.second)
---    |> withCredentials
---    --|> send reader stringReader
 
 post : String -> JE.Value -> Task RawError Response
 post path encoded =
