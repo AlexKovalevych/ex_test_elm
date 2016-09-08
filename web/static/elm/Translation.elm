@@ -32,12 +32,13 @@ translate lang trans =
         case trans of
             Login msg -> case msg of
                 "email" -> TranslationSet "Email" "Email"
-                "passsword" -> TranslationSet "Password" "Пароль"
+                "password" -> TranslationSet "Password" "Пароль"
                 "invalid_email_password" -> TranslationSet "Invalid email or password" "Неправильный логин или пароль"
                 "invalid_sms_code" -> TranslationSet "Invalid sms code" "Неправильный код из SMS"
                 "invalid_google_code" -> TranslationSet "Invalid code" "Неправильный код"
                 "disabled" -> TranslationSet "Your account is disabled. Contact system administrator" "Ваш аккаунт отключен. Свяжитесь с администратором"
                 "sms_was_sent" -> TranslationSet "SMS was sent" "SMS было отправлено"
+                "sms_was_not_sent" -> TranslationSet "Failed to send SMS" "Ошибка при отправке SMS"
                 "submit" -> TranslationSet "Login" "Войти"
                 "sms_code" -> TranslationSet "SMS code" "SMS код"
                 "google_code" -> TranslationSet "Authentication code" "Код аутентификации"

@@ -165,5 +165,5 @@ twoFactorInput model translationId =
             "" -> props
             _ -> Textfield.error (translate locale <| Login error) :: props
     in
-        Textfield.render Mdl [0] model.mdl props
+        Textfield.render Mdl [0] model.mdl propsWithError
 

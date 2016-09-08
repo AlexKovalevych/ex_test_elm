@@ -19,13 +19,16 @@ type InternalMsg
     | RemoveToken
     | SendSms
     | SmsWasSent
-    | Logout
+    | LogoutRequest
     | Tick Float
     | NoOp
 
 type OutMsg
     = SocketInit String
+    | JoinChannel String
+    | RemoveSocket
     | AddToast TranslationId
+    | ShowLogin
 
 type Msg
     = ForSelf InternalMsg

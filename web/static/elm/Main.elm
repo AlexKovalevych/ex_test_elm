@@ -35,13 +35,13 @@ init : ( Route, Location ) -> ( Model, Cmd Msg )
 init ( route, location ) =
     let
         redirectToLogin _ = ShowLogin
-        initSocket token = token
+        setToken token = token
             |> AuthMessages.SetToken
             |> AuthMsg
-        cmd = Task.perform redirectToLogin initSocket (get("jwtToken"))
+        setTokenCmd = Task.perform redirectToLogin setToken <| get "jwtToken"
         model = initialModel route location
     in
-        model ! [ cmd, Layout.sub0 Mdl ]
+        model ! [ setTokenCmd, Layout.sub0 Mdl ]
 
 main : Program Never
 main =

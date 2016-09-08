@@ -1,7 +1,9 @@
 module Auth.Decoders exposing (..)
 
-import Json.Decode exposing (..)
 import Auth.Models exposing (CurrentUser)
+import Json.Decode exposing (..)
+import Http
+import Xhr exposing (stringFromHttpError)
 
 type alias LoginResponse =
     { user : CurrentUser
@@ -28,10 +30,6 @@ userDecoder =
         ("securePhoneNumber" := string)
         ("locale" := string)
 
-userErrorDecoder : Decoder String
-userErrorDecoder =
-    at ["error"] string
-
 type alias LogoutResponse =
     { ok : Bool
     }
@@ -40,3 +38,12 @@ logoutDecoder : Decoder LogoutResponse
 logoutDecoder =
     object1 LogoutResponse
         ("ok" := bool)
+
+userErrorDecoder : Http.Error -> String
+userErrorDecoder msg =
+    let
+        stringMsg = stringFromHttpError msg
+    in
+        case decodeString (at ["error"] string) stringMsg of
+            Ok error -> error
+            Err _ -> ""

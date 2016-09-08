@@ -32,7 +32,7 @@ header user model =
                 []
                 [ text user.email ]
             , Layout.link
-                [ Layout.onClick <| AuthMsg (AuthMessages.Logout)
+                [ Layout.onClick <| AuthMsg (AuthMessages.LogoutRequest)
                 ]
                 [ Icon.i "exit_to_app" ]
             ]

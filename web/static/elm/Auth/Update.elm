@@ -11,6 +11,7 @@ import Auth.Encoders exposing (encodeLogin, encodeTwoFactor)
 import Auth.Decoders exposing (userSuccessDecoder, userErrorDecoder, logoutDecoder)
 import LocalStorage exposing (..)
 import Translation exposing (..)
+import Auth.Api exposing (logout, login, twoFactor, sendSms)
 
 update : InternalMsg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -18,13 +19,13 @@ update message model =
         InitConnection ->
             case model.user of
                 Guest -> model ! []
-                LoggedUser user -> model ! [ Cmd.map ForParent (Cmd.map (\_ -> SocketInit model.token) Cmd.none) ]
+                LoggedUser user -> model ! initConnection model.token user.is_admin user.id
 
         LoadCurrentUser user ->
             let
                 newModel = resetLoginForm model
             in
-                { newModel | user = LoggedUser user } ! []
+                { newModel | user = LoggedUser user } ! [ Cmd.map ForSelf (Cmd.map (\_ -> InitConnection) Cmd.none) ]
 
         RemoveCurrentUser ->
             let
@@ -36,33 +37,26 @@ update message model =
             model ! [ Cmd.map ForSelf <| login <| encodeLogin model ]
 
         LoginFailed msg ->
+            let _ = Debug.log "failed: " msg
+            in
             { model | loginFormError = msg } ! []
 
         LoginUser response ->
-            case response.jwt of
-                Nothing ->
-                    let
-                        user = response.user
-                        model =
-                            { model
-                            | qrcodeUrl = response.url
-                            , serverTime = response.serverTime
-                            , user = (LoggedUser user)
-                            }
-                    in
-                        model ! []
-                Just token ->
-                    let
-                        user = response.user
-                        model =
-                            { model
-                            | qrcodeUrl = response.url
-                            , serverTime = response.serverTime
-                            , user = (LoggedUser user)
-                            , token = token
-                            }
-                    in
-                        model ! [Task.perform (\_ -> ForSelf NoOp) (\_ -> ForSelf NoOp) (set "jwtToken" token)]
+            let
+                user = response.user
+                newModel =
+                    { model
+                    | qrcodeUrl = response.url
+                    , serverTime = response.serverTime
+                    , user = (LoggedUser user)
+                    }
+            in
+                case response.jwt of
+                    Nothing -> newModel ! []
+                    Just token ->
+                        { newModel | token = token } !
+                            [ Task.perform (\_ -> ForSelf NoOp) (\_ -> ForSelf (SetToken token)) (set "jwtToken" token)
+                            ]
 
         ChangeLoginEmail msg ->
             { model | loginFormEmail = msg } ! []
@@ -73,24 +67,27 @@ update message model =
         ChangeLoginCode msg ->
             { model | loginCode = msg } ! []
 
-        Logout ->
-            model ! [ Cmd.map ForSelf <| logout logoutDecoder]
+        LogoutRequest ->
+            model ! [ logout ]
 
         SetToken token ->
-            { model | token = token } ! []
+            let
+                task = case model.user of
+                    Guest -> []
+                    LoggedUser user -> [ Task.perform never ForSelf (Task.succeed InitConnection) ]
+            in
+                { model | token = token } ! task
 
         RemoveToken ->
-            { model | token = "" } ! []
+            let
+                newModel = resetLoginForm model
+            in { newModel | token = "", user = Guest } !
+                [ Task.perform (\_ -> ForSelf NoOp) (\_ -> ForParent ShowLogin) (remove "jwtToken")
+                , Task.perform never ForParent (Task.succeed RemoveSocket)
+                ]
 
         SendSms ->
-            let
-                task = fromJson JD.string (post "/api/v1/send_sms" JE.null)
-            in
-                model ! [Task.perform
-                    (\e -> ForSelf NoOp)
-                    (\_ -> ForSelf SmsWasSent)
-                    task
-                ]
+            model ! [ sendSms ]
 
         SmsWasSent ->
             let
@@ -99,7 +96,7 @@ update message model =
                 model ! [ Cmd.map ForParent (Cmd.map (\e -> AddToast msg) Cmd.none) ]
 
         TwoFactor ->
-            model ! [ Cmd.map ForSelf <| twoFactor <| encodeTwoFactor model ]
+            model ! [ twoFactor <| encodeTwoFactor model ]
 
         Tick _ ->
             case model.serverTime of
@@ -109,17 +106,37 @@ update message model =
         NoOp ->
             model ! []
 
+initConnection : String -> Bool -> String -> List ( Cmd Msg )
+initConnection token isAdmin userId =
+    let
+        task =
+            [ Task.perform never ForParent (Task.succeed <| JoinChannel <| "users:" ++ userId)
+            , Task.perform never ForParent (Task.succeed <| SocketInit token)
+            ]
+    in
+        if isAdmin then
+            Task.perform never ForParent (Task.succeed <| JoinChannel <| "admins:" ++ userId) :: task
+        else
+            task
+
+never : Never -> a
+never n =
+    never n
+
 type alias TranslationDictionary msg =
     { onInternalMessage : InternalMsg -> msg
     , onSocketInit : String -> msg
+    , onSocketRemove : msg
+    , onJoinChannel : String -> msg
     , onAddToast : TranslationId -> msg
+    , onShowLogin : msg
     }
 
 type alias Translator msg =
     Msg -> msg
 
 translator : TranslationDictionary msg -> Translator msg
-translator { onInternalMessage, onSocketInit, onAddToast } msg =
+translator { onInternalMessage, onSocketInit, onSocketRemove, onJoinChannel, onAddToast, onShowLogin } msg =
     case msg of
         ForSelf internal ->
             onInternalMessage internal
@@ -127,8 +144,17 @@ translator { onInternalMessage, onSocketInit, onAddToast } msg =
         ForParent (SocketInit token) ->
             onSocketInit token
 
+        ForParent (JoinChannel name) ->
+            onJoinChannel name
+
+        ForParent RemoveSocket ->
+            onSocketRemove
+
         ForParent (AddToast msg) ->
             onAddToast msg
+
+        ForParent ShowLogin ->
+            onShowLogin
 
 resetLoginForm : Model -> Model
 resetLoginForm model =
@@ -138,44 +164,3 @@ resetLoginForm model =
     , loginFormError = ""
     , loginCode = ""
     }
-
-decodeLoginError : String -> String
-decodeLoginError msg =
-    case JD.decodeString userErrorDecoder msg of
-        Ok error -> error
-        Err _ -> ""
-
-login : JE.Value -> Cmd InternalMsg
-login body =
-    let
-        task = fromJson userSuccessDecoder (post "/api/v1/auth" body)
-    in
-        Task.perform
-        (stringFromHttpError >> decodeLoginError >> LoginFailed)
-        LoginUser
-        task
-
-logout : JD.Decoder value -> Cmd InternalMsg
-logout decoder =
-    let request =
-        { verb = "DELETE"
-        , headers = [
-            ("Accept", "application/json"),
-            ("Content-Type", "application/json")
-        ]
-        , url = "/api/v1/auth"
-        , body = empty
-        }
-        task = fromJson decoder (send defaultSettings request)
-    in
-        Task.perform (\_ -> NoOp) (\_ -> RemoveToken) task
-
-twoFactor : JE.Value -> Cmd InternalMsg
-twoFactor body =
-    let
-        task = fromJson userSuccessDecoder (post "/api/v1/two_factor" body)
-    in
-        Task.perform
-        (stringFromHttpError >> decodeLoginError >> LoginFailed)
-        LoginUser
-        task
