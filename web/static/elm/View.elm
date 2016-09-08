@@ -19,6 +19,7 @@ import Material.Icon as Icon
 import Translation exposing (..)
 import Auth.View as AuthView
 import Routing exposing (..)
+import View.Header as Header
 
 view : Model -> Html Msg
 view model =
@@ -32,7 +33,7 @@ view model =
                     [ Layout.fixedHeader
                     , Layout.fixedDrawer
                     ]
-                    { header = header user
+                    { header = Header.header user model
                     , drawer = drawer model
                     , tabs = ( [], [] )
                     , main =
@@ -53,24 +54,6 @@ view model =
     --    , pageView model
     --    ]
 
-
-header : CurrentUser -> List (Html Msg)
-header user =
-    [ Layout.row
-        []
-        [ Layout.title [] [ text "Page title here" ]
-        , Layout.spacer
-        , Layout.navigation []
-            [ Layout.link
-                []
-                [ text user.email ]
-            , Layout.link
-                [ Layout.onClick <| AuthMsg (AuthMessages.Logout)
-                ]
-                [ Icon.i "exit_to_app" ]
-            ]
-        ]
-    ]
 
 drawer : Model -> List (Html Msg)
 drawer model =

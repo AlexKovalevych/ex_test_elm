@@ -54,9 +54,12 @@ defmodule Gt.Fixtures.User do
         }
         user = case authenticated_type do
             "sms" -> Map.put(user, :smsCode, "123")
-            "google" -> Map.put(user, :showGoogleCode, true) |> generate_code
+            "google" -> Map.put(user, :showGoogleCode, true)
             "none" -> user
         end
-        Repo.insert!(User.changeset(%User{}, user))
+        user = Repo.insert!(User.changeset(%User{}, user))
+        if authenticated_type == 'google' do
+            generate_code(user)
+        end
     end
 end

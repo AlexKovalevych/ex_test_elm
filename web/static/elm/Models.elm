@@ -15,6 +15,7 @@ type alias Model =
     , locale : Language
     , route : Route
     , socket : Socket.Model
+    , channels : List String
     , auth : Auth.Model
     , snackbar : Snackbar.Model Msg
     }
@@ -26,6 +27,7 @@ initialModel route location =
     , locale = Russian
     , auth = Auth.initialModel
     , socket = Socket.initialModel
+    , channels = []
     , mdl = Material.model
     , snackbar = Snackbar.model
     --, nextPage = Nothing

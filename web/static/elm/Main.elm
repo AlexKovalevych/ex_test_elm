@@ -8,6 +8,7 @@ import Routing exposing(..)
 import Models exposing (..)
 import View
 import Update
+import Material
 import Messages exposing (..)
 import Auth.Models exposing (CurrentUser)
 import Socket.Messages as SocketM
@@ -57,7 +58,8 @@ subscriptions model =
         Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketM.PhoenixMsg),
         Sub.map AuthMsg (loggedUser AuthMessages.LoadCurrentUser),
         Layout.subs Mdl model.mdl,
-        Sub.map AuthMsg (every second AuthMessages.Tick)
+        Sub.map AuthMsg (every second AuthMessages.Tick),
+        Material.subscriptions Mdl model
     ])
 
 port loggedUser : (CurrentUser -> msg) -> Sub msg

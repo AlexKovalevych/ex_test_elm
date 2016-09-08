@@ -1,17 +1,29 @@
 module Socket.Update exposing (update)
 
 import Debug
-import Socket.Models exposing (..)
+import Socket.Models exposing (Model, initialModel)
 import Socket.Messages exposing (..)
 import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push
 import Native.Location
+import Dict
+import String
+import List
 
 initPhxSocket : String -> Phoenix.Socket.Socket Msg
 initPhxSocket server =
     Phoenix.Socket.init server
     |> Phoenix.Socket.withDebug
+
+getChannelShortName : String -> String
+getChannelShortName name =
+    let
+        parts = String.split ":" name |> List.head
+    in
+        case parts of
+            Nothing -> name
+            Just part -> part
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -38,8 +50,9 @@ update message model =
                 channel = Phoenix.Channel.init name
                 (phxSocket, phxCmd) = Phoenix.Socket.join channel model.phxSocket
                 _ = Debug.log "joined channel: " phxCmd
+                newChannels = Dict.insert (getChannelShortName name) name model.channels
             in
-                ({ model | phxSocket = phxSocket }
+                ({ model | phxSocket = phxSocket, channels = newChannels }
                 , Cmd.map PhoenixMsg phxCmd
                 )
 

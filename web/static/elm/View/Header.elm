@@ -1,0 +1,45 @@
+module View.Header exposing (..)
+
+import Html exposing (..)
+import Messages exposing (..)
+import Models exposing (..)
+import Auth.Models exposing(CurrentUser)
+import Auth.Messages as AuthMessages
+import Material.Layout as Layout
+import Material.Toggles as Toggles
+import Material.Icon as Icon
+import Material.Menu as Menu
+import Html.Attributes exposing (src, width, style)
+import Translation exposing (Language(English, Russian), TranslationId(..), translate)
+
+header : CurrentUser -> Model -> List (Html Msg)
+header user model =
+    [ Layout.row
+        []
+        [ Layout.title [] [ currentLocale model, text "Page title here" ]
+        , Layout.spacer
+        , Layout.navigation []
+            [ Menu.render Mdl [0] model.mdl
+                [ Menu.ripple, Menu.icon "language" ]
+                [ Menu.item
+                    [ Menu.onSelect <| SetLocale Russian ]
+                    [ text <| translate model.locale RU ]
+                , Menu.item
+                    [ Menu.onSelect <| SetLocale English ]
+                    [ text <| translate model.locale EN ]
+                ]
+            , Layout.link
+                []
+                [ text user.email ]
+            , Layout.link
+                [ Layout.onClick <| AuthMsg (AuthMessages.Logout)
+                ]
+                [ Icon.i "exit_to_app" ]
+            ]
+        ]
+    ]
+
+currentLocale model =
+    case model.locale of
+        Russian -> img [ src "/images/flags/ru_2.png", width 25, style [ ( "margin-right", "1rem" ) ] ] []
+        English -> img [ src "/images/flags/en_2.png", width 25, style [ ( "margin-right", "1rem" ) ] ] []

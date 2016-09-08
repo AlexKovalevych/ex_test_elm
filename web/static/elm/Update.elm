@@ -22,6 +22,10 @@ import Xhr exposing (post)
 import Http exposing (fromJson, empty)
 import Material.Helpers exposing (map1st, map2nd)
 import Translation exposing (..)
+--import Socket.Messages exposing(PhoenixMsg)
+import Phoenix.Push
+import Dict
+import Phoenix.Socket
 
 navigationCmd : String -> Cmd a
 navigationCmd path =
@@ -125,11 +129,32 @@ add msg model =
     in
         { model | snackbar = snackbar } ! [ Cmd.map Snackbar effect ]
 
+getFullChannelName : String -> Model -> String
+getFullChannelName name model =
+    let channel =
+        Dict.get "users" model.socket.channels
+    in
+        --channel
+        case channel of
+            Nothing -> ""
+            Just fullName -> fullName
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case Debug.log "message: " message of
         Mdl message' ->
             Material.update message' model
+
+        SetLocale locale ->
+            let
+                payload = (JE.string <| toString locale)
+                push = Phoenix.Push.init "locale" (getFullChannelName "users" model)
+                    |> Phoenix.Push.withPayload payload
+                (phxSocket, phxCmd) = Phoenix.Socket.push push model.socket.phxSocket
+                socketMsg = model.socket
+                socket = { socketMsg | phxSocket = phxSocket }
+            in
+                { model | socket = socket, locale = locale } ! [ Cmd.map SocketMsg phxCmd ]
 
         Snackbar msg ->
             let
