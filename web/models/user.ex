@@ -32,7 +32,7 @@ defmodule Gt.Model.User do
             "dashboardProjectsType" => "default"
         }
         field :is_admin, :boolean, default: false
-        field :locale, :string, default: "ru"
+        field :locale, :string, default: "Russian"
         field :authenticationType, :string, default: "sms"
         field :phoneNumber, :string
         field :smsCode, :string

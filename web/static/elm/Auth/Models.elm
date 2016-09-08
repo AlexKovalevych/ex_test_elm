@@ -6,6 +6,7 @@ type alias CurrentUser =
     , is_admin : Bool
     , authenticationType : String
     , securePhoneNumber : String
+    , locale : String
     }
 
 type User = Guest | LoggedUser CurrentUser
@@ -21,10 +22,6 @@ type alias Model =
     , serverTime: Maybe Int
     , currentServerTime : Int
     }
-
-type Status
-    = LoggedIn
-    | Anonymous
 
 initialModel : Model
 initialModel =

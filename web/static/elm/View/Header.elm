@@ -20,7 +20,7 @@ header user model =
         , Layout.spacer
         , Layout.navigation []
             [ Menu.render Mdl [0] model.mdl
-                [ Menu.ripple, Menu.icon "language" ]
+                [ Menu.icon "language" ]
                 [ Menu.item
                     [ Menu.onSelect <| SetLocale Russian ]
                     [ text <| translate model.locale RU ]

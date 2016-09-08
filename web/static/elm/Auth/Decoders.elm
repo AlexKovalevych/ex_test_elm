@@ -20,12 +20,13 @@ userSuccessDecoder =
 
 userDecoder : Decoder CurrentUser
 userDecoder =
-    object5 CurrentUser
+    object6 CurrentUser
         ("id" := string)
         ("email" := string)
         ("is_admin" := bool)
         ("authenticationType" := string)
         ("securePhoneNumber" := string)
+        ("locale" := string)
 
 userErrorDecoder : Decoder String
 userErrorDecoder =

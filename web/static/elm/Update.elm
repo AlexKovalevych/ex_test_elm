@@ -134,10 +134,17 @@ getFullChannelName name model =
     let channel =
         Dict.get "users" model.socket.channels
     in
-        --channel
         case channel of
             Nothing -> ""
             Just fullName -> fullName
+
+setLocale : (Model, Cmd Msg) -> (Model, Cmd Msg)
+setLocale (model, cmd) =
+    case model.auth.user of
+        Guest -> (model, cmd)
+        LoggedUser user -> case user.locale of
+            "Russian" -> { model | locale = Russian } ! [cmd]
+            _ -> { model | locale = English } ! [cmd]
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -154,7 +161,7 @@ update message model =
                 socketMsg = model.socket
                 socket = { socketMsg | phxSocket = phxSocket }
             in
-                { model | socket = socket, locale = locale } ! [ Cmd.map SocketMsg phxCmd ]
+                { model | socket = socket, locale = locale } ! [ Cmd.map SocketMsg (Cmd.map SocketMessages.PhoenixMsg phxCmd) ]
 
         Snackbar msg ->
             let
@@ -168,8 +175,10 @@ update message model =
             case subMsg of
                 AuthMessages.LoadCurrentUser _ ->
                     initConnection subMsg model
+                    |> setLocale
                 AuthMessages.LoginUser response ->
                     initConnection (AuthMessages.LoginUser response) model
+                    |> setLocale
                     |> redirectToDashboard
                 AuthMessages.SetToken _ ->
                     initConnection subMsg model
