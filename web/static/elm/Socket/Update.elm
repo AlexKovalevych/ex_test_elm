@@ -37,6 +37,14 @@ update message model =
             in
                 { model | channels = newChannels, phxSocket = phxSocket } ! [ Cmd.map ForSelf (Cmd.map PhoenixMsg phxCmd) ]
 
+        PushMessage msg channel payload ->
+            let
+                push = Phoenix.Push.init msg (getFullChannelName channel model)
+                    |> Phoenix.Push.withPayload payload
+                ( phxSocket, phxCmd ) = Phoenix.Socket.push push model.phxSocket
+            in
+                { model | phxSocket = phxSocket } ! [ Cmd.map ForSelf (Cmd.map PhoenixMsg phxCmd) ]
+
         RemoveSocket ->
             initialModel ! []
 
@@ -70,3 +78,12 @@ getChannelShortName name =
         case parts of
             Nothing -> name
             Just part -> part
+
+getFullChannelName : String -> Model -> String
+getFullChannelName name model =
+    let channel =
+        Dict.get name model.channels
+    in
+        case channel of
+            Nothing -> ""
+            Just fullName -> fullName

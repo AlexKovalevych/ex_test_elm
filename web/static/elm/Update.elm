@@ -33,6 +33,15 @@ update message model =
         Mdl msg ->
             Material.update msg model
 
+        SetLocale locale ->
+            let
+                msg = "locale"
+                channel = "users"
+                payload = JE.string <| toString <| locale
+                ( updatedModel, cmd ) = Socket.Update.update (SocketMessages.PushMessage msg channel payload) model.socket
+            in
+                { model | socket = updatedModel, locale = locale } ! [ Cmd.map socketTranslator cmd ]
+
         Snackbar msg ->
             let
                 ( snackbar, cmd ) = Snackbar.update msg model.snackbar
@@ -44,17 +53,6 @@ update message model =
                 translatedMsg = translate model.locale msg
             in
                 UpdateSnackbar.addToast translatedMsg model
-
-        SetLocale locale ->
-            let
-                payload = (JE.string <| toString locale)
-                push = Phoenix.Push.init "locale" (getFullChannelName "users" model)
-                    |> Phoenix.Push.withPayload payload
-                (phxSocket, phxCmd) = Phoenix.Socket.push push model.socket.phxSocket
-                socketMsg = model.socket
-                socket = { socketMsg | phxSocket = phxSocket }
-            in
-                { model | socket = socket, locale = locale } ! [ Cmd.map SocketMsg (Cmd.map SocketMessages.PhoenixMsg phxCmd) ]
 
         AuthMsg subMsg ->
             let
@@ -95,6 +93,7 @@ authTranslator =
     , onSocketInit = SocketMsg << SocketMessages.InitSocket
     , onSocketRemove = SocketMsg SocketMessages.RemoveSocket
     , onJoinChannel = SocketMsg << SocketMessages.JoinChannel
+    --, onPushMessage = SocketMsg << SocketMessages.PushMessage
     , onAddToast = AddToast
     , onShowLogin = ShowLogin
     }
@@ -106,15 +105,6 @@ socketTranslator =
 navigationCmd : String -> Cmd a
 navigationCmd path =
     Navigation.newUrl (makeUrl config path)
-
-getFullChannelName : String -> Model -> String
-getFullChannelName name model =
-    let channel =
-        Dict.get "users" model.socket.channels
-    in
-        case channel of
-            Nothing -> ""
-            Just fullName -> fullName
 
 setLocale : (Model, Cmd Msg) -> (Model, Cmd Msg)
 setLocale (model, cmd) =

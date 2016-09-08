@@ -2,7 +2,8 @@ module Auth.Messages exposing (..)
 
 import Auth.Models exposing (CurrentUser)
 import Auth.Decoders exposing (LoginResponse)
-import Translation exposing (TranslationId)
+import Translation exposing (Language, TranslationId)
+import Json.Encode exposing (Value)
 
 type InternalMsg
     = LoadCurrentUser CurrentUser
@@ -26,6 +27,7 @@ type InternalMsg
 type OutMsg
     = SocketInit String
     | JoinChannel String
+    --| PushMessage String String Value
     | RemoveSocket
     | AddToast TranslationId
     | ShowLogin

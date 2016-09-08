@@ -12,6 +12,7 @@ import Auth.Decoders exposing (userSuccessDecoder, userErrorDecoder, logoutDecod
 import LocalStorage exposing (..)
 import Translation exposing (..)
 import Auth.Api exposing (logout, login, twoFactor, sendSms)
+import Update.Never exposing (never)
 
 update : InternalMsg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -93,7 +94,7 @@ update message model =
             let
                 msg = Login "sms_was_sent"
             in
-                model ! [ Cmd.map ForParent (Cmd.map (\e -> AddToast msg) Cmd.none) ]
+                model ! [ Cmd.map ForParent (Cmd.map (\_ -> AddToast msg) Cmd.none) ]
 
         TwoFactor ->
             model ! [ twoFactor <| encodeTwoFactor model ]
@@ -119,15 +120,12 @@ initConnection token isAdmin userId =
         else
             task
 
-never : Never -> a
-never n =
-    never n
-
 type alias TranslationDictionary msg =
     { onInternalMessage : InternalMsg -> msg
     , onSocketInit : String -> msg
     , onSocketRemove : msg
     , onJoinChannel : String -> msg
+    --, onPushMessage : String -> String -> JE.Value -> msg
     , onAddToast : TranslationId -> msg
     , onShowLogin : msg
     }
@@ -136,7 +134,7 @@ type alias Translator msg =
     Msg -> msg
 
 translator : TranslationDictionary msg -> Translator msg
-translator { onInternalMessage, onSocketInit, onSocketRemove, onJoinChannel, onAddToast, onShowLogin } msg =
+translator { onInternalMessage, onSocketInit, onSocketRemove, onJoinChannel, {-onPushMessage,-} onAddToast, onShowLogin } msg =
     case msg of
         ForSelf internal ->
             onInternalMessage internal
@@ -149,6 +147,9 @@ translator { onInternalMessage, onSocketInit, onSocketRemove, onJoinChannel, onA
 
         ForParent RemoveSocket ->
             onSocketRemove
+
+        --ForParent (PushMessage msg channel payload) ->
+        --    onPushMessage msg channel payload
 
         ForParent (AddToast msg) ->
             onAddToast msg
