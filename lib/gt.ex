@@ -13,7 +13,9 @@ defmodule Gt do
             supervisor(Gt.Repo, []),
             # Here you could define other workers and supervisors as children
             # worker(Gt.Worker, [arg1, arg2, arg3]),
-            supervisor(Gt.ElmIo, []),
+
+            # No server rendering for now
+            # supervisor(Gt.ElmIo, []),
             worker(Gt.Amqp.Connections.Default, [[], [name: GtAmqpDefault]])
         ]
 

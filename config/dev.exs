@@ -12,7 +12,9 @@ config :gt, Gt.Endpoint,
     code_reloader: true,
     check_origin: false,
     watchers: [
-        {"node", ["node_modules/webpack/bin/webpack.js", "--watch-stdin", "--progress", "--colors"]},
+        {"node", ["node_modules/brunch/bin/brunch", "watch", "--stdin"]}
+
+        # {"node", ["node_modules/webpack/bin/webpack.js", "--watch-stdin", "--progress", "--colors"]},
         # {"node", ["node_modules/webpack/bin/webpack.js", "--watch-stdin", "--progress", "--colors", "--config", "webpack.server.config.js"]},
     ]
 
