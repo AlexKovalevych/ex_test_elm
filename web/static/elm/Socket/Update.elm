@@ -1,7 +1,11 @@
 module Socket.Update exposing (..)
 
+import Auth.Decoders exposing (userDecoder)
+import Auth.Models exposing (CurrentUser)
 import Debug
 import Dict
+import Json.Encode as JE
+import Json.Decode as JD
 import List
 import Native.Location
 import Phoenix.Socket
@@ -10,7 +14,9 @@ import Phoenix.Push
 import Socket.Models exposing (Model, initialModel)
 import Socket.Messages exposing (..)
 import String
+import Task
 import Translation exposing (Language)
+import Update.Never exposing (never)
 
 update : InternalMsg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -37,30 +43,56 @@ update message model =
             in
                 { model | channels = newChannels, phxSocket = phxSocket } ! [ Cmd.map (ForSelf << PhoenixMsg) phxCmd ]
 
-        PushMessage msg channel payload ->
+        PushMessage pushModel ->
             let
-                push = Phoenix.Push.init msg (getFullChannelName channel model)
-                    |> Phoenix.Push.withPayload payload
+                push = Phoenix.Push.init pushModel.msg (getFullChannelName pushModel.channel model)
+                    |> Phoenix.Push.withPayload pushModel.payload
+                    |> Phoenix.Push.onOk pushModel.successDecoder
+                    |> Phoenix.Push.onError pushModel.errorDecoder
                 ( phxSocket, phxCmd ) = Phoenix.Socket.push push model.phxSocket
             in
                 { model | phxSocket = phxSocket } ! [ Cmd.map (ForSelf << PhoenixMsg) phxCmd ]
 
+        --For server broadcasted messages
+        SubscribeToUsersChannel channel ->
+            model ! []
+
+        --For server broadcasted messages
+        SubscribeToAdminsChannel channel ->
+            model ! []
+
+        DecodeCurrentUser raw ->
+            case JD.decodeValue userDecoder raw of
+                Ok currentUser ->
+                    model ! [ Task.perform never ForParent (Task.succeed <| UpdateCurrentUser currentUser) ]
+                Err error ->
+                    let _ = Debug.log "NOW WORKING??" error
+                    in
+                    ( model, Cmd.none )
+
         RemoveSocket ->
             initialModel ! []
+
+        NoOp ->
+            model ! []
 
 type alias TranslationDictionary msg =
     { onInternalMessage : InternalMsg -> msg
     , onSetLocale : Language -> msg
+    , onUpdateCurrentUser : CurrentUser -> msg
     }
 
 type alias Translator msg =
     Msg -> msg
 
 translator : TranslationDictionary msg -> Translator msg
-translator { onInternalMessage, onSetLocale } msg =
+translator { onInternalMessage, onSetLocale, onUpdateCurrentUser } msg =
     case msg of
         ForSelf internal ->
             onInternalMessage internal
+
+        ForParent (UpdateCurrentUser value) ->
+            onUpdateCurrentUser value
 
         ForParent (SetLocale locale) ->
             onSetLocale locale

@@ -35,12 +35,21 @@ update message model =
 
         SetLocale locale ->
             let
-                msg = "locale"
-                channel = "users"
                 payload = JE.string <| toString <| locale
-                ( updatedModel, cmd ) = Socket.Update.update (SocketMessages.PushMessage msg channel payload) model.socket
+                success = SocketMessages.DecodeCurrentUser
+                error = (\e -> SocketMessages.NoOp)
+                pushModel = SocketMessages.PushModel "locale" "users" payload success error
+                ( updatedModel, cmd ) = Socket.Update.update (SocketMessages.PushMessage pushModel) model.socket
             in
-                { model | socket = updatedModel, locale = locale } ! [ Cmd.map socketTranslator cmd ]
+                { model | socket = updatedModel } ! [ Cmd.map socketTranslator cmd ]
+
+        UpdateLocale locale ->
+            let
+                newLocale = case locale of
+                    "Russian" -> Russian
+                    _ -> English
+            in
+                { model | locale = newLocale } ! []
 
         Snackbar msg ->
             let
@@ -93,14 +102,20 @@ authTranslator =
     , onSocketInit = SocketMsg << SocketMessages.InitSocket
     , onSocketRemove = SocketMsg SocketMessages.RemoveSocket
     , onJoinChannel = SocketMsg << SocketMessages.JoinChannel
-    --, onPushMessage = SocketMsg << SocketMessages.PushMessage
+    , onSubscribeToUsersChannel = SocketMsg << SocketMessages.SubscribeToUsersChannel
+    , onSubscribeToAdminsChannel = SocketMsg << SocketMessages.SubscribeToAdminsChannel
     , onAddToast = AddToast
+    , onUpdateLocale = UpdateLocale
     , onShowLogin = ShowLogin
     }
 
 socketTranslator : Socket.Update.Translator Msg
 socketTranslator =
-    Socket.Update.translator { onInternalMessage = SocketMsg, onSetLocale = SetLocale }
+    Socket.Update.translator
+    { onInternalMessage = SocketMsg
+    , onSetLocale = SetLocale
+    , onUpdateCurrentUser = AuthMsg << AuthMessages.UpdateCurrentUser
+    }
 
 navigationCmd : String -> Cmd a
 navigationCmd path =

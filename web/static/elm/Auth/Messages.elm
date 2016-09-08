@@ -8,6 +8,7 @@ import Json.Encode exposing (Value)
 type InternalMsg
     = LoadCurrentUser CurrentUser
     | InitConnection
+    | UpdateCurrentUser CurrentUser
     | RemoveCurrentUser
     | LoginFailed String
     | LoginRequest
@@ -27,9 +28,11 @@ type InternalMsg
 type OutMsg
     = SocketInit String
     | JoinChannel String
-    --| PushMessage String String Value
     | RemoveSocket
+    | SubscribeToUsersChannel String
+    | SubscribeToAdminsChannel String
     | AddToast TranslationId
+    | UpdateLocale String
     | ShowLogin
 
 type Msg

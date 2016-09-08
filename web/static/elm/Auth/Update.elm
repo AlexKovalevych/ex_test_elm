@@ -2,7 +2,6 @@ module Auth.Update exposing (..)
 
 import Auth.Models exposing (Model, User(Guest, LoggedUser))
 import Auth.Messages exposing (..)
---import Json.Encode as JE
 import Task
 import LocalStorage exposing (..)
 import Translation exposing (..)
@@ -21,7 +20,9 @@ update message model =
             let
                 newModel = resetLoginForm model
             in
-                { newModel | user = LoggedUser user } ! [ Cmd.map (ForSelf << (\_ -> InitConnection)) Cmd.none ]
+                { newModel | user = LoggedUser user } !
+                    [ Cmd.map (ForSelf << (\_ -> InitConnection)) Cmd.none
+                    , Task.perform never ForParent (Task.succeed <| UpdateLocale user.locale ) ]
 
         RemoveCurrentUser ->
             let
@@ -97,19 +98,28 @@ update message model =
                 Nothing -> model ! []
                 Just time -> { model | serverTime = Just (time + 1000) } ! []
 
+        UpdateCurrentUser user ->
+            { model | user = LoggedUser user } !
+                [ Task.perform never ForParent (Task.succeed <| UpdateLocale user.locale ) ]
+
         NoOp ->
             model ! []
 
 initConnection : String -> Bool -> String -> List ( Cmd Msg )
 initConnection token isAdmin userId =
     let
+        usersChannel = "users:" ++ userId
+        adminsChannel = "admins:" ++ userId
         task =
-            [ Task.perform never ForParent (Task.succeed <| JoinChannel <| "users:" ++ userId)
+            [ Task.perform never ForParent (Task.succeed <| SubscribeToUsersChannel usersChannel )
+            , Task.perform never ForParent (Task.succeed <| JoinChannel usersChannel )
             , Task.perform never ForParent (Task.succeed <| SocketInit token)
             ]
     in
         if isAdmin then
-            Task.perform never ForParent (Task.succeed <| JoinChannel <| "admins:" ++ userId) :: task
+            [ Task.perform never ForParent (Task.succeed <| SubscribeToAdminsChannel adminsChannel )
+            , Task.perform never ForParent (Task.succeed <| JoinChannel adminsChannel )
+            ] ++ task
         else
             task
 
@@ -118,8 +128,10 @@ type alias TranslationDictionary msg =
     , onSocketInit : String -> msg
     , onSocketRemove : msg
     , onJoinChannel : String -> msg
-    --, onPushMessage : String -> String -> JE.Value -> msg
+    , onSubscribeToUsersChannel : String -> msg
+    , onSubscribeToAdminsChannel : String -> msg
     , onAddToast : TranslationId -> msg
+    , onUpdateLocale : String -> msg
     , onShowLogin : msg
     }
 
@@ -127,7 +139,17 @@ type alias Translator msg =
     Msg -> msg
 
 translator : TranslationDictionary msg -> Translator msg
-translator { onInternalMessage, onSocketInit, onSocketRemove, onJoinChannel, {-onPushMessage,-} onAddToast, onShowLogin } msg =
+translator
+    { onInternalMessage
+    , onSocketInit
+    , onSocketRemove
+    , onJoinChannel
+    , onSubscribeToUsersChannel
+    , onSubscribeToAdminsChannel
+    , onAddToast
+    , onUpdateLocale
+    , onShowLogin
+    } msg =
     case msg of
         ForSelf internal ->
             onInternalMessage internal
@@ -141,11 +163,17 @@ translator { onInternalMessage, onSocketInit, onSocketRemove, onJoinChannel, {-o
         ForParent RemoveSocket ->
             onSocketRemove
 
-        --ForParent (PushMessage msg channel payload) ->
-        --    onPushMessage msg channel payload
+        ForParent (SubscribeToUsersChannel channel) ->
+            onSubscribeToUsersChannel channel
+
+        ForParent (SubscribeToAdminsChannel channel) ->
+            onSubscribeToAdminsChannel channel
 
         ForParent (AddToast msg) ->
             onAddToast msg
+
+        ForParent (UpdateLocale locale) ->
+            onUpdateLocale locale
 
         ForParent ShowLogin ->
             onShowLogin

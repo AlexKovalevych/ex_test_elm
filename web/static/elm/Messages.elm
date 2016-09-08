@@ -11,6 +11,7 @@ type Msg
     | Snackbar (Snackbar.Msg Msg)
     | AddToast TranslationId
     | SetLocale Language
+    | UpdateLocale String
 
     --Socket messages
     | SocketMsg Socket.Messages.InternalMsg
