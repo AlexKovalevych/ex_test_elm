@@ -1,45 +1,55 @@
 port module Main exposing (..)
 
-import Debug
-import Navigation
-import Hop exposing (matchUrl)
-import Hop.Types exposing (Location)
-import Routing exposing(..)
-import Models exposing (..)
-import View
-import Update
-import Material
-import Messages exposing (..)
-import Auth.Models exposing (CurrentUser)
-import Socket.Messages as SocketMessages
-import LocalStorage exposing (..)
-import Phoenix.Socket
 import Auth.Messages as AuthMessages
-import Task
+import Auth.Models exposing (CurrentUser)
+import Debug
+import Hop
+import Hop.Types exposing (Address)
+import Navigation
+import LocalStorage exposing (..)
+import Material
 import Material.Layout as Layout
+import Messages exposing (..)
+import Models exposing (..)
+import Phoenix.Socket
+import Routing
+import Socket.Messages as SocketMessages
+import Task
 import Time exposing (Time, every, second)
+import Update
+import View
+import UrlParser
 
-urlParser : Navigation.Parser ( Route, Location )
+urlParser : Navigation.Parser ( Routing.Route, Address )
 urlParser =
-    Navigation.makeParser (.href >> matchUrl config)
+    let
+        parse path =
+            path
+                |> UrlParser.parse identity Routing.routes
+                |> Result.withDefault Routing.NotFoundRoute
 
-urlUpdate : ( Route, Location ) -> Model -> ( Model, Cmd Msg )
-urlUpdate ( route, location ) model =
+        matcher =
+            Hop.makeResolver Routing.config parse
+    in
+        Navigation.makeParser (.href >> matcher)
+
+urlUpdate : ( Routing.Route, Address ) -> Model -> ( Model, Cmd Msg )
+urlUpdate ( route, address ) model =
     let
         _ =
-            Debug.log "urlUpdate location" location
+            Debug.log "urlUpdate address" address
     in
-        ( { model | route = route, location = location }, Cmd.none )
+        ( { model | route = route, address = address }, Cmd.none )
 
-init : ( Route, Location ) -> ( Model, Cmd Msg )
-init ( route, location ) =
+init : ( Routing.Route, Address ) -> ( Model, Cmd Msg )
+init ( route, address ) =
     let
-        redirectToLogin _ = NavigateTo <|Just LoginRoute
+        redirectToLogin _ = NavigateTo Routing.LoginRoute
         setToken token = token
             |> AuthMessages.SetToken
             |> AuthMsg
         setTokenCmd = Task.perform redirectToLogin setToken <| get "jwtToken"
-        model = initialModel route location
+        model = initialModel route address
     in
         model ! [ setTokenCmd, Layout.sub0 Mdl ]
 

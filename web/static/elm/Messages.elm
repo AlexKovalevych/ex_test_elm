@@ -21,7 +21,7 @@ type Msg
     | AuthMsg Auth.Messages.InternalMsg
 
     --Route messages
-    | NavigateTo (Maybe Route)
+    | NavigateTo Route
     | SelectTab Int
     | SetMenu (Maybe Menu)
 

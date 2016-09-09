@@ -16,8 +16,9 @@ type TranslationId
     = Login String
     --| Validation String
     | SmsSent String
-    | RU
-    | EN
+    | Ru
+    | En
+    | Exit
     | ServerTime Int
     | Menu String
 
@@ -80,10 +81,10 @@ translate lang trans =
                 "smtp_server" -> TranslationSet "SMTP server" "SMTP сервера"
                 _ -> TranslationSet "" ""
 
-            RU ->
+            Ru ->
                 TranslationSet "Русский" "Русский"
 
-            EN ->
+            En ->
                 TranslationSet "English" "English"
 
             SmsSent phoneNumber ->
@@ -98,6 +99,9 @@ translate lang trans =
                     TranslationSet
                         ("Warning! Generated code is sensitive to the time set at your phone. Maximum difference with server time may be ± 1 minute. Server time: " ++ formattedTime)
                         ("Внимание! Код, генерируемый вашим телефоном, чувствителен ко времени, установленном в телефоне. Максимальная разница с серверным временем может быть ± 1 минуту. Серверное время: " ++ formattedTime)
+
+            Exit ->
+                TranslationSet "Exit" "Выйти"
 
     in
         case lang of

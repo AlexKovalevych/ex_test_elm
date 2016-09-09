@@ -2,7 +2,8 @@ module Update exposing (..)
 
 import Debug
 import Navigation
-import Hop exposing (makeUrl)
+import Hop
+--import Hop exposing (makeUrl)
 import Models exposing (..)
 import Routing exposing (..)
 import Messages exposing (..)
@@ -78,15 +79,16 @@ update message model =
             in
                 { model | socket = updatedModel } ! [ Cmd.map socketTranslator cmd ]
 
-        NavigateTo maybeLocation ->
-            case maybeLocation of
-                Nothing ->
-                    model ! []
-
-                Just route ->
-                    model !
-                        [ Task.perform never (\_ -> SetMenu <| getMenu route) (Task.succeed <| Navigation.newUrl (reverse route))
-                        ]
+        NavigateTo route ->
+            let
+                path = Routing.reverse route
+                command =
+                    Hop.outputFromPath Routing.config path |> Navigation.newUrl
+            in
+                model !
+                [ Task.perform never (\_ -> SetMenu <| getMenu route) (Task.succeed True)
+                , command
+                ]
 
         SetMenu menu ->
             { model | menu = menu } ! []
@@ -117,7 +119,7 @@ authTranslator =
     , onSubscribeToAdminsChannel = SocketMsg << SocketMessages.SubscribeToAdminsChannel
     , onAddToast = AddToast
     , onUpdateLocale = UpdateLocale
-    , onShowLogin = NavigateTo <| Just LoginRoute
+    , onShowLogin = NavigateTo LoginRoute
     }
 
 socketTranslator : Socket.Update.Translator Msg
@@ -127,10 +129,6 @@ socketTranslator =
     , onSetLocale = SetLocale
     , onUpdateCurrentUser = AuthMsg << AuthMessages.UpdateCurrentUser
     }
-
-navigationCmd : String -> Cmd a
-navigationCmd path =
-    Navigation.newUrl (makeUrl config path)
 
 setLocale : (Model, Cmd Msg) -> (Model, Cmd Msg)
 setLocale (model, cmd) =

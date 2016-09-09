@@ -42,19 +42,17 @@ menuItems model =
 menuAction : MenuItem -> Msg
 menuAction menuItem =
     case menuItem of
-        DirectLink item -> NavigateTo <| Just item.route
+        DirectLink item -> NavigateTo item.route
         Submenu item -> SetMenu <| Just item.menu
 
 drawerMenuItem : Model -> MenuItem -> Html Msg
 drawerMenuItem model menuItem =
     let
-        _ = Debug.log "HERE: " model.route
         isActive = case menuItem of
             Submenu item ->
                 routeIsInMenu model.route item.menu
             DirectLink item ->
                 model.route == item.route
-
         iconName = case menuItem of
             Submenu item -> item.iconName
             DirectLink item -> item.iconName

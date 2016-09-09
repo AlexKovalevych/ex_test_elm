@@ -2,7 +2,7 @@ module Models exposing (..)
 
 import Material
 import Material.Snackbar as Snackbar
-import Hop.Types exposing (Location)
+import Hop.Types exposing (Address)
 import Routing exposing (Route, Menu(..))
 import Socket.Models as Socket
 import Auth.Models as Auth
@@ -11,7 +11,7 @@ import Messages exposing (..)
 
 type alias Model =
     { mdl : Material.Model
-    , location : Location
+    , address : Address
     , locale : Language
     , route : Route
     , menu : Maybe Menu
@@ -21,9 +21,9 @@ type alias Model =
     , snackbar : Snackbar.Model Msg
     }
 
-initialModel : Route -> Location -> Model
-initialModel route location =
-    { location = location
+initialModel : Route -> Address -> Model
+initialModel route address =
+    { address = address
     , route = route
     , locale = Russian
     , auth = Auth.initialModel

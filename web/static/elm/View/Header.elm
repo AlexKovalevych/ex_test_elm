@@ -9,9 +9,10 @@ import Auth.Messages as AuthMessages
 import Material.Layout as Layout
 import Material.Icon as Icon
 import Material.Menu as Menu
+import Material.Options as Options
 import Html.Attributes exposing (src, width, style)
 import Translation exposing (Language(English, Russian), TranslationId(..), translate)
-import Routing exposing (getMenuRoutings, Route)
+import Routing exposing (getMenuRoutings, Route(..))
 
 header : CurrentUser -> Model -> List (Html Msg)
 header user model =
@@ -24,18 +25,22 @@ header user model =
                 [ Menu.icon "language" ]
                 [ Menu.item
                     [ Menu.onSelect <| SetLocale Russian ]
-                    [ text <| translate model.locale RU ]
+                    [ text <| translate model.locale Ru ]
                 , Menu.item
                     [ Menu.onSelect <| SetLocale English ]
-                    [ text <| translate model.locale EN ]
+                    [ text <| translate model.locale En ]
                 ]
-            , Layout.link
-                []
+            , div
+                [ style [ ("margin", "16px") ] ]
                 [ text user.email ]
-            , Layout.link
-                [ Layout.onClick <| AuthMsg (AuthMessages.LogoutRequest)
+            , Menu.render Mdl [1] model.mdl
+                [ Menu.icon "exit_to_app"
+                , Menu.bottomRight
                 ]
-                [ Icon.i "exit_to_app" ]
+                [ Menu.item
+                    [ Menu.onSelect <| AuthMsg (AuthMessages.LogoutRequest) ]
+                    [ text <| translate model.locale Exit ]
+                ]
             ]
         ]
     ]
@@ -48,7 +53,12 @@ tabs user model =
 
 renderTab : Language -> Route -> Html Msg
 renderTab locale route =
-    text <| translate locale (Menu <| toString route)
+    let
+        translationId = case route of
+            FinanceRoutes name -> toString name
+            _ -> ""
+    in
+        text <| translate locale (Menu translationId)
 
 currentLocale : Model -> Html Msg
 currentLocale model =
