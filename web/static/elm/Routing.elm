@@ -6,15 +6,23 @@ import Hop exposing (..)
 import Hop.Types exposing (Config, PathMatcher)
 import Hop.Matchers exposing (..)
 
+config : Config Route
+config =
+    { basePath = "/"
+    , hash = False
+    , matchers = matchers
+    , notFound = NotFoundRoute
+    }
+
 type Route
     = DashboardRoute
 
     --Finance routings
     | PaymentCheck
-    --| PaymentSystem
-    --| InputReport
-    --| FundsFlow
-    --| MonthlyBalances
+    | PaymentSystem
+    | InputReport
+    | FundsFlow
+    | MonthlyBalances
 
     --Other routings
     | LoginRoute
@@ -29,54 +37,18 @@ type Menu
     | Settings
 
 financeRoutes : List Route
-financeRoutes = [ PaymentCheck ]
-
-getMenu : Route -> Maybe Menu
-getMenu location =
-    if List.member location financeRoutes then
-        Just Finance
-    else
-        Nothing
-
-getMenuRoutings : Menu -> List Route
-getMenuRoutings menu =
-    case menu of
-        Finance -> [ PaymentCheck ]
-        _ -> []
-
-getRouteByTabIndex : Menu -> Int -> Maybe Route
-getRouteByTabIndex menu i =
-    case menu of
-        Finance ->
-            Array.fromList financeRoutes
-            |> Array.get i
-        _ -> Nothing
-
-matcherDashboard : PathMatcher Route
-matcherDashboard =
-    match1 DashboardRoute "/"
-
-matcherLogin : PathMatcher Route
-matcherLogin =
-    match1 LoginRoute "/login"
-
-matcherPaymentCheck : PathMatcher Route
-matcherPaymentCheck =
-    match1 PaymentCheck "/finance/payments-check/list"
+financeRoutes = [ PaymentCheck, PaymentSystem, InputReport, FundsFlow, MonthlyBalances ]
 
 matchers : List (PathMatcher Route)
 matchers =
     [ matcherDashboard
+    , matcherPaymentCheck
+    , matcherPaymentSystem
+    , matcherInputReport
+    , matcherFundsFlow
+    , matcherMonthlyBalances
     , matcherLogin
     ]
-
-config : Config Route
-config =
-    { basePath = "/"
-    , hash = False
-    , matchers = matchers
-    , notFound = NotFoundRoute
-    }
 
 reverse : Route -> String
 reverse route =
@@ -90,5 +62,71 @@ reverse route =
         PaymentCheck ->
             matcherToPath matcherPaymentCheck []
 
+        PaymentSystem ->
+            matcherToPath matcherPaymentSystem []
+
+        InputReport ->
+            matcherToPath matcherInputReport []
+
+        FundsFlow ->
+            matcherToPath matcherFundsFlow []
+
+        MonthlyBalances ->
+            matcherToPath matcherMonthlyBalances []
+
         NotFoundRoute ->
             ""
+
+getMenu : Route -> Maybe Menu
+getMenu location =
+    if List.member location financeRoutes then
+        Just Finance
+    else
+        Nothing
+
+getMenuRoutings : Menu -> List Route
+getMenuRoutings menu =
+    case menu of
+        Finance -> financeRoutes
+        _ -> []
+
+routeIsInMenu : Route -> Menu -> Bool
+routeIsInMenu route menu =
+    case menu of
+        Finance -> List.member route financeRoutes
+        _ -> False
+
+getRouteByTabIndex : Menu -> Int -> Maybe Route
+getRouteByTabIndex menu i =
+    case menu of
+        Finance ->
+            Array.fromList financeRoutes |> Array.get i
+        _ -> Nothing
+
+matcherDashboard : PathMatcher Route
+matcherDashboard =
+    match1 DashboardRoute ""
+
+matcherLogin : PathMatcher Route
+matcherLogin =
+    match1 LoginRoute "/login"
+
+matcherPaymentCheck : PathMatcher Route
+matcherPaymentCheck =
+    match1 PaymentCheck "/finance/payments-check/list"
+
+matcherPaymentSystem : PathMatcher Route
+matcherPaymentSystem =
+    match1 PaymentSystem "/finance/payment-system/list"
+
+matcherInputReport : PathMatcher Route
+matcherInputReport =
+    match1 InputReport "/finance/input-report/list"
+
+matcherFundsFlow : PathMatcher Route
+matcherFundsFlow =
+    match1 FundsFlow "/finance/funds-flow/"
+
+matcherMonthlyBalances : PathMatcher Route
+matcherMonthlyBalances =
+    match1 MonthlyBalances "/finance/monthly-balances/"

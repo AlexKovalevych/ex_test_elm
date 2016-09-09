@@ -34,7 +34,7 @@ urlUpdate ( route, location ) model =
 init : ( Route, Location ) -> ( Model, Cmd Msg )
 init ( route, location ) =
     let
-        redirectToLogin _ = ShowLogin
+        redirectToLogin _ = NavigateTo <|Just LoginRoute
         setToken token = token
             |> AuthMessages.SetToken
             |> AuthMsg

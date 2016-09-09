@@ -13,9 +13,6 @@ type Msg
     | AddToast TranslationId
     | SetLocale Language
     | UpdateLocale String
-    | NavigateTo (Maybe Route)
-    | SelectTab Int
-    | SetMenu (Maybe Menu)
 
     --Socket messages
     | SocketMsg Socket.Messages.InternalMsg
@@ -24,7 +21,8 @@ type Msg
     | AuthMsg Auth.Messages.InternalMsg
 
     --Route messages
-    | ShowDashboard
-    | ShowLogin
+    | NavigateTo (Maybe Route)
+    | SelectTab Int
+    | SetMenu (Maybe Menu)
 
     | NoOp

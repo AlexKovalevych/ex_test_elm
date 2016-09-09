@@ -78,29 +78,14 @@ update message model =
             in
                 { model | socket = updatedModel } ! [ Cmd.map socketTranslator cmd ]
 
-        ShowDashboard ->
-            let
-                path =
-                    reverse DashboardRoute
-            in
-                model ! [ navigationCmd path ]
-
-        ShowLogin ->
-            let
-                path =
-                    reverse LoginRoute
-            in
-                model ! [ navigationCmd path ]
-
         NavigateTo maybeLocation ->
             case maybeLocation of
                 Nothing ->
                     model ! []
 
-                Just location ->
+                Just route ->
                     model !
-                        [ Task.perform never (\_ -> SetMenu <| getMenu location) (Task.succeed True)
-                        , Navigation.newUrl (reverse location)
+                        [ Task.perform never (\_ -> SetMenu <| getMenu route) (Task.succeed <| Navigation.newUrl (reverse route))
                         ]
 
         SetMenu menu ->
@@ -132,7 +117,7 @@ authTranslator =
     , onSubscribeToAdminsChannel = SocketMsg << SocketMessages.SubscribeToAdminsChannel
     , onAddToast = AddToast
     , onUpdateLocale = UpdateLocale
-    , onShowLogin = ShowLogin
+    , onShowLogin = NavigateTo <| Just LoginRoute
     }
 
 socketTranslator : Socket.Update.Translator Msg

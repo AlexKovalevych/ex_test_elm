@@ -11,7 +11,7 @@ import Material.Icon as Icon
 import Material.Menu as Menu
 import Html.Attributes exposing (src, width, style)
 import Translation exposing (Language(English, Russian), TranslationId(..), translate)
-import Routing exposing (getMenuRoutings)
+import Routing exposing (getMenuRoutings, Route)
 
 header : CurrentUser -> Model -> List (Html Msg)
 header user model =
@@ -46,10 +46,9 @@ tabs user model =
         Nothing -> []
         Just menu -> List.map (renderTab model.locale) (getMenuRoutings menu)
 
-
+renderTab : Language -> Route -> Html Msg
 renderTab locale route =
     text <| translate locale (Menu <| toString route)
-
 
 currentLocale : Model -> Html Msg
 currentLocale model =
