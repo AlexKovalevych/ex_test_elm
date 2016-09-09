@@ -3,17 +3,11 @@ module User.Models exposing (..)
 type alias ProjectIds = List String
 
 type alias Permissions =
-    { calendar_events : CalendarPermissions
-    , dashboard : DashboardPermissions
+    { dashboard : DashboardPermissions
     , finance : FinancePermissions
-    , players : PlayersPermissions
     , statistics : StatisticsPermissions
-    }
-
-type alias CalendarPermissions =
-    { events_groups_list : ProjectIds
-    , events_list : ProjectIds
-    , events_types_list : ProjectIds
+    , calendar_events : CalendarPermissions
+    , players : PlayersPermissions
     }
 
 type alias DashboardPermissions =
@@ -21,16 +15,11 @@ type alias DashboardPermissions =
     }
 
 type alias FinancePermissions =
-    { funds_flow : ProjectIds
-    , incoming_reports : ProjectIds
-    , monthly_balance : ProjectIds
+    { payments_check : ProjectIds
     , payment_systems : ProjectIds
-    , payments_check : ProjectIds
-    }
-
-type alias PlayersPermissions =
-    { multiaccounts : ProjectIds
-    , signup_channels : ProjectIds
+    , incoming_reports : ProjectIds
+    , funds_flow : ProjectIds
+    , monthly_balance : ProjectIds
     }
 
 type alias StatisticsPermissions =
@@ -41,4 +30,15 @@ type alias StatisticsPermissions =
     , retention : ProjectIds
     , segments_report : ProjectIds
     , timeline_report : ProjectIds
+    }
+
+type alias CalendarPermissions =
+    { events_groups_list : ProjectIds
+    , events_list : ProjectIds
+    , events_types_list : ProjectIds
+    }
+
+type alias PlayersPermissions =
+    { multiaccounts : ProjectIds
+    , signup_channels : ProjectIds
     }

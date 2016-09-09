@@ -10,18 +10,11 @@ projectIdsDecoder =
 permissionsDecoder : Decoder Permissions
 permissionsDecoder =
     object5 Permissions
-        ("calendar_events" := calendarEventsDecoder)
         ("dashboard" := dashboardDecoder)
         ("finance" := financeDecoder)
-        ("players" := playersDecoder)
         ("statistics" := statisticsDecoder)
-
-calendarEventsDecoder : Decoder CalendarPermissions
-calendarEventsDecoder =
-    object3 CalendarPermissions
-        ("events_groups_list" := projectIdsDecoder)
-        ("events_list" := projectIdsDecoder)
-        ("events_types_list" := projectIdsDecoder)
+        ("calendar_events" := calendarEventsDecoder)
+        ("players" := playersDecoder)
 
 dashboardDecoder : Decoder DashboardPermissions
 dashboardDecoder =
@@ -31,17 +24,11 @@ dashboardDecoder =
 financeDecoder : Decoder FinancePermissions
 financeDecoder =
     object5 FinancePermissions
-        ("funds_flow" := projectIdsDecoder)
-        ("incoming_reports" := projectIdsDecoder)
-        ("monthly_balance" := projectIdsDecoder)
-        ("payment_systems" := projectIdsDecoder)
         ("payments_check" := projectIdsDecoder)
-
-playersDecoder : Decoder PlayersPermissions
-playersDecoder =
-    object2 PlayersPermissions
-        ("multiaccounts" := projectIdsDecoder)
-        ("signup_channels" := projectIdsDecoder)
+        ("payment_systems" := projectIdsDecoder)
+        ("incoming_reports" := projectIdsDecoder)
+        ("funds_flow" := projectIdsDecoder)
+        ("monthly_balance" := projectIdsDecoder)
 
 statisticsDecoder : Decoder StatisticsPermissions
 statisticsDecoder =
@@ -53,3 +40,16 @@ statisticsDecoder =
         ("retention" := projectIdsDecoder)
         ("segments_report" := projectIdsDecoder)
         ("timeline_report" := projectIdsDecoder)
+
+calendarEventsDecoder : Decoder CalendarPermissions
+calendarEventsDecoder =
+    object3 CalendarPermissions
+        ("events_groups_list" := projectIdsDecoder)
+        ("events_list" := projectIdsDecoder)
+        ("events_types_list" := projectIdsDecoder)
+
+playersDecoder : Decoder PlayersPermissions
+playersDecoder =
+    object2 PlayersPermissions
+        ("multiaccounts" := projectIdsDecoder)
+        ("signup_channels" := projectIdsDecoder)

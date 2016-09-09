@@ -35,7 +35,7 @@ view model =
                     , Layout.onSelectTab SelectTab
                     ]
                     { header = Header.header user model
-                    , drawer = drawer model
+                    , drawer = drawer user model
                     , tabs = (Header.tabs user model, [])
                     , main =
                         [ div
@@ -47,13 +47,13 @@ view model =
                     }
             Guest -> AuthView.view model
 
-drawer : Model -> List (Html Msg)
-drawer model =
+drawer : CurrentUser -> Model -> List (Html Msg)
+drawer user model =
     [ Layout.title []
         [ text "Globotunes 3.0" ]
     , Layout.navigation
         [ Options.css "flex-grow" "1" ]
-        (View.Menu.menu model)
+        (View.Menu.menu user model)
     ]
 
 body : Model -> Html Msg
