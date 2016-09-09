@@ -1,5 +1,7 @@
 module Auth.Models exposing (..)
 
+import User.Models exposing (..)
+
 type alias CurrentUser =
     { id : String
     , email : String
@@ -7,6 +9,7 @@ type alias CurrentUser =
     , authenticationType : String
     , securePhoneNumber : String
     , locale : String
+    , permissions : Permissions
     }
 
 type User = Guest | LoggedUser CurrentUser

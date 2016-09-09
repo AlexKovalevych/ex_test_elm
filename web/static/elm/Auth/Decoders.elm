@@ -3,6 +3,7 @@ module Auth.Decoders exposing (..)
 import Auth.Models exposing (CurrentUser)
 import Json.Decode exposing (..)
 import Http
+import User.Decoders exposing (permissionsDecoder)
 import Xhr exposing (stringFromHttpError)
 
 type alias LoginResponse =
@@ -22,13 +23,14 @@ userSuccessDecoder =
 
 userDecoder : Decoder CurrentUser
 userDecoder =
-    object6 CurrentUser
+    object7 CurrentUser
         ("id" := string)
         ("email" := string)
         ("is_admin" := bool)
         ("authenticationType" := string)
         ("securePhoneNumber" := string)
         ("locale" := string)
+        ("permissions" := permissionsDecoder)
 
 type alias LogoutResponse =
     { ok : Bool
