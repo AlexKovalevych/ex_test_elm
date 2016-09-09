@@ -18,7 +18,7 @@ import Material.Grid exposing (grid, noSpacing, maxWidth, cell, size, offset, De
 import Material.Icon as Icon
 import Translation exposing (..)
 import Auth.View as AuthView
-import Routing exposing (..)
+import Routing exposing (Route(..), Menu(..))
 import View.Header as Header
 
 view : Model -> Html Msg
@@ -32,10 +32,12 @@ view model =
                 Layout.render Mdl model.mdl
                     [ Layout.fixedHeader
                     , Layout.fixedDrawer
+                    , Layout.fixedTabs
+                    , Layout.onSelectTab SelectTab
                     ]
                     { header = Header.header user model
                     , drawer = drawer model
-                    , tabs = ( [], [] )
+                    , tabs = (Header.tabs user model, [])
                     , main =
                         [ div
                             [ style [ ( "padding", "1rem" ) ] ]
@@ -59,11 +61,13 @@ type alias MenuItem =
     { text : String
     , iconName : String
     , route : Maybe Route
+    , menu : Maybe Menu
     }
 
 menuItems : Model -> List MenuItem
 menuItems model =
-    [ { text = translate model.locale (Menu "dashboard"), iconName = "dashboard", route = Just DashboardRoute }
+    [ { text = translate model.locale (Menu "dashboard"), iconName = "dashboard", route = Just DashboardRoute, menu = Nothing }
+    , { text = translate model.locale (Menu "finance"), iconName = "account_balance", route = Nothing, menu = Just Finance }
     --, { text = "Users", iconName = "group", route = Just Users }
     --, { text = "Last Activity", iconName = "alarm", route = Nothing }
     --, { text = "Timesheets", iconName = "event", route = Nothing }
@@ -72,10 +76,16 @@ menuItems model =
     --, { text = "Projects", iconName = "view_list", route = Just Projects }
     ]
 
+menuAction route menu =
+    case menu of
+        Nothing -> NavigateTo route
+        Just _ -> SetMenu menu
 
 drawerMenuItem : Model -> MenuItem -> Html Msg
 drawerMenuItem model menuItem =
-    Layout.link []
+    Layout.link
+        [ Layout.onClick ( menuAction menuItem.route menuItem.menu )
+        ]
 --        [ Layout.onClick (NavigateTo menuItem.route)
 --        , (Color.text <| Color.accent) `when` (model.route == menuItem.route)
 --        , Options.css "font-weight" "500"
@@ -133,6 +143,10 @@ pageView model =
             div [ class "row" ]
                 [ div [ class "col-xs-offset-4 col-xs-4" ] []
                 ]
+
+        PaymentCheck ->
+            div [ class "row" ]
+            []
 
         --LanguagesRoutes languagesRoute ->
         --    let

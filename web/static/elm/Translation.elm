@@ -55,7 +55,7 @@ translate lang trans =
                 "calendar_events" -> TranslationSet "Events calendar" "Календарь событий"
                 "players" -> TranslationSet "Players" "Игроки"
                 "settings" -> TranslationSet "Settings" "Настройки"
-                "payments_check" -> TranslationSet "Payments check" "Сверка платежей"
+                "PaymentCheck" -> TranslationSet "Payments check" "Сверка платежей"
                 "payment_systems" -> TranslationSet "PS Config" "Конфиг ПС"
                 "monthly_balance" -> TranslationSet "Monthly balance" "Месячные балансы"
                 "incoming_reports" -> TranslationSet "Incoming reports" "Входящие отчеты"

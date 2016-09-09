@@ -4,7 +4,7 @@ import Debug
 import Navigation
 import Hop exposing (makeUrl)
 import Models exposing (..)
-import Routing exposing(..)
+import Routing exposing (..)
 import Messages exposing (..)
 import Socket.Messages as SocketMessages
 import Socket.Update
@@ -24,8 +24,9 @@ import Translation exposing (..)
 import Phoenix.Push
 import Dict
 import Phoenix.Socket
-import Update.Snackbar as UpdateSnackbar
 import Translation exposing (translate)
+import Update.Snackbar as UpdateSnackbar
+import Update.Never exposing (never)
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -90,6 +91,31 @@ update message model =
                     reverse LoginRoute
             in
                 model ! [ navigationCmd path ]
+
+        NavigateTo maybeLocation ->
+            case maybeLocation of
+                Nothing ->
+                    model ! []
+
+                Just location ->
+                    model !
+                        [ Task.perform never (\_ -> SetMenu <| getMenu location) (Task.succeed True)
+                        , Navigation.newUrl (reverse location)
+                        ]
+
+        SetMenu menu ->
+            { model | menu = menu } ! []
+
+        SelectTab k ->
+            case model.menu of
+                Nothing -> model ! []
+                Just menu ->
+                    let
+                        location = getRouteByTabIndex menu k
+                    in
+                        case location of
+                            Nothing -> model ! []
+                            Just route -> model ! [ Navigation.newUrl (reverse route) ]
 
         NoOp ->
             model ! []

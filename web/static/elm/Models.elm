@@ -3,7 +3,7 @@ module Models exposing (..)
 import Material
 import Material.Snackbar as Snackbar
 import Hop.Types exposing (Location)
-import Routing exposing (Route)
+import Routing exposing (Route, Menu(..))
 import Socket.Models as Socket
 import Auth.Models as Auth
 import Translation exposing (Language(..))
@@ -14,6 +14,7 @@ type alias Model =
     , location : Location
     , locale : Language
     , route : Route
+    , menu : Maybe Menu
     , socket : Socket.Model
     , channels : List String
     , auth : Auth.Model
@@ -30,5 +31,6 @@ initialModel route location =
     , channels = []
     , mdl = Material.model
     , snackbar = Snackbar.model
+    , menu = Nothing
     --, nextPage = Nothing
     }

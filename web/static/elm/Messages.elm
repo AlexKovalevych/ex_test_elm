@@ -5,6 +5,7 @@ import Auth.Messages
 import Material
 import Material.Snackbar as Snackbar
 import Translation exposing (Language, TranslationId)
+import Routing exposing (Route, Menu)
 
 type Msg
     = Mdl (Material.Msg Msg)
@@ -12,6 +13,9 @@ type Msg
     | AddToast TranslationId
     | SetLocale Language
     | UpdateLocale String
+    | NavigateTo (Maybe Route)
+    | SelectTab Int
+    | SetMenu (Maybe Menu)
 
     --Socket messages
     | SocketMsg Socket.Messages.InternalMsg
