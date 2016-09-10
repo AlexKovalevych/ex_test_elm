@@ -7,4 +7,8 @@ html, body {
     vertical-align: baseline;
 }
 
+a:focus {
+    outline: 0;
+}
+
 font-family: 'Roboto', sans-serif;

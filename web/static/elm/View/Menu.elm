@@ -9,7 +9,7 @@ import Material.Color as Color
 import Material.Icon as Icon
 import Material.Layout as Layout
 import Material.Options as Options
-import Routing exposing (Route(..), Menu(..), routeIsInMenu, getMenuRoutings)
+import Routing exposing (Route(..), FinanceRoute(..), Menu(..), routeIsInMenu, getMenuRoutings)
 import Translation exposing (..)
 
 type MenuItem
@@ -43,10 +43,27 @@ hasAccessToMenu user menu =
 
 hasAccessToRoute : CurrentUser -> Route -> Bool
 hasAccessToRoute user route =
-    case route of
-        DashboardRoute ->
-            not <| List.isEmpty user.permissions.dashboard.dashboard_index
-        _ -> True
+    let
+        dashboard = user.permissions.dashboard
+        finance = user.permissions.finance
+        statistics = user.permissions.statistics
+        calendar = user.permissions.calendar_events
+        players = user.permissions.players
+    in
+        not <| List.isEmpty <| case route of
+            DashboardRoute ->
+                dashboard.dashboard_index
+            FinanceRoutes PaymentCheck ->
+                finance.payments_check
+            FinanceRoutes PaymentSystem ->
+                finance.payment_systems
+            FinanceRoutes InputReport ->
+                finance.incoming_reports
+            FinanceRoutes FundsFlow ->
+                finance.funds_flow
+            FinanceRoutes MonthlyBalances ->
+                finance.monthly_balance
+            _ -> []
 
 drawerMenuItem : Model -> MenuItem -> Html Msg
 drawerMenuItem model menuItem =
