@@ -10,11 +10,12 @@ import Material.Icon as Icon
 import Material.Layout as Layout
 import Material.Options as Options
 import Routing exposing
-    (Route(..)
+    ( Route(..)
     , FinanceRoute(..)
     , StatisticRoute(..)
     , CalendarRoute(..)
     , PlayerRoute(..)
+    , SettingsRoute(..)
     , Menu(..)
     , routeIsInMenu
     , getMenuRoutings
@@ -114,6 +115,12 @@ hasAccessToRoute user route =
             PlayersRoutes (SignupChannelsRoutes _) ->
                 players.signup_channels
 
+            SettingsRoutes _ ->
+                if user.is_admin then
+                    [""]
+                else
+                    []
+
             _ ->
                 []
 
@@ -163,6 +170,11 @@ menuItems model =
         { text = translate model.locale (Menu "players")
         , iconName = "account_box"
         , menu = Players
+        }
+    , Submenu
+        { text = translate model.locale (Menu "settings")
+        , iconName = "settings"
+        , menu = Settings
         }
     ]
 

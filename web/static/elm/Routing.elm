@@ -22,7 +22,7 @@ type Route
     | StatisticRoutes StatisticRoute
     | CalendarRoutes CalendarRoute
     | PlayersRoutes PlayerRoute
-    --| SettingsRoutes SettingsRoute
+    | SettingsRoutes SettingsRoute
 
     --Other routings
     | LoginRoute
@@ -79,15 +79,42 @@ type PlayerRoute
     | SignupChannelsRoutes SignupChannelsRoute
 
 type SignupChannelsRoute
-    = SignupChannelsList
-    | SignupChannelsEdit String
-    | SignupChannelsCreate
+    = SignupChannelList
+    | SignupChannelEdit String
+    | SignupChannelCreate
 
---type SettingsRoute
---    = UsersList
---    | ProjectsList
---    | NotificationsList
---    |
+type SettingsRoute
+    = UserRoutes UserRoute
+    | ProjectRoutes ProjectRoute
+    | NotificationRoutes NotificationRoute
+    | Permissions
+    | DataSourceRoutes DataSourceRoute
+    | SmtpServerRoutes SmtpServerRoute
+
+type UserRoute
+    = UserList
+    | UserEdit String
+    | UserCreate
+
+type ProjectRoute
+    = ProjectList
+    | ProjectEdit String
+    | ProjectCreate
+
+type NotificationRoute
+    = NotificationList
+    | NotificationEdit String
+    | NotificationCreate
+
+type DataSourceRoute
+    = DataSourceList
+    | DataSourceEdit String
+    | DataSourceCreate
+
+type SmtpServerRoute
+    = SmtpServerList
+    | SmtpServerEdit String
+    | SmtpServerCreate
 
 type Menu
     --= Dashboard
@@ -127,7 +154,17 @@ calendarRoutes =
 playersRoutes : List PlayerRoute
 playersRoutes =
     [ Multiaccounts
-    , SignupChannelsRoutes SignupChannelsList
+    , SignupChannelsRoutes SignupChannelList
+    ]
+
+settingsRoutes : List SettingsRoute
+settingsRoutes =
+    [ UserRoutes UserList
+    , ProjectRoutes ProjectList
+    , NotificationRoutes NotificationList
+    , Permissions
+    , DataSourceRoutes DataSourceList
+    , SmtpServerRoutes SmtpServerList
     ]
 
 matchers : List (UrlParser.Parser (Route -> a) a)
@@ -138,6 +175,7 @@ matchers =
     , UrlParser.format StatisticRoutes (s "statistics" </> (oneOf statisticMatchers))
     , UrlParser.format CalendarRoutes (s "event_calendar" </> (oneOf calendarMatchers))
     , UrlParser.format PlayersRoutes (s "players" </> (oneOf playersMatchers))
+    , UrlParser.format SettingsRoutes (s "settings" </> (oneOf settingsMatchers))
     ]
 
 financeMatchers : List (UrlParser.Parser (FinanceRoute -> a) a)
@@ -210,9 +248,54 @@ playersMatchers =
 
 signupChannelsMatchers : List (UrlParser.Parser (SignupChannelsRoute -> a) a)
 signupChannelsMatchers =
-    [ UrlParser.format SignupChannelsList (s "list")
-    , UrlParser.format SignupChannelsEdit (s "edit" </> string)
-    , UrlParser.format SignupChannelsCreate (s "create")
+    [ UrlParser.format SignupChannelList (s "list")
+    , UrlParser.format SignupChannelEdit (s "edit" </> string)
+    , UrlParser.format SignupChannelCreate (s "create")
+    ]
+
+settingsMatchers : List (UrlParser.Parser (SettingsRoute -> a) a)
+settingsMatchers =
+    [ UrlParser.format UserRoutes (s "user" </> (oneOf userMatchers))
+    , UrlParser.format ProjectRoutes (s "project" </> (oneOf projectMatchers))
+    , UrlParser.format NotificationRoutes (s "notification" </> (oneOf notificationMatchers))
+    , UrlParser.format Permissions (s "permissions" </> s "index")
+    , UrlParser.format DataSourceRoutes (s "data-source" </> (oneOf dataSourceMatchers))
+    , UrlParser.format SmtpServerRoutes (s "smtp_server" </> (oneOf smtpServerMatchers))
+    ]
+
+userMatchers : List (UrlParser.Parser (UserRoute -> a) a)
+userMatchers =
+    [ UrlParser.format UserList (s "list")
+    , UrlParser.format UserEdit (s "edit" </> string)
+    , UrlParser.format UserCreate (s "create")
+    ]
+
+projectMatchers : List (UrlParser.Parser (ProjectRoute -> a) a)
+projectMatchers =
+    [ UrlParser.format ProjectList (s "list")
+    , UrlParser.format ProjectEdit (s "edit" </> string)
+    , UrlParser.format ProjectCreate (s "create")
+    ]
+
+notificationMatchers : List (UrlParser.Parser (NotificationRoute -> a) a)
+notificationMatchers =
+    [ UrlParser.format NotificationList (s "list")
+    , UrlParser.format NotificationEdit (s "edit" </> string)
+    , UrlParser.format NotificationCreate (s "create")
+    ]
+
+dataSourceMatchers : List (UrlParser.Parser (DataSourceRoute -> a) a)
+dataSourceMatchers =
+    [ UrlParser.format DataSourceList (s "list")
+    , UrlParser.format DataSourceEdit (s "edit" </> string)
+    , UrlParser.format DataSourceCreate (s "create")
+    ]
+
+smtpServerMatchers : List (UrlParser.Parser (SmtpServerRoute -> a) a)
+smtpServerMatchers =
+    [ UrlParser.format SmtpServerList (s "list")
+    , UrlParser.format SmtpServerEdit (s "edit" </> string)
+    , UrlParser.format SmtpServerCreate (s "create")
     ]
 
 reverse : Route -> String
@@ -235,6 +318,9 @@ reverse route =
 
         PlayersRoutes subRoute ->
             "/players" ++ reversePlayers subRoute
+
+        SettingsRoutes subRoute ->
+            "/settings" ++ reverseSettings subRoute
 
         NotFoundRoute ->
             ""
@@ -365,13 +451,94 @@ reversePlayers route =
 reverseSignupChannelsRoutes : SignupChannelsRoute -> String
 reverseSignupChannelsRoutes route =
     case route of
-        SignupChannelsList ->
+        SignupChannelList ->
             "list"
 
-        SignupChannelsEdit id ->
+        SignupChannelEdit id ->
             "edit/" ++ id
 
-        SignupChannelsCreate ->
+        SignupChannelCreate ->
+            "create"
+
+reverseSettings : SettingsRoute -> String
+reverseSettings route =
+    case route of
+        UserRoutes subRoute ->
+            "/user/" ++ reverseUserRoutes subRoute
+
+        ProjectRoutes subRoute ->
+            "/project/" ++ reverseProjectRoutes subRoute
+
+        NotificationRoutes subRoute ->
+            "/notification/" ++ reverseNotificationRoutes subRoute
+
+        Permissions ->
+            "/permissions/index"
+
+        DataSourceRoutes subRoute ->
+            "/data-source/" ++ reverseDataSourceRoutes subRoute
+
+        SmtpServerRoutes subRoute ->
+            "/smtp_server/" ++ reverseSmtpServerRoutes subRoute
+
+reverseUserRoutes : UserRoute -> String
+reverseUserRoutes route =
+    case route of
+        UserList ->
+            "list"
+
+        UserEdit id ->
+            "edit/" ++ id
+
+        UserCreate ->
+            "create"
+
+reverseProjectRoutes : ProjectRoute -> String
+reverseProjectRoutes route =
+    case route of
+        ProjectList ->
+            "list"
+
+        ProjectEdit id ->
+            "edit/" ++ id
+
+        ProjectCreate ->
+            "create"
+
+reverseNotificationRoutes : NotificationRoute -> String
+reverseNotificationRoutes route =
+    case route of
+        NotificationList ->
+            "list"
+
+        NotificationEdit id ->
+            "edit/" ++ id
+
+        NotificationCreate ->
+            "create"
+
+reverseDataSourceRoutes : DataSourceRoute -> String
+reverseDataSourceRoutes route =
+    case route of
+        DataSourceList ->
+            "list"
+
+        DataSourceEdit id ->
+            "edit/" ++ id
+
+        DataSourceCreate ->
+            "create"
+
+reverseSmtpServerRoutes : SmtpServerRoute -> String
+reverseSmtpServerRoutes route =
+    case route of
+        SmtpServerList ->
+            "list"
+
+        SmtpServerEdit id ->
+            "edit/" ++ id
+
+        SmtpServerCreate ->
             "create"
 
 getMenu : Route -> Maybe Menu
@@ -381,6 +548,7 @@ getMenu route =
         StatisticRoutes _ -> Just Statistics
         CalendarRoutes _ -> Just Calendar
         PlayersRoutes _ -> Just Players
+        SettingsRoutes _ -> Just Settings
         _ -> Nothing
 
 getMenuRoutings : Menu -> List Route
@@ -390,7 +558,7 @@ getMenuRoutings menu =
         Statistics -> List.map StatisticRoutes statisticRoutes
         Calendar -> List.map CalendarRoutes calendarRoutes
         Players -> List.map PlayersRoutes playersRoutes
-        _ -> []
+        Settings -> List.map SettingsRoutes settingsRoutes
 
 routeIsInMenu : Route -> Menu -> Bool
 routeIsInMenu route menu =
@@ -399,6 +567,7 @@ routeIsInMenu route menu =
         StatisticRoutes _ -> menu == Statistics
         CalendarRoutes _ -> menu == Calendar
         PlayersRoutes _ -> menu == Players
+        SettingsRoutes _ -> menu == Settings
         _ -> False
 
 getRouteByTabIndex : Menu -> Int -> Maybe Route
@@ -416,8 +585,8 @@ getRouteByTabIndex menu i =
         Players ->
             getPlayersRouteByIndex i
 
-        _ ->
-            Nothing
+        Settings ->
+            getSettingsRouteByIndex i
 
 getFinanceRouteByIndex : Int -> Maybe Route
 getFinanceRouteByIndex index =
@@ -455,3 +624,12 @@ getPlayersRouteByIndex index =
         case maybeRoute of
             Nothing -> Nothing
             Just route -> Just <| PlayersRoutes route
+
+getSettingsRouteByIndex : Int -> Maybe Route
+getSettingsRouteByIndex index =
+    let
+        maybeRoute = Array.fromList settingsRoutes |> Array.get index
+    in
+        case maybeRoute of
+            Nothing -> Nothing
+            Just route -> Just <| SettingsRoutes route

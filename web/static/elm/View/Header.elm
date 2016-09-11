@@ -59,6 +59,7 @@ renderTab locale route =
             StatisticRoutes name -> toString name
             CalendarRoutes name -> toString name
             PlayersRoutes name -> toString name
+            SettingsRoutes name -> toString name
             _ -> ""
     in
         text <| translate locale (Menu translationId)
