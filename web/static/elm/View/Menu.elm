@@ -9,7 +9,16 @@ import Material.Color as Color
 import Material.Icon as Icon
 import Material.Layout as Layout
 import Material.Options as Options
-import Routing exposing (Route(..), FinanceRoute(..), Menu(..), routeIsInMenu, getMenuRoutings)
+import Routing exposing
+    (Route(..)
+    , FinanceRoute(..)
+    , StatisticRoute(..)
+    , CalendarRoute(..)
+    , PlayerRoute(..)
+    , Menu(..)
+    , routeIsInMenu
+    , getMenuRoutings
+    )
 import Translation exposing (..)
 
 type MenuItem
@@ -53,17 +62,60 @@ hasAccessToRoute user route =
         not <| List.isEmpty <| case route of
             DashboardRoute ->
                 dashboard.dashboard_index
-            FinanceRoutes PaymentCheck ->
+
+            FinanceRoutes (PaymentCheckRoutes _) ->
                 finance.payments_check
-            FinanceRoutes PaymentSystem ->
+
+            FinanceRoutes (PaymentSystemRoutes _) ->
                 finance.payment_systems
+
             FinanceRoutes InputReport ->
                 finance.incoming_reports
+
             FinanceRoutes FundsFlow ->
                 finance.funds_flow
+
             FinanceRoutes MonthlyBalances ->
                 finance.monthly_balance
-            _ -> []
+
+            StatisticRoutes ConsolidatedReport ->
+                statistics.consolidated_report
+
+            StatisticRoutes LtvReport ->
+                statistics.ltv_report
+
+            StatisticRoutes SegmentsReport ->
+                statistics.segments_report
+
+            StatisticRoutes RetentionsReport ->
+                statistics.retention
+
+            StatisticRoutes ActivityWaves ->
+                statistics.activity_waves
+
+            StatisticRoutes TimelineReport ->
+                statistics.timeline_report
+
+            StatisticRoutes CohortsReport ->
+                statistics.cohorts_report
+
+            CalendarRoutes (EventsRoutes _) ->
+                calendar.events_list
+
+            CalendarRoutes (EventsTypesRoutes _) ->
+                calendar.events_types_list
+
+            CalendarRoutes (EventsGroupsRoutes _) ->
+                calendar.events_groups_list
+
+            PlayersRoutes Multiaccounts ->
+                players.multiaccounts
+
+            PlayersRoutes (SignupChannelsRoutes _) ->
+                players.signup_channels
+
+            _ ->
+                []
 
 drawerMenuItem : Model -> MenuItem -> Html Msg
 drawerMenuItem model menuItem =
@@ -97,12 +149,21 @@ menuItems model =
         , iconName = "account_balance"
         , menu = Finance
         }
-    --, { text = "Users", iconName = "group", route = Just Users }
-    --, { text = "Last Activity", iconName = "alarm", route = Nothing }
-    --, { text = "Timesheets", iconName = "event", route = Nothing }
-    --, { text = "Reports", iconName = "list", route = Nothing }
-    --, { text = "Organizations", iconName = "store", route = Just Organizations }
-    --, { text = "Projects", iconName = "view_list", route = Just Projects }
+    , Submenu
+        { text = translate model.locale (Menu "statistics")
+        , iconName = "show_chart"
+        , menu = Statistics
+        }
+    , Submenu
+        { text = translate model.locale (Menu "calendar_events")
+        , iconName = "event"
+        , menu = Calendar
+        }
+    , Submenu
+        { text = translate model.locale (Menu "players")
+        , iconName = "account_box"
+        , menu = Players
+        }
     ]
 
 menuAction : MenuItem -> Msg

@@ -56,6 +56,9 @@ renderTab locale route =
     let
         translationId = case route of
             FinanceRoutes name -> toString name
+            StatisticRoutes name -> toString name
+            CalendarRoutes name -> toString name
+            PlayersRoutes name -> toString name
             _ -> ""
     in
         text <| translate locale (Menu translationId)

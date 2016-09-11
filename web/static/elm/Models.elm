@@ -3,7 +3,7 @@ module Models exposing (..)
 import Material
 import Material.Snackbar as Snackbar
 import Hop.Types exposing (Address)
-import Routing exposing (Route, Menu(..))
+import Routing exposing (Route(..), Menu(..), getMenu)
 import Socket.Models as Socket
 import Auth.Models as Auth
 import Translation exposing (Language(..))
@@ -31,6 +31,6 @@ initialModel route address =
     , channels = []
     , mdl = Material.model
     , snackbar = Snackbar.model
-    , menu = Nothing
+    , menu = getMenu route
     --, nextPage = Nothing
     }
