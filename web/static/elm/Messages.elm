@@ -1,11 +1,12 @@
 module Messages exposing (..)
 
-import Socket.Messages
 import Auth.Messages
+import Dashboard.Messages
 import Material
 import Material.Snackbar as Snackbar
-import Translation exposing (Language, TranslationId)
 import Routing exposing (Route, Menu)
+import Socket.Messages
+import Translation exposing (Language, TranslationId)
 
 type Msg
     = Mdl (Material.Msg Msg)
@@ -19,6 +20,9 @@ type Msg
 
     --Auth messages
     | AuthMsg Auth.Messages.InternalMsg
+
+    --Dashboard messages
+    | DashboardMsg Dashboard.Messages.InternalMsg
 
     --Route messages
     | NavigateTo Route

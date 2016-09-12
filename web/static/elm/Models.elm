@@ -1,5 +1,6 @@
 module Models exposing (..)
 
+import Dashboard.Models as Dashboard
 import Material
 import Material.Snackbar as Snackbar
 import Hop.Types exposing (Address)
@@ -16,6 +17,7 @@ type alias Model =
     , route : Route
     , menu : Maybe Menu
     , socket : Socket.Model
+    , dashboard : Dashboard.Model
     , channels : List String
     , auth : Auth.Model
     , snackbar : Snackbar.Model Msg
@@ -28,6 +30,7 @@ initialModel route address =
     , locale = Russian
     , auth = Auth.initialModel
     , socket = Socket.initialModel
+    , dashboard = Dashboard.initialModel
     , channels = []
     , mdl = Material.model
     , snackbar = Snackbar.model

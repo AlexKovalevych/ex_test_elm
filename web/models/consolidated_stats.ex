@@ -342,6 +342,7 @@ defmodule Gt.Model.ConsolidatedStats do
             }},
             %{"$project" => %{
                 "_id" => 1,
+                "date" => "$_id",
                 "paymentsAmount" => 1,
                 "depositsAmount" => 1,
                 "cashoutsAmount" => 1,

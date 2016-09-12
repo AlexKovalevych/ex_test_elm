@@ -33,7 +33,7 @@ defmodule Gt.Manager.Dashboard do
                 end
             end
         end)
-        |>Enum.map(fn id ->
+        |> Enum.map(fn id ->
             {:ok, object_id} = Mongo.Ecto.ObjectID.dump(id)
             object_id
         end)
@@ -58,8 +58,7 @@ defmodule Gt.Manager.Dashboard do
             charts: charts,
             periods: data.periods,
             totals: data.totals,
-            projects: projects,
-            lastUpdated: GtDate.timestamp(GtDate.now)
+            projects: projects
         }
     end
 
@@ -184,9 +183,9 @@ defmodule Gt.Manager.Dashboard do
         |> set_stats(totals, "comparison", :total)
 
         %{
-            stats: stats,
-            periods: %{current: current_period, comparison: comparison_period},
-            totals: totals
+            stats: Enum.map(Map.values(stats), &Map.values/1),
+            periods: [current_period, comparison_period],
+            totals: Map.values(totals)
         }
 
     end
@@ -204,51 +203,51 @@ defmodule Gt.Manager.Dashboard do
     end
 
     def get_charts([daily_from, daily_to], [monthly_from, monthly_to], project_ids) do
-        daily_charts = Enum.reduce(project_ids, %{}, fn (project_id, acc) ->
+        daily_charts = Enum.reduce(project_ids, [], fn (project_id, acc) ->
             id = Gt.Model.id_to_string(project_id)
             data = ConsolidatedStats
             |> ConsolidatedStats.dashboard_charts
             |> ConsolidatedStats.project_id(id)
             |> ConsolidatedStats.period(daily_from, daily_to)
             |> Repo.all
-            |> Enum.reduce(%{}, fn (daily_stat, acc) ->
-                Map.put(acc, daily_stat[:date], daily_stat)
+            |> Enum.reduce([], fn (daily_stat, acc) ->
+                acc ++ [daily_stat]
             end)
-            Map.put(acc, id, data)
+            acc ++ [%{project: id, values: data}]
         end)
 
-        monthly_charts = Enum.reduce(project_ids, %{}, fn (project_id, acc) ->
+        monthly_charts = Enum.reduce(project_ids, [], fn (project_id, acc) ->
             id = Gt.Model.id_to_string(project_id)
             data = ConsolidatedStatsMonthly
             |> ConsolidatedStatsMonthly.dashboard_charts
             |> ConsolidatedStatsMonthly.project_id(id)
             |> ConsolidatedStatsMonthly.period(monthly_from, monthly_to)
             |> Repo.all
-            |> Enum.reduce(%{}, fn (monthly_stat, acc) ->
-                Map.put(acc, monthly_stat[:month], monthly_stat)
+            |> Enum.reduce([], fn (monthly_stat, acc) ->
+                acc ++ [monthly_stat]
             end)
-            Map.put(acc, id, data)
+            acc ++ [%{project: id, values: data}]
         end)
 
         total_daily_charts = ConsolidatedStats.dashboard_charts_period(daily_from, daily_to, project_ids)
-        |> Enum.reduce(%{}, fn (daily_stat, acc) ->
-            Map.put(acc, daily_stat["_id"], daily_stat)
+        |> Enum.reduce([], fn (daily_stat, acc) ->
+            acc ++ [daily_stat]
         end)
 
         total_monthly_charts = ConsolidatedStatsMonthly.dashboard_charts_period(monthly_from, monthly_to, project_ids)
-        |> Enum.reduce(%{}, fn (monthly_stat, acc) ->
-            Map.put(acc, monthly_stat["_id"], monthly_stat)
+        |> Enum.reduce([], fn (monthly_stat, acc) ->
+            acc ++ [monthly_stat]
         end)
 
         %{
-            stats: %{
-                daily: daily_charts,
-                monthly: monthly_charts
-            },
-            totals: %{
-                daily: total_daily_charts,
-                monthly: total_monthly_charts
-            }
+            stats: [
+               daily_charts,
+               monthly_charts
+            ],
+            totals: [
+                total_daily_charts,
+                total_monthly_charts
+            ]
         }
     end
     def get_charts(:month, project_ids) do

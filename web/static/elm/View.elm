@@ -17,9 +17,9 @@ import Material.Icon as Icon
 import Messages exposing (..)
 import Models exposing (..)
 import Routing exposing (Route(..))
-import Translation exposing (..)
 import View.Header as Header
 import View.Menu
+import Dashboard.View
 
 view : Model -> Html Msg
 view model =
@@ -58,7 +58,11 @@ drawer user model =
 
 body : Model -> Html Msg
 body model =
-    text "Hello world"
+    case model.route of
+        DashboardRoute ->
+            Dashboard.View.view model
+        _ ->
+            text "Hello world"
 
 --pageView : Model -> Html Msg
 --pageView model =

@@ -2,6 +2,8 @@ port module Main exposing (..)
 
 import Auth.Messages as AuthMessages
 import Auth.Models exposing (CurrentUser)
+import Dashboard.Messages as DashboardMessages
+import Dashboard.Models as DashboardModels
 import Debug
 import Hop
 import Hop.Types exposing (Address)
@@ -68,9 +70,12 @@ subscriptions model =
     Sub.batch ([
         Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketMessages.PhoenixMsg),
         Sub.map AuthMsg (loggedUser AuthMessages.LoadCurrentUser),
+        Sub.map DashboardMsg (dashboardData DashboardMessages.LoadDashboardData),
         Layout.subs Mdl model.mdl,
         Sub.map AuthMsg (every second AuthMessages.Tick),
         Material.subscriptions Mdl model
     ])
 
 port loggedUser : (CurrentUser -> msg) -> Sub msg
+
+port dashboardData : (DashboardModels.Model -> msg) -> Sub msg

@@ -1,9 +1,9 @@
 module Update exposing (..)
 
+import Dashboard.Update
 import Debug
 import Navigation
 import Hop
---import Hop exposing (makeUrl)
 import Models exposing (..)
 import Routing exposing (..)
 import Messages exposing (..)
@@ -19,8 +19,6 @@ import Auth.Models exposing (User(Guest, LoggedUser))
 import Material.Snackbar as Snackbar
 import Json.Decode as JD
 import Json.Encode as JE
-import Xhr exposing (post)
-import Material.Helpers exposing (map1st, map2nd)
 import Translation exposing (..)
 import Phoenix.Push
 import Dict
@@ -79,6 +77,13 @@ update message model =
             in
                 { model | socket = updatedModel } ! [ Cmd.map socketTranslator cmd ]
 
+        DashboardMsg subMsg ->
+            let
+                ( updatedModel, cmd ) =
+                    Dashboard.Update.update subMsg model.dashboard
+            in
+                { model | dashboard = updatedModel } ! [ Cmd.map dashboardTranslator cmd ]
+
         NavigateTo route ->
             let
                 path = Routing.reverse route
@@ -128,6 +133,12 @@ socketTranslator =
     { onInternalMessage = SocketMsg
     , onSetLocale = SetLocale
     , onUpdateCurrentUser = AuthMsg << AuthMessages.UpdateCurrentUser
+    }
+
+dashboardTranslator : Dashboard.Update.Translator Msg
+dashboardTranslator =
+    Dashboard.Update.translator
+    { onInternalMessage = DashboardMsg
     }
 
 setLocale : (Model, Cmd Msg) -> (Model, Cmd Msg)
