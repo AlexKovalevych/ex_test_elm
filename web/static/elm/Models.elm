@@ -1,14 +1,15 @@
 module Models exposing (..)
 
+import Auth.Models as Auth
 import Dashboard.Models as Dashboard
+import Date
 import Material
 import Material.Snackbar as Snackbar
+import Messages exposing (..)
 import Hop.Types exposing (Address)
 import Routing exposing (Route(..), Menu(..), getMenu)
 import Socket.Models as Socket
-import Auth.Models as Auth
 import Translation exposing (Language(..))
-import Messages exposing (..)
 
 type alias Model =
     { mdl : Material.Model

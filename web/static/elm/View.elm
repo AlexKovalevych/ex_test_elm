@@ -12,7 +12,6 @@ import Material.Layout as Layout
 import Material.Options as Options
 import Material.Color as Color
 import Material.Snackbar as Snackbar
-import Material.Grid exposing (grid, noSpacing, maxWidth, cell, size, offset, Device(..))
 import Material.Icon as Icon
 import Messages exposing (..)
 import Models exposing (..)
@@ -61,47 +60,12 @@ body model user =
     case model.route of
         DashboardRoute ->
             Dashboard.View.view model user
+
+        NotFoundRoute ->
+            notFoundView model
+
         _ ->
             text "Hello world"
-
---pageView : Model -> Html Msg
---pageView model =
---    case model.route of
---        DashboardRoute ->
---            div [ class "p2" ]
---                [ h1 [ id "title", class "m0" ] [ text "Dashboard" ]
---                , div [] [ text "Click on Languages to start routing" ]
---                ]
-
---        LoginRoute ->
---            div [ class "row" ]
---                [ div [ class "col-xs-offset-4 col-xs-4" ] []
---                ]
-
---        PaymentCheck ->
---            div [ class "row" ]
---            []
-
---        PaymentCheck ->
---            div [ class "row" ]
---            []
-
-        --LanguagesRoutes languagesRoute ->
-        --    let
-        --        viewModel =
-        --            { languages = model.languages
-        --            , route = languagesRoute
-        --            , location = model.location
-        --            }
-        --    in
-        --        div [ class "p2" ]
-        --            [ h1 [ id "title", class "m0" ] [ text "Languages" ]
-        --            , Html.App.map LanguagesMsg (Languages.View.view viewModel)
-        --            ]
-
-        --NotFoundRoute ->
-        --    notFoundView model
-
 
 notFoundView : Model -> Html msg
 notFoundView model =

@@ -2,9 +2,13 @@ module Translation exposing
     ( Language (..)
     , TranslationId (..)
     , translate
+    , getDateConfig
     )
 
-import Date.Format exposing (format)
+import Date.Extra.Config as Config
+import Date.Extra.Format exposing (format, isoTimeFormat)
+import Date.Extra.Config.Config_en_au as EnConfig exposing (config)
+import Date.Config_ru_ru as RuConfig exposing (config)
 import Date
 
 type alias TranslationSet =
@@ -32,6 +36,12 @@ type TranslationId
 type Language
     = English
     | Russian
+
+getDateConfig : Language -> Config.Config
+getDateConfig lang =
+    case lang of
+        English -> EnConfig.config
+        Russian -> RuConfig.config
 
 translate : Language -> TranslationId -> String
 translate lang trans =
@@ -92,6 +102,19 @@ translate lang trans =
                 "projects_type" -> TranslationSet "Projects:" "Проекты:"
                 "default_projects" -> TranslationSet "Our" "Наши"
                 "partner_projects" -> TranslationSet "Partner" "Партнерские"
+                "sort_by" -> TranslationSet "Sort by:" "Сортировать по:"
+                "sort_by_paymentsAmount" -> TranslationSet "Inout" "Inout"
+                "sort_by_depositsAmount" -> TranslationSet "Deposits" "Депозитам"
+                "sort_by_cashoutsAmount" -> TranslationSet "Withdrawals" "Выплатам"
+                "sort_by_netgamingAmount" -> TranslationSet "Netgaming" "Netgaming"
+                "sort_by_betsAmount" -> TranslationSet "Bets" "Ставкам"
+                "sort_by_winsAmount" -> TranslationSet "Wins" "Выигрышам"
+                "sort_by_firstDepositsAmount" -> TranslationSet "First deposits amount" "Сумме первых депозитов"
+                --"current_period" ->
+                "period_month" -> TranslationSet "Month to date" "С начала месяца"
+                "period_year" -> TranslationSet "Year to date" "С начала года"
+                "period_days30" -> TranslationSet "Last 30 days" "Последние 30 дней"
+                "period_months12" -> TranslationSet "Last 12 months" "Последние 12 месяцев"
                 _ -> TranslationSet "" ""
 
             --PaymentCheck msg -> case msg of
@@ -127,7 +150,7 @@ translate lang trans =
 
             ServerTime time ->
                 let
-                    formattedTime = format "%H:%M:%S" (Date.fromTime <| toFloat time)
+                    formattedTime = format (getDateConfig lang) isoTimeFormat (Date.fromTime <| toFloat time)
                 in
                     TranslationSet
                         ("Warning! Generated code is sensitive to the time set at your phone. Maximum difference with server time may be ± 1 minute. Server time: " ++ formattedTime)

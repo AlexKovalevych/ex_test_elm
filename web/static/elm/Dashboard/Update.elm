@@ -17,6 +17,18 @@ update message model =
             model !
                 [ Task.perform never ForParent (Task.succeed <| UpdateDashboardProjectsType msg ) ]
 
+        SetDashboardSort msg ->
+            model !
+                [ Task.perform never ForParent (Task.succeed <| UpdateDashboardSort msg ) ]
+
+        SetDashboardCurrentPeriod msg ->
+            model !
+                [ Task.perform never ForParent (Task.succeed <| UpdateDashboardCurrentPeriod msg ) ]
+
+        SetDashboardComparisonPeriod msg ->
+            model !
+                [ Task.perform never ForParent (Task.succeed <| UpdateDashboardComparisonPeriod msg ) ]
+
         _ ->
             model ! []
 
