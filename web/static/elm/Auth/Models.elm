@@ -10,9 +10,18 @@ type alias CurrentUser =
     , securePhoneNumber : String
     , locale : String
     , permissions : Permissions
+    , settings : UserSettings
     }
 
 type User = Guest | LoggedUser CurrentUser
+
+type alias UserSettings =
+    { dashboardChartType : String
+    , dashboardComparePeriod : Int
+    , dashboardPeriod : String
+    , dashboardProjectsType : String
+    , dashboardSort : String
+    }
 
 type alias Model =
     { user : User

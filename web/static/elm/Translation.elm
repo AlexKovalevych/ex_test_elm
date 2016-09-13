@@ -21,6 +21,13 @@ type TranslationId
     | Exit
     | ServerTime Int
     | Menu String
+    | Dashboard String
+    --| PaymentCheck String
+    --| PaymentSystem String
+    --| InputReport String
+    --| FundsFlow String
+    --| MonthlyBalances String
+    | Empty
 
 type Language
     = English
@@ -81,6 +88,32 @@ translate lang trans =
                 "SmtpServerRoutes SmtpServerList" -> TranslationSet "SMTP server" "SMTP сервера"
                 _ -> TranslationSet "" ""
 
+            Dashboard msg -> case msg of
+                "projects_type" -> TranslationSet "Projects:" "Проекты:"
+                "default_projects" -> TranslationSet "Our" "Наши"
+                "partner_projects" -> TranslationSet "Partner" "Партнерские"
+                _ -> TranslationSet "" ""
+
+            --PaymentCheck msg -> case msg of
+            --    "title" -> TranslationSet "Generated reports" "Созданные отчеты"
+            --    _ -> TranslationSet "" ""
+
+            --PaymentSystem msg -> case msg of
+            --    "title" -> TranslationSet "Generated reports" "Созданные отчеты"
+            --    _ -> TranslationSet "" ""
+
+            --InputReport msg -> case msg of
+            --    "title" -> TranslationSet "Incoming reports" "Входящие отчеты"
+            --    _ -> TranslationSet "" ""
+
+            --FundsFlow msg -> case msg of
+            --    "title" -> TranslationSet "Funds flow" "Движение средств"
+            --    _ -> TranslationSet "" ""
+
+            --MonthlyBalances msg -> case msg of
+            --    "title" -> TranslationSet "Monthly balance" "Месячные балансы"
+            --    _ -> TranslationSet "" ""
+
             Ru ->
                 TranslationSet "Русский" "Русский"
 
@@ -102,6 +135,9 @@ translate lang trans =
 
             Exit ->
                 TranslationSet "Exit" "Выйти"
+
+            Empty ->
+                TranslationSet "" ""
 
     in
         case lang of

@@ -4,13 +4,14 @@ import Dashboard.Models exposing (..)
 
 type InternalMsg
     = LoadDashboardData Model
+    | SetDashboardProjectsType String
     | NoOp
 
 type OutMsg
-    = SetDashboardSort String
-    | SetDashboardCurrentPeriod String
-    | SetDashboardComparisonPeriod String
-    | SetDashboardProjectsType String
+    = UpdateDashboardSort String
+    | UpdateDashboardCurrentPeriod String
+    | UpdateDashboardComparisonPeriod String
+    | UpdateDashboardProjectsType String
 
 type Msg
     = ForSelf InternalMsg

@@ -12,13 +12,22 @@ import Material.Menu as Menu
 import Material.Options as Options
 import Html.Attributes exposing (src, width, style)
 import Translation exposing (Language(English, Russian), TranslationId(..), translate)
-import Routing exposing (getMenuRoutings, Route(..))
+import Routing exposing
+    (getMenuRoutings
+    , Route(..)
+    , PaymentCheckRoute(..)
+    , FinanceRoute(..)
+    , PaymentSystemRoute(..)
+    )
 
 header : CurrentUser -> Model -> List (Html Msg)
 header user model =
     [ Layout.row
         []
-        [ Layout.title [] [ currentLocale model, text "Page title here" ]
+        [ Layout.title []
+            [ currentLocale model
+            , text <| translate model.locale <| pageTitle model
+            ]
         , Layout.spacer
         , Layout.navigation []
             [ Menu.render Mdl [0] model.mdl
@@ -72,3 +81,25 @@ currentLocale model =
         case model.locale of
             Russian -> img (props "/images/flags/ru_2.png") []
             English -> img (props "/images/flags/en_2.png") []
+
+pageTitle model =
+    case model.route of
+        DashboardRoute ->
+            Menu "dashboard"
+
+        FinanceRoutes (PaymentCheckRoutes PaymentCheckList) ->
+            Menu "PaymentCheckRoutes PaymentCheckList"
+
+        FinanceRoutes (PaymentSystemRoutes PaymentSystemList) ->
+            Menu "PaymentSystemRoutes PaymentSystemList"
+
+        FinanceRoutes Routing.InputReport ->
+            Menu "InputReport"
+
+        FinanceRoutes Routing.FundsFlow ->
+            Menu "FundsFlow"
+
+        FinanceRoutes Routing.MonthlyBalances ->
+            Menu "MonthlyBalances"
+
+        _ -> Empty

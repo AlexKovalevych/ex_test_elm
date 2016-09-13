@@ -40,7 +40,7 @@ view model =
                     , main =
                         [ div
                             [ style [ ( "padding", "1rem" ) ] ]
-                            [ body model
+                            [ body model user
                             , Snackbar.view model.snackbar |> App.map Snackbar
                             ]
                         ]
@@ -56,11 +56,11 @@ drawer user model =
         (View.Menu.menu user model)
     ]
 
-body : Model -> Html Msg
-body model =
+body : Model -> CurrentUser -> Html Msg
+body model user =
     case model.route of
         DashboardRoute ->
-            Dashboard.View.view model
+            Dashboard.View.view model user
         _ ->
             text "Hello world"
 

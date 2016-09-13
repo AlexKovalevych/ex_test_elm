@@ -1,6 +1,6 @@
 module Auth.Decoders exposing (..)
 
-import Auth.Models exposing (CurrentUser)
+import Auth.Models exposing (CurrentUser, UserSettings)
 import Json.Decode exposing (..)
 import Http
 import User.Decoders exposing (permissionsDecoder)
@@ -23,7 +23,7 @@ userSuccessDecoder =
 
 userDecoder : Decoder CurrentUser
 userDecoder =
-    object7 CurrentUser
+    object8 CurrentUser
         ("id" := string)
         ("email" := string)
         ("is_admin" := bool)
@@ -31,6 +31,7 @@ userDecoder =
         ("securePhoneNumber" := string)
         ("locale" := string)
         ("permissions" := permissionsDecoder)
+        ("settings" := settingsDecoder)
 
 type alias LogoutResponse =
     { ok : Bool
@@ -49,3 +50,12 @@ userErrorDecoder msg =
         case decodeString (at ["error"] string) stringMsg of
             Ok error -> error
             Err _ -> ""
+
+settingsDecoder : Decoder UserSettings
+settingsDecoder =
+    object5 UserSettings
+        ("dashboardChartType" := string)
+        ("dashboardComparePeriod" := int)
+        ("dashboardPeriod" := string)
+        ("dashboardProjectsType" := string)
+        ("dashboardSort" := string)

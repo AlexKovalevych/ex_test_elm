@@ -1,18 +1,47 @@
 module Dashboard.View exposing (..)
 
-import Models exposing (..)
+import Auth.Models exposing (CurrentUser)
+import Material.Button as Button
+import Material.Options as Options
+import Material.Typography as Typography
 import Messages exposing (..)
+import Dashboard.Messages as DashboardMessages exposing (Msg(..), OutMsg(..))
+import Models exposing (..)
 import Html exposing (..)
 import Translation exposing (..)
+--import Socket.Messages as SocketMessages exposing (PushModel, InternalMsg(PushMessage, DecodeCurrentUser))
+--import Json.Encode as JE
 
-view : Model -> Html Msg
-view model =
-    --div []
-    --    [ div []
-    --        [ text <| translate model.locale <| Login "password"
-    --        ]
-    --    ]
+view : Model -> CurrentUser -> Html Messages.Msg
+view model user =
+    div []
+        [ Options.styled div
+            [ Typography.subhead ]
+            [ span []
+                [ text <| translate model.locale <| Dashboard "projects_type"
+                , Button.render Mdl [0] model.mdl
+                    (projectProps user "default")
+                    [ text <| translate model.locale <| Dashboard "default_projects" ]
+                , Button.render Mdl [1] model.mdl
+                    (projectProps user "partners")
+                    [ text <| translate model.locale <| Dashboard "partner_projects" ]
+                ]
+            ]
+        ]
 
+projectProps : CurrentUser -> String -> List (Button.Property Messages.Msg)
+projectProps user buttonType =
+    let
+        initialProps =
+            [ Button.raised
+            , Button.ripple
+            , Button.onClick <| DashboardMsg <| DashboardMessages.SetDashboardProjectsType buttonType
+            ]
+    in
+        if user.settings.dashboardProjectsType == buttonType then
+            initialProps ++ [Button.primary]
+        else
+            initialProps
 
             --<div>
             --    <div className="row">
@@ -69,4 +98,4 @@ view model =
             --    </div>
 
 
-    text "Dashboard here"
+    --text "Dashboard here"
