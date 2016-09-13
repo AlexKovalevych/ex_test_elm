@@ -66,9 +66,7 @@ update message model =
                 Ok currentUser ->
                     model ! [ Task.perform never ForParent (Task.succeed <| UpdateCurrentUser currentUser) ]
                 Err error ->
-                    let _ = Debug.log "NOW WORKING??" error
-                    in
-                    ( model, Cmd.none )
+                    model ! []
 
         RemoveSocket ->
             initialModel ! []

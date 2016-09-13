@@ -7,7 +7,6 @@ defmodule Gt.DashboardController do
 
     def index(conn, _) do
         initial_state = %{
-            pendingTasks: 1,
             dashboard: current_user(conn) |> Dashboard.load_data
         }
         Gt.AuthController.render_elm(conn, initial_state)

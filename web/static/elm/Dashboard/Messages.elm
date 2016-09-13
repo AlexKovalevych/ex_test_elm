@@ -8,8 +8,9 @@ type InternalMsg
 
 type OutMsg
     = SetDashboardSort String
-    | SetDashboardChartType String
-    | SetDashboardPeriod String
+    | SetDashboardCurrentPeriod String
+    | SetDashboardComparisonPeriod String
+    | SetDashboardProjectsType String
 
 type Msg
     = ForSelf InternalMsg

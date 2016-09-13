@@ -139,6 +139,10 @@ dashboardTranslator : Dashboard.Update.Translator Msg
 dashboardTranslator =
     Dashboard.Update.translator
     { onInternalMessage = DashboardMsg
+    , onSetDashboardSort = SocketMsg << SocketMessages.PushMessage
+    , onSetDashboardCurrentPeriod = SocketMsg << SocketMessages.PushMessage
+    , onSetDashboardComparisongPeriod = SocketMsg << SocketMessages.PushMessage
+    , onSetDashboardProjectsType = SocketMsg << SocketMessages.PushMessage
     }
 
 setLocale : (Model, Cmd Msg) -> (Model, Cmd Msg)

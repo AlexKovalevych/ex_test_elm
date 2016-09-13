@@ -347,6 +347,7 @@ defmodule Gt.Model.ConsolidatedStats do
                 "depositsAmount" => 1,
                 "cashoutsAmount" => 1,
                 "netgamingAmount" => %{"$add" => ["$netgamingAmount", "$rakeAmount"]},
+                "rakeAmount" => "$rakeAmount",
                 "betsAmount" => 1,
                 "winsAmount" => 1
             }},

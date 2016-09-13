@@ -4,7 +4,6 @@ import Auth.Models exposing (CurrentUser)
 import Json.Decode exposing (Decoder)
 import Json.Encode exposing (Value)
 import Phoenix.Socket
---import Socket.Decoders exposing (PushModel)
 import Translation exposing (Language)
 
 type alias PushModel =

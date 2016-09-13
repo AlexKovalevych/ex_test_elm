@@ -5,4 +5,7 @@
     if (window.APP_DATA.auth) {
         app.ports.loggedUser.send(window.APP_DATA.auth.user);
     }
+    if (window.APP_DATA.dashboard) {
+        app.ports.dashboardData.send(window.APP_DATA.dashboard);
+    }
 </script>

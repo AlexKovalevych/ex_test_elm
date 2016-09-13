@@ -125,8 +125,46 @@ defmodule Gt.Manager.Dashboard do
     def get_stats([current_start, current_end, comparison_start, comparison_end, current_period, comparison_period], project_ids) do
         # calculate project stats
         initial = %{
-            "current" => %{},
-            "comparison" => %{}
+            "current" => %{
+                authorizationsNumber: 0,
+                averageArpu: 0,
+                averageDeposit: 0,
+                averageFirstDeposit: 0,
+                betsAmount: 0,
+                cashoutsAmount: 0,
+                cashoutsNumber: 0,
+                depositorsNumber: 0,
+                depositsAmount: 0,
+                depositsNumber: 0,
+                firstDepositorsNumber: 0,
+                firstDepositsAmount: 0,
+                netgamingAmount: 0,
+                paymentsAmount: 0,
+                paymentsNumber: 0,
+                rakeAmount: 0,
+                signupsNumber: 0,
+                winsAmount: 0
+            },
+            "comparison" => %{
+                authorizationsNumber: 0,
+                averageArpu: 0,
+                averageDeposit: 0,
+                averageFirstDeposit: 0,
+                betsAmount: 0,
+                cashoutsAmount: 0,
+                cashoutsNumber: 0,
+                depositorsNumber: 0,
+                depositsAmount: 0,
+                depositsNumber: 0,
+                firstDepositorsNumber: 0,
+                firstDepositsAmount: 0,
+                netgamingAmount: 0,
+                paymentsAmount: 0,
+                paymentsNumber: 0,
+                rakeAmount: 0,
+                signupsNumber: 0,
+                winsAmount: 0
+            }
         }
         stats = Enum.into(project_ids, %{}, fn id ->
             {Gt.Model.id_to_string(id), initial}
@@ -184,7 +222,7 @@ defmodule Gt.Manager.Dashboard do
 
         %{
             stats: Enum.map(Map.values(stats), &Map.values/1),
-            periods: [current_period, comparison_period],
+            periods: %{current: current_period, comparison: comparison_period},
             totals: Map.values(totals)
         }
 
@@ -240,14 +278,14 @@ defmodule Gt.Manager.Dashboard do
         end)
 
         %{
-            stats: [
-               daily_charts,
-               monthly_charts
-            ],
-            totals: [
-                total_daily_charts,
-                total_monthly_charts
-            ]
+            stats: %{
+                daily: daily_charts,
+                monthly: monthly_charts
+            },
+            totals: %{
+                daily: total_daily_charts,
+                monthly: total_monthly_charts
+            }
         }
     end
     def get_charts(:month, project_ids) do

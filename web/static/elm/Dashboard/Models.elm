@@ -4,37 +4,63 @@ import Array exposing (..)
 import Project.Models exposing (Project)
 
 type alias Model =
-    { periods : Array DashboardPeriod
+    { periods : DashboardPeriods
     , charts : DashboardCharts
     , projects : List Project
-    , stats : Array (Array DashboardStatValue)
-    , totals : Array DashboardStatValue
+    , stats : Array (Array (Maybe DashboardStatValue))
+    , totals : Array (Maybe DashboardStatValue)
     }
 
 type alias DashboardCharts =
-    { stats : Array (Array DashboardProjectChart)
-    , totals : Array (Array DashboardChartValue)
+    { stats : DashboardChartStatsData
+    , totals : DashboardChartTotalsData
     }
 
-type alias DashboardProjectChart =
+type alias DashboardChartStatsData =
+    { daily: Array DashboardDailyChart
+    , monthly: Array DashboardMonthlyChart
+    }
+
+type alias DashboardChartTotalsData =
+    { daily: Array DashboardDailyChartValue
+    , monthly: Array DashboardMonthlyChartValue
+    }
+
+type alias DashboardDailyChart =
     { project : String
-    , values : Array DashboardChartValue
+    , values : Array DashboardDailyChartValue
     }
 
-type alias DashboardChartValue =
-    { betsAmount : Int
-    , cashoutsAmount : Int
+type alias DashboardMonthlyChart =
+    { project : String
+    , values : Array DashboardMonthlyChartValue
+    }
+
+type alias DashboardDailyChartValue =
+    { betsAmount : Maybe Int
+    , cashoutsAmount : Maybe Int
     , date : String
-    , depositsAmount : Int
-    , netgamingAmount : Int
-    , paymentsAmount : Int
-    , rakeAmount : Int
-    , winsAmount : Int
+    , depositsAmount : Maybe Int
+    , netgamingAmount : Maybe Int
+    , paymentsAmount : Maybe Int
+    , rakeAmount : Maybe Int
+    , winsAmount : Maybe Int
     }
 
-type alias DashboardPeriod =
-    { from : String
-    , to : String
+type alias DashboardMonthlyChartValue =
+    { betsAmount : Maybe Int
+    , cashoutsAmount : Maybe Int
+    , month : String
+    , depositsAmount : Maybe Int
+    , netgamingAmount : Maybe Int
+    , paymentsAmount : Maybe Int
+    , rakeAmount : Maybe Int
+    , winsAmount : Maybe Int
+    }
+
+type alias DashboardPeriods =
+    { current : Array String
+    , comparison : Array String
     }
 
 type alias DashboardStatValue =
@@ -59,13 +85,13 @@ type alias DashboardStatValue =
     }
 
 emptyCharts =
-    { stats = Array.empty
-    , totals = Array.empty
+    { stats = { daily = Array.empty, monthly = Array.empty }
+    , totals = { daily = Array.empty, monthly = Array.empty }
     }
 
 initialModel : Model
 initialModel =
-    { periods = Array.empty
+    { periods = { current = Array.empty, comparison = Array.empty }
     , charts = emptyCharts
     , projects = []
     , stats = Array.empty

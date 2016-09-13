@@ -198,10 +198,12 @@ defmodule Gt.Model.ConsolidatedStatsMonthly do
             }},
             %{"$project" => %{
                 "_id" => 1,
+                "month" => "$_id",
                 "paymentsAmount" => 1,
                 "depositsAmount" => 1,
                 "cashoutsAmount" => 1,
                 "netgamingAmount" => %{"$add" => ["$netgamingAmount", "$rakeAmount"]},
+                "rakeAmount" => "$rakeAmount",
                 "betsAmount" => 1,
                 "winsAmount" => 1
             }},
