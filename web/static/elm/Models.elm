@@ -7,7 +7,7 @@ import Hop.Types exposing (Address)
 import Material
 import Material.Snackbar as Snackbar
 import Messages exposing (..)
-import Native.Date
+import Native.GtDate
 import Routing exposing (Route(..), Menu(..), getMenu)
 import Socket.Models as Socket
 import Translation exposing (Language(..))
@@ -38,6 +38,6 @@ initialModel route address =
     , mdl = Material.model
     , snackbar = Snackbar.model
     , menu = getMenu route
-    , currentDate = Native.Date.now ()
+    , currentDate = Native.GtDate.now ()
     --, nextPage = Nothing
     }

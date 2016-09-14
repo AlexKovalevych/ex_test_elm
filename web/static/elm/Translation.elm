@@ -110,7 +110,8 @@ translate lang trans =
                 "sort_by_betsAmount" -> TranslationSet "Bets" "Ставкам"
                 "sort_by_winsAmount" -> TranslationSet "Wins" "Выигрышам"
                 "sort_by_firstDepositsAmount" -> TranslationSet "First deposits amount" "Сумме первых депозитов"
-                --"current_period" ->
+                "period" -> TranslationSet "Period:" "Период:"
+                "compare_period" -> TranslationSet "Compare period:" "Период сравнения:"
                 "period_month" -> TranslationSet "Month to date" "С начала месяца"
                 "period_year" -> TranslationSet "Year to date" "С начала года"
                 "period_days30" -> TranslationSet "Last 30 days" "Последние 30 дней"

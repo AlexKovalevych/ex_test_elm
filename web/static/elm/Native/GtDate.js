@@ -1,7 +1,7 @@
-var _user$project$Native_Date = function() {
+var _user$project$Native_GtDate = function() {
     function getCurrentDate()
     {
-        return Date.now();
+        return new Date();
     }
 
     return {

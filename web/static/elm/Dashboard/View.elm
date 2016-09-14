@@ -14,7 +14,6 @@ import Translation exposing (..)
 import Date.Extra.Duration as Duration
 import Date.Extra.Format exposing (format)
 import Date
-import Result
 
 view : Model -> CurrentUser -> Html Messages.Msg
 view model user =
@@ -31,7 +30,7 @@ view model user =
                         [ text <| translate model.locale <| Dashboard "partner_projects" ]
                     ]
                 ]
-            , cell [ size Desktop 4, size Tablet 4, size Phone 12 ]
+            , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
                 [ span []
                     <| [ text <| translate model.locale <| Dashboard "sort_by" ] ++
                     List.indexedMap (renderSortByMetrics user model)
@@ -44,30 +43,18 @@ view model user =
                         , "firstDepositsAmount"
                         ]
                 ]
-            , cell [ size Desktop 4, size Tablet 4, size Phone 12 ]
+            , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
                 [ span []
-                    <| List.indexedMap (renderCurrentPeriod user model)
+                    <| [ text <| translate model.locale <| Dashboard "period" ] ++
+                    List.indexedMap (renderCurrentPeriod user model)
                         [ ("month", "period_month")
                         , ("year", "period_year")
                         , ("days30", "period_days30")
                         , ("months12", "period_months12")
-                        ] ++ [ renderPreviousPeriods user model ]
-
-                    --[
-                    --text <| translate model.locale <| Dashboard "current_period"
-                    --Button.render Mdl [10] model.mdl
-                    --    (periodProps user "month")
-                    --    [ text <| translate model.locale <| Dashboard "period_month" ]
-                    --, Button.render Mdl [10] model.mdl
-                    --    (periodProps user "year")
-                    --    [ text <| translate model.locale <| Dashboard "period_year" ]
-                    --, Button.render Mdl [11] model.mdl
-                    --    (periodProps user "days30")
-                    --    [ text <| translate model.locale <| Dashboard "period_days30" ]
-                    --, Button.render Mdl [11] model.mdl
-                    --    (periodProps user "months12")
-                    --    [ text <| translate model.locale <| Dashboard "period_months12" ]
-                    --]
+                        ]
+                ]
+            , cell [ size Desktop 4, size Tablet 2, size Phone 12 ]
+                [ span [] [ renderPreviousPeriods user model ]
                 ]
             ]
         ]
@@ -88,16 +75,16 @@ renderPreviousPeriods user model =
         "month" ->
             div []
                 <| [ text <| translate model.locale <| Dashboard "compare_period" ] ++
-                    List.indexedMap (renderComparePeriod user model) [1..6]
-        _ -> ""
+                    List.map (renderComparePeriod user model) [1..6]
+        _ ->
+            div [] []
 
 renderComparePeriod : CurrentUser -> Model -> Int -> Html Messages.Msg
 renderComparePeriod user model i =
     let
         value = negate i
-        --now = Date.fromString model.dashboard.periods.current
         date = Duration.add Duration.Month value model.currentDate
-        formattedDate = format (getDateConfig model.locale) "%b:%Y" date
+        formattedDate = format (getDateConfig model.locale) "%b %Y" date
     in
         Toggles.radio Mdl [i + 20] model.mdl
             [ Toggles.value <| user.settings.dashboardComparePeriod == value
