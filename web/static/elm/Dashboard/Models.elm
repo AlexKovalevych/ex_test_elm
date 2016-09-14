@@ -97,3 +97,29 @@ initialModel =
     , stats = Array.empty
     , totals = Array.empty
     }
+
+getCurrentValueBySort : DashboardStatValue -> String -> Float
+getCurrentValueBySort stats sortBy =
+    case sortBy of
+        "authorizationsNumber" -> stats.authorizationsNumber
+        "averageArpu" -> stats.averageArpu
+        "averageDeposit" -> stats.averageDeposit
+        "averageFirstDeposit" -> stats.averageFirstDeposit
+        "betsAmount" -> stats.betsAmount
+        "cashoutsAmount" -> stats.cashoutsAmount
+        "cashoutsNumber" -> stats.cashoutsNumber
+        "depositorsNumber" -> stats.depositorsNumber
+        "depositsAmount" -> stats.depositsAmount
+        "depositsNumber" -> stats.depositsNumber
+        "firstDepositorsNumber" -> stats.firstDepositorsNumber
+        "firstDepositsAmount" -> stats.firstDepositsAmount
+        "netgamingAmount" -> stats.netgamingAmount
+        "paymentsAmount" -> stats.paymentsAmount
+        "paymentsNumber" -> stats.paymentsNumber
+        "rakeAmount" -> stats.rakeAmount
+        "signupsNumber" -> stats.signupsNumber
+        "winsAmount" -> stats.winsAmount
+
+--formatCashValue
+--formatCashValue value =
+
