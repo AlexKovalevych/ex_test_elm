@@ -1,19 +1,23 @@
 module Dashboard.View exposing (..)
 
+import Array
 import Auth.Models exposing (CurrentUser)
+import Dashboard.Messages as DashboardMessages exposing (Msg(..), OutMsg(..))
+import Date
+import Date.Extra.Duration as Duration
+import Date.Extra.Format exposing (format)
+import Html exposing (..)
 import Material.Button as Button
+import Material.Elevation as Elevation
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options
 import Material.Toggles as Toggles
 import Material.Typography as Typography
 import Messages exposing (..)
-import Dashboard.Messages as DashboardMessages exposing (Msg(..), OutMsg(..))
 import Models exposing (..)
-import Html exposing (..)
 import Translation exposing (..)
-import Date.Extra.Duration as Duration
-import Date.Extra.Format exposing (format)
-import Date
+import String
+import Date.GtDate exposing (dateFromMonthString)
 
 view : Model -> CurrentUser -> Html Messages.Msg
 view model user =
@@ -56,8 +60,114 @@ view model user =
             , cell [ size Desktop 4, size Tablet 2, size Phone 12 ]
                 [ span [] [ renderPreviousPeriods user model ]
                 ]
+            , cell [ size All 12, Elevation.e4 ]
+                [ renderTotal user model
+                ]
             ]
         ]
+
+renderTotal : CurrentUser -> Model -> Html Messages.Msg
+renderTotal user model =
+    div []
+        [ Options.styled div
+            [ Typography.display1 ]
+            [ text <| translate model.locale <| Dashboard "total" ]
+        , grid []
+            [ cell [ size Desktop 6, size Tablet 4, size Phone 12 ]
+                [ div []
+                    [ text <| formatPeriod (Array.get 0 model.dashboard.periods.current) user model
+                    ]
+                , div [] [ text "Charts" ]
+                ]
+            , cell [ size Desktop 6, size Tablet 4, size Phone 12 ]
+                [ div [] [ text "Consolidated table" ]
+                ]
+            ]
+        ]
+
+        --<Subheader>Total</Subheader>
+        --<div className='row'>
+        --    <div className='col-lg-4 col-md-4 col-xs-12'>
+        --        <DashboardProgress
+        --            sortBy={this.props.user.settings.dashboardSort}
+        --            periods={this.props.data.periods}
+        --            stats={this.props.data.totals}
+        --            periodType={this.props.user.settings.dashboardPeriod}
+        --            maximumValue={maximumValue}
+        --        />
+        --        {
+        --            this.props.data.charts && (
+        --                <DashboardCharts stats={this.props.data.charts.totals} />
+        --            )
+        --        }
+        --    </div>
+        --    <div className='col-lg-8 col-md-8 col-xs-12'>
+        --        <ConsolidatedTable
+        --            periodType={this.props.user.settings.dashboardPeriod}
+        --            periods={this.props.data.periods}
+        --            stats={this.props.data.totals}
+        --            chart={this.props.data.consolidatedChart}
+        --        />
+        --    </div>
+        --</div>
+
+formatPeriod : Maybe String -> CurrentUser -> Model -> String
+formatPeriod maybePeriod user model =
+        case maybePeriod of
+            Nothing -> ""
+            Just period ->
+                let
+                    date = dateFromMonthString period
+                in
+                    case user.settings.dashboardPeriod of
+                        "month" -> format (getDateConfig model.locale) "%b %Y" date
+                        "year" -> ""
+                        "days30" -> ""
+                        _ -> ""
+                            --Just period -> format (getDateConfig model.locale)
+
+renderProgress user periods stats maximumValue =
+    div []
+        [ div [] [ periods.current ]
+        ]
+            --<div style={{padding: gtTheme.theme.appBar.padding}}>
+            --    <div className="row between-xs">
+            --        <div className="col-xs-6">
+            --            <div className="box">
+            --                {formatter.formatDashboardPeriod(this.props.periodType, this.props.periods.current[0], 'current')}
+            --            </div>
+            --        </div>
+            --        <div className="col-xs-6 end-xs">
+            --            <div className="box">
+            --                {formatter.formatValue(currentValue, sortBy)}
+            --            </div>
+            --        </div>
+            --        <LinearProgress
+            --            color={colorManager.getChartColor(sortBy)}
+            --            mode="determinate"
+            --            value={currentValue / this.props.maximumValue * 100}
+            --        />
+            --    </div>
+            --    <Delta value={formatter.formatValue(currentValue - comparisonValue, sortBy)} />
+            --    <span> (<Delta value={`${comparisonValue == 0 ? 0 : Math.round(currentValue / comparisonValue * 100) - 100}%`} />)</span>
+            --    <div className="row between-xs" style={{paddingTop: gtTheme.theme.padding.sm}}>
+            --        <div className="col-xs-6">
+            --            <div className="box">
+            --                {formatter.formatDashboardPeriod(this.props.periodType, this.props.periods.comparison[0], 'previous')}
+            --            </div>
+            --        </div>
+            --        <div className="col-xs-6 end-xs">
+            --            <div className="box">
+            --                {formatter.formatValue(comparisonValue, sortBy)}
+            --            </div>
+            --        </div>
+            --        <LinearProgress
+            --            color={gtTheme.theme.palette.disabledColor}
+            --            mode="determinate"
+            --            value={comparisonValue / this.props.maximumValue * 100}
+            --        />
+            --    </div>
+            --</div>
 
 renderCurrentPeriod : CurrentUser -> Model -> Int -> (String, String) -> Html Messages.Msg
 renderCurrentPeriod user model i (period, translationId) =
@@ -118,60 +228,3 @@ projectProps user buttonType =
             initialProps ++ [Button.primary]
         else
             initialProps
-
-            --<div>
-            --    <div className="row">
-            --        {title}
-            --        <div className="col-lg-8 col-md-8 col-xs-12">
-            --            <div className="end-xs">
-            --                <span style={{marginRight: 12}}>
-            --                    <Translate content="dashboard.project_types" />
-            --                    <RaisedButton
-            --                        label={<Translate content="dashboard.projects.default" />}
-            --                        primary={projectsType == 'default'}
-            --                        style={styles}
-            --                        onClick={this.onChangeProjectsType.bind(this, 'default')}
-            --                    />
-            --                    <RaisedButton
-            --                        label={<Translate content="dashboard.projects.partner" />}
-            --                        primary={projectsType == 'partner'}
-            --                        style={styles}
-            --                        onClick={this.onChangeProjectsType.bind(this, 'partner')}
-            --                    />
-            --                </span>
-            --                <SelectField
-            --                    id="sortByMetrics"
-            --                    value={this.props.user.settings.dashboardSort}
-            --                    onChange={this.onChangeSortMetrics.bind(this)}
-            --                    floatingLabelText={<Translate content="dashboard.sort_by_metrics" />}
-            --                    style={{textAlign: 'left'}}
-            --                >
-            --                    <MenuItem value="paymentsAmount" primaryText={<Translate content="dashboard.sort_by.paymentsAmount" />} style={gtTheme.theme.link} />
-            --                    <MenuItem value="depositsAmount" primaryText={<Translate content="dashboard.sort_by.depositsAmount" />} style={gtTheme.theme.link} />
-            --                    <MenuItem value="cashoutsAmount" primaryText={<Translate content="dashboard.sort_by.cashoutsAmount" />} style={gtTheme.theme.link} />
-            --                    <MenuItem value="netgamingAmount" primaryText={<Translate content="dashboard.sort_by.netgamingAmount" />} style={gtTheme.theme.link} />
-            --                    <MenuItem value="betsAmount" primaryText={<Translate content="dashboard.sort_by.betsAmount" />} style={gtTheme.theme.link} />
-            --                    <MenuItem value="winsAmount" primaryText={<Translate content="dashboard.sort_by.winsAmount" />} style={gtTheme.theme.link} />
-            --                    <MenuItem value="firstDepositsAmount" primaryText={<Translate content="dashboard.sort_by.firstDepositsAmount" />} style={gtTheme.theme.link} />
-            --                </SelectField>
-            --            </div>
-            --            <div className="end-xs">
-            --                <SelectField
-            --                    id="currentPeriod"
-            --                    value={this.props.user.settings.dashboardPeriod}
-            --                    onChange={this.onChangeCurrentPeriod.bind(this)}
-            --                    floatingLabelText={<Translate content="dashboard.current_period" />}
-            --                    style={{textAlign: 'left'}}
-            --                >
-            --                    <MenuItem value="month" primaryText={<Translate content="dashboard.period.month" />} style={gtTheme.theme.link} />
-            --                    <MenuItem value="year" primaryText={<Translate content="dashboard.period.year" />} style={gtTheme.theme.link} />
-            --                    <MenuItem value="days30" primaryText={<Translate content="dashboard.period.last_30_days" />} style={gtTheme.theme.link} />
-            --                    <MenuItem value="months12" primaryText={<Translate content="dashboard.period.last_12_months" />} style={gtTheme.theme.link} />
-            --                </SelectField>
-            --                {this.getComparisonPeriod()}
-            --            </div>
-            --        </div>
-            --    </div>
-
-
-    --text "Dashboard here"
