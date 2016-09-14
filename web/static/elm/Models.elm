@@ -3,10 +3,11 @@ module Models exposing (..)
 import Auth.Models as Auth
 import Dashboard.Models as Dashboard
 import Date
+import Hop.Types exposing (Address)
 import Material
 import Material.Snackbar as Snackbar
 import Messages exposing (..)
-import Hop.Types exposing (Address)
+import Native.Date
 import Routing exposing (Route(..), Menu(..), getMenu)
 import Socket.Models as Socket
 import Translation exposing (Language(..))
@@ -22,6 +23,7 @@ type alias Model =
     , channels : List String
     , auth : Auth.Model
     , snackbar : Snackbar.Model Msg
+    , currentDate : Date.Date
     }
 
 initialModel : Route -> Address -> Model
@@ -36,5 +38,6 @@ initialModel route address =
     , mdl = Material.model
     , snackbar = Snackbar.model
     , menu = getMenu route
+    , currentDate = Native.Date.now ()
     --, nextPage = Nothing
     }

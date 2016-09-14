@@ -7,13 +7,13 @@ type InternalMsg
     | SetDashboardProjectsType String
     | SetDashboardSort String
     | SetDashboardCurrentPeriod String
-    | SetDashboardComparisonPeriod String
+    | SetDashboardComparisonPeriod Int
     | NoOp
 
 type OutMsg
     = UpdateDashboardSort String
     | UpdateDashboardCurrentPeriod String
-    | UpdateDashboardComparisonPeriod String
+    | UpdateDashboardComparisonPeriod Int
     | UpdateDashboardProjectsType String
 
 type Msg

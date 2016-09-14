@@ -96,7 +96,7 @@ renderComparePeriod user model i =
     let
         value = negate i
         --now = Date.fromString model.dashboard.periods.current
-        --date = Duration.add Duration.Month value
+        date = Duration.add Duration.Month value model.currentDate
         formattedDate = format (getDateConfig model.locale) "%b:%Y" date
     in
         Toggles.radio Mdl [i + 20] model.mdl
