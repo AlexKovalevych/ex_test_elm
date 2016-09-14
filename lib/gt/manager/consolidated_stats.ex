@@ -31,6 +31,7 @@ defmodule Gt.Manager.ConsolidatedStats do
         end
     end
 
+    @spec update_daily_stats(String.t, String.t, [Mongo.Ecto.ObjectID]) :: Atom
     def update_daily_stats(from, to, project_ids) do
         Logger.configure([level: :info])
         process_data("payments", Payment.dashboard_stats(from, to, project_ids))
@@ -41,6 +42,7 @@ defmodule Gt.Manager.ConsolidatedStats do
         process_data("authorizations", ProcessedEvent.authorizations_by_period(from, to, project_ids))
     end
 
+    @spec update_monthly_stats(String.t, String.t, [Mongo.Ecto.ObjectID]) :: Atom
     def update_monthly_stats(from, to, project_ids) do
         Logger.info "Aggregating monthly stats"
         diff = GtDate.diff(from, to, :months)

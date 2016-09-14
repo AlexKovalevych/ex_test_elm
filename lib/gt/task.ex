@@ -3,6 +3,8 @@ defmodule Gt.Task do
     use Timex
     import ExPrintf
 
+    @type time :: {integer, integer, integer}
+
     defmacro __using__(_) do
         quote do
             use Mix.Task
@@ -20,6 +22,7 @@ defmodule Gt.Task do
         end
     end
 
+    @spec log_time_diff(time, time) :: String.t
     def log_time_diff(start_time, end_time) do
         minutes = Time.diff(end_time, start_time, :minutes)
         seconds = Time.diff(end_time, start_time, :seconds) - minutes * 60
