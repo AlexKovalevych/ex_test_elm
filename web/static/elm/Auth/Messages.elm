@@ -34,6 +34,7 @@ type OutMsg
     | AddToast TranslationId
     | UpdateLocale String
     | ShowLogin
+    | ShowDashboard
 
 type Msg
     = ForSelf InternalMsg

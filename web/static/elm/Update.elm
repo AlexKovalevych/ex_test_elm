@@ -125,6 +125,7 @@ authTranslator =
     , onAddToast = AddToast
     , onUpdateLocale = UpdateLocale
     , onShowLogin = NavigateTo LoginRoute
+    , onShowDashboard = NavigateTo DashboardRoute
     }
 
 socketTranslator : Socket.Update.Translator Msg

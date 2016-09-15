@@ -69,7 +69,10 @@ update message model =
             let
                 task = case model.user of
                     Guest -> []
-                    LoggedUser user -> [ Task.perform never ForSelf (Task.succeed InitConnection) ]
+                    LoggedUser user ->
+                        [ Task.perform never ForSelf (Task.succeed InitConnection)
+                        , Task.perform never ForParent (Task.succeed ShowDashboard)
+                        ]
             in
                 { model | token = token } ! task
 
@@ -133,6 +136,7 @@ type alias TranslationDictionary msg =
     , onAddToast : TranslationId -> msg
     , onUpdateLocale : String -> msg
     , onShowLogin : msg
+    , onShowDashboard : msg
     }
 
 type alias Translator msg =
@@ -149,6 +153,7 @@ translator
     , onAddToast
     , onUpdateLocale
     , onShowLogin
+    , onShowDashboard
     } msg =
     case msg of
         ForSelf internal ->
@@ -177,6 +182,9 @@ translator
 
         ForParent ShowLogin ->
             onShowLogin
+
+        ForParent ShowDashboard ->
+            onShowDashboard
 
 resetLoginForm : Model -> Model
 resetLoginForm model =
