@@ -3,6 +3,7 @@ module Dashboard.View exposing (..)
 import Array
 import Auth.Models exposing (CurrentUser)
 import Dashboard.Messages as DashboardMessages exposing (Msg(..), OutMsg(..))
+import Dashboard.Models exposing (DashboardStatValue, DashboardPeriods, getValueByMetrics)
 import Date
 import Date.Extra.Duration as Duration
 import Date.Extra.Format exposing (format)
@@ -11,6 +12,7 @@ import Material.Button as Button
 import Material.Elevation as Elevation
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options
+import Material.Progress as Progress
 import Material.Toggles as Toggles
 import Material.Typography as Typography
 import Messages exposing (..)
@@ -18,6 +20,7 @@ import Models exposing (..)
 import Translation exposing (..)
 import String
 import Date.GtDate exposing (dateFromMonthString)
+import Formatter exposing (formatMetricsValue)
 
 view : Model -> CurrentUser -> Html Messages.Msg
 view model user =
@@ -69,20 +72,14 @@ view model user =
 renderTotal : CurrentUser -> Model -> Html Messages.Msg
 renderTotal user model =
     div []
-        [ Options.styled div
-            [ Typography.display1 ]
-            [ text <| translate model.locale <| Dashboard "total" ]
-        , grid []
-            [ cell [ size Desktop 6, size Tablet 4, size Phone 12 ]
-                [ div []
-                    [ Options.styled div [ Typography.subhead ]
-                        [ text <| formatPeriod (Array.get 0 model.dashboard.periods.current) user model ]
-                    --, Options.styled div [ Typography.title ]
-                    --    [ text  ]
-                    ]
+        [ grid []
+            [ cell [ Typography.display1, size All 12 ]
+                [ text <| translate model.locale <| Dashboard "total" ]
+            , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
+                [ renderProgress user model model.dashboard.periods model.dashboard.totals 0
                 , div [] [ text "Charts" ]
                 ]
-            , cell [ size Desktop 6, size Tablet 4, size Phone 12 ]
+            , cell [ size Desktop 8, size Tablet 5, size Phone 12 ]
                 [ div [] [ text "Consolidated table" ]
                 ]
             ]
@@ -114,6 +111,17 @@ renderTotal user model =
         --    </div>
         --</div>
 
+getCurrentValue : String -> Array.Array (Maybe DashboardStatValue) -> Float
+getCurrentValue metrics stats =
+    let
+        maybeItem = Array.get 0 stats
+    in
+        case maybeItem of
+            Nothing -> 0.0
+            Just maybeValue -> case maybeValue of
+                Nothing -> 0.0
+                Just value -> getValueByMetrics value metrics
+
 formatPeriod : Maybe String -> CurrentUser -> Model -> String
 formatPeriod maybePeriod user model =
         case maybePeriod of
@@ -129,9 +137,19 @@ formatPeriod maybePeriod user model =
                         _ -> ""
                             --Just period -> format (getDateConfig model.locale)
 
-renderProgress user periods stats maximumValue =
+renderProgress : CurrentUser -> Model -> DashboardPeriods -> Array.Array (Maybe DashboardStatValue) -> Float -> Html Messages.Msg
+renderProgress user model periods stats maximumValue =
     div []
-        [ div [] [ periods.current ]
+        [ div []
+            [ grid []
+                [ cell [ Typography.subhead, size All 6 ]
+                    [ text <| formatPeriod (Array.get 0 periods.current) user model ]
+                , cell [ Typography.title, size All 6, Typography.right ]
+                    [ text <| formatMetricsValue user.settings.dashboardSort (getCurrentValue user.settings.dashboardSort stats) ]
+                , cell [ size All 12 ]
+                    [ Progress.progress 14 ]
+                ]
+            ]
         ]
             --<div style={{padding: gtTheme.theme.appBar.padding}}>
             --    <div className="row between-xs">

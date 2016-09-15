@@ -98,28 +98,25 @@ initialModel =
     , totals = Array.empty
     }
 
-getCurrentValueBySort : DashboardStatValue -> String -> Float
-getCurrentValueBySort stats sortBy =
-    case sortBy of
-        "authorizationsNumber" -> stats.authorizationsNumber
+getValueByMetrics : DashboardStatValue -> String -> Float
+getValueByMetrics stats metrics =
+    case metrics of
+        "authorizationsNumber" -> toFloat stats.authorizationsNumber
         "averageArpu" -> stats.averageArpu
         "averageDeposit" -> stats.averageDeposit
         "averageFirstDeposit" -> stats.averageFirstDeposit
-        "betsAmount" -> stats.betsAmount
-        "cashoutsAmount" -> stats.cashoutsAmount
-        "cashoutsNumber" -> stats.cashoutsNumber
-        "depositorsNumber" -> stats.depositorsNumber
-        "depositsAmount" -> stats.depositsAmount
-        "depositsNumber" -> stats.depositsNumber
-        "firstDepositorsNumber" -> stats.firstDepositorsNumber
-        "firstDepositsAmount" -> stats.firstDepositsAmount
-        "netgamingAmount" -> stats.netgamingAmount
-        "paymentsAmount" -> stats.paymentsAmount
-        "paymentsNumber" -> stats.paymentsNumber
-        "rakeAmount" -> stats.rakeAmount
-        "signupsNumber" -> stats.signupsNumber
-        "winsAmount" -> stats.winsAmount
-
---formatCashValue
---formatCashValue value =
-
+        "betsAmount" -> toFloat stats.betsAmount
+        "cashoutsAmount" -> toFloat stats.cashoutsAmount
+        "cashoutsNumber" -> toFloat stats.cashoutsNumber
+        "depositorsNumber" -> toFloat stats.depositorsNumber
+        "depositsAmount" -> toFloat stats.depositsAmount
+        "depositsNumber" -> toFloat stats.depositsNumber
+        "firstDepositorsNumber" -> toFloat stats.firstDepositorsNumber
+        "firstDepositsAmount" -> toFloat stats.firstDepositsAmount
+        "netgamingAmount" -> toFloat stats.netgamingAmount
+        "paymentsAmount" -> toFloat stats.paymentsAmount
+        "paymentsNumber" -> toFloat stats.paymentsNumber
+        "rakeAmount" -> toFloat stats.rakeAmount
+        "signupsNumber" -> toFloat stats.signupsNumber
+        "winsAmount" -> toFloat stats.winsAmount
+        _ -> 0.0
