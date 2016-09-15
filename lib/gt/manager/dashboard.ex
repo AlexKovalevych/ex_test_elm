@@ -8,10 +8,12 @@ defmodule Gt.Manager.Dashboard do
     alias Gt.Manager.Permissions
     alias Gt.Model.Project
 
+    @spec daily([Timex.datetime]) :: [String.t]
     def daily([from, to]) do
         [GtDate.format(from, :date), GtDate.format(to, :date)]
     end
 
+    @spec daily([Timex.datetime]) :: [String.t]
     def monthly([from, to]) do
         [GtDate.format(from, :month), GtDate.format(to, :month)]
     end
