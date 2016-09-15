@@ -128,44 +128,44 @@ defmodule Gt.Manager.Dashboard do
         # calculate project stats
         initial = %{
             "current" => %{
-                authorizationsNumber: 0,
-                averageArpu: 0,
-                averageDeposit: 0,
-                averageFirstDeposit: 0,
-                betsAmount: 0,
-                cashoutsAmount: 0,
-                cashoutsNumber: 0,
-                depositorsNumber: 0,
-                depositsAmount: 0,
-                depositsNumber: 0,
-                firstDepositorsNumber: 0,
-                firstDepositsAmount: 0,
-                netgamingAmount: 0,
-                paymentsAmount: 0,
-                paymentsNumber: 0,
-                rakeAmount: 0,
-                signupsNumber: 0,
-                winsAmount: 0
+                "authorizationsNumber" => 0,
+                "averageArpu" => 0,
+                "averageDeposit" => 0,
+                "averageFirstDeposit" => 0,
+                "betsAmount" => 0,
+                "cashoutsAmount" => 0,
+                "cashoutsNumber" => 0,
+                "depositorsNumber" => 0,
+                "depositsAmount" => 0,
+                "depositsNumber" => 0,
+                "firstDepositorsNumber" => 0,
+                "firstDepositsAmount" => 0,
+                "netgamingAmount" => 0,
+                "paymentsAmount" => 0,
+                "paymentsNumber" => 0,
+                "rakeAmount" => 0,
+                "signupsNumber" => 0,
+                "winsAmount" => 0
             },
             "comparison" => %{
-                authorizationsNumber: 0,
-                averageArpu: 0,
-                averageDeposit: 0,
-                averageFirstDeposit: 0,
-                betsAmount: 0,
-                cashoutsAmount: 0,
-                cashoutsNumber: 0,
-                depositorsNumber: 0,
-                depositsAmount: 0,
-                depositsNumber: 0,
-                firstDepositorsNumber: 0,
-                firstDepositsAmount: 0,
-                netgamingAmount: 0,
-                paymentsAmount: 0,
-                paymentsNumber: 0,
-                rakeAmount: 0,
-                signupsNumber: 0,
-                winsAmount: 0
+                "authorizationsNumber" => 0,
+                "averageArpu" => 0,
+                "averageDeposit" => 0,
+                "averageFirstDeposit" => 0,
+                "betsAmount" => 0,
+                "cashoutsAmount" => 0,
+                "cashoutsNumber" => 0,
+                "depositorsNumber" => 0,
+                "depositsAmount" => 0,
+                "depositsNumber" => 0,
+                "firstDepositorsNumber" => 0,
+                "firstDepositsAmount" => 0,
+                "netgamingAmount" => 0,
+                "paymentsAmount" => 0,
+                "paymentsNumber" => 0,
+                "rakeAmount" => 0,
+                "signupsNumber" => 0,
+                "winsAmount" => 0
             }
         }
         stats = Enum.into(project_ids, %{}, fn id ->
@@ -223,7 +223,7 @@ defmodule Gt.Manager.Dashboard do
         |> set_stats(totals, "comparison", :total)
 
         %{
-            stats: Enum.map(Map.values(stats), &Map.values/1),
+            stats: Enum.map(stats, fn {id, values} -> %{id: id, values: Map.values(values)} end),
             periods: %{current: current_period, comparison: comparison_period},
             totals: Map.values(totals)
         }

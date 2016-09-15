@@ -1,9 +1,9 @@
 module Dashboard.View exposing (..)
 
-import Array
+import Array exposing (..)
 import Auth.Models exposing (CurrentUser)
 import Dashboard.Messages as DashboardMessages exposing (Msg(..), OutMsg(..))
-import Dashboard.Models exposing (DashboardStatValue, DashboardPeriods, getValueByMetrics)
+import Dashboard.Models exposing (DashboardStatValue, DashboardPeriods, getValueByMetrics, ProjectStats)
 import Date
 import Date.Extra.Duration as Duration
 import Date.Extra.Format exposing (format)
@@ -24,66 +24,77 @@ import Formatter exposing (formatMetricsValue)
 
 view : Model -> CurrentUser -> Html Messages.Msg
 view model user =
-    div []
-        [ grid []
-            [ cell [ size All 12 ]
-                [ span []
-                    [ text <| translate model.locale <| Dashboard "projects_type"
-                    , Button.render Mdl [0] model.mdl
-                        (projectProps user "default")
-                        [ text <| translate model.locale <| Dashboard "default_projects" ]
-                    , Button.render Mdl [1] model.mdl
-                        (projectProps user "partners")
-                        [ text <| translate model.locale <| Dashboard "partner_projects" ]
+    let
+        metrics = user.settings.dashboardSort
+        totals = model.dashboard.totals
+        stats = model.dashboard.stats
+        sortedStats = getSortedStats metrics stats
+        maximumValue = getMaximumStatsValue metrics totals sortedStats
+    in
+        div []
+            [ grid []
+                [ cell [ size All 12 ]
+                    [ span []
+                        [ text <| translate model.locale <| Dashboard "projects_type"
+                        , Button.render Mdl [0] model.mdl
+                            (projectProps user "default")
+                            [ text <| translate model.locale <| Dashboard "default_projects" ]
+                        , Button.render Mdl [1] model.mdl
+                            (projectProps user "partners")
+                            [ text <| translate model.locale <| Dashboard "partner_projects" ]
+                        ]
+                    ]
+                , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
+                    [ span []
+                        <| [ text <| translate model.locale <| Dashboard "sort_by" ] ++
+                        List.indexedMap (renderSortByMetrics user model)
+                            [ "paymentsAmount"
+                            , "depositsAmount"
+                            , "cashoutsAmount"
+                            , "netgamingAmount"
+                            , "betsAmount"
+                            , "winsAmount"
+                            , "firstDepositsAmount"
+                            ]
+                    ]
+                , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
+                    [ span []
+                        <| [ text <| translate model.locale <| Dashboard "period" ] ++
+                        List.indexedMap (renderCurrentPeriod user model)
+                            [ ("month", "period_month")
+                            , ("year", "period_year")
+                            , ("days30", "period_days30")
+                            , ("months12", "period_months12")
+                            ]
+                    ]
+                , cell [ size Desktop 4, size Tablet 2, size Phone 12 ]
+                    [ span [] [ renderPreviousPeriods user model ]
+                    ]
+                , cell [ size All 12, Elevation.e4 ]
+                    [ renderTotal user model maximumValue
                     ]
                 ]
-            , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
-                [ span []
-                    <| [ text <| translate model.locale <| Dashboard "sort_by" ] ++
-                    List.indexedMap (renderSortByMetrics user model)
-                        [ "paymentsAmount"
-                        , "depositsAmount"
-                        , "cashoutsAmount"
-                        , "netgamingAmount"
-                        , "betsAmount"
-                        , "winsAmount"
-                        , "firstDepositsAmount"
-                        ]
-                ]
-            , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
-                [ span []
-                    <| [ text <| translate model.locale <| Dashboard "period" ] ++
-                    List.indexedMap (renderCurrentPeriod user model)
-                        [ ("month", "period_month")
-                        , ("year", "period_year")
-                        , ("days30", "period_days30")
-                        , ("months12", "period_months12")
-                        ]
-                ]
-            , cell [ size Desktop 4, size Tablet 2, size Phone 12 ]
-                [ span [] [ renderPreviousPeriods user model ]
-                ]
-            , cell [ size All 12, Elevation.e4 ]
-                [ renderTotal user model
-                ]
             ]
-        ]
 
-renderTotal : CurrentUser -> Model -> Html Messages.Msg
-renderTotal user model =
-    div []
-        [ grid []
-            [ cell [ Typography.display1, size All 12 ]
-                [ text <| translate model.locale <| Dashboard "total" ]
-            , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
-                [ renderProgress user model model.dashboard.periods model.dashboard.totals 0
-                , div [] [ text "Charts" ]
-                ]
-            , cell [ size Desktop 8, size Tablet 5, size Phone 12 ]
-                [ div [] [ text "Consolidated table" ]
+renderTotal : CurrentUser -> Model -> Float -> Html Messages.Msg
+renderTotal user model maximumValue =
+    let
+        stats = model.dashboard.stats
+        totals = model.dashboard.totals
+    in
+        div []
+            [ grid []
+                [ cell [ Typography.display1, size All 12 ]
+                    [ text <| translate model.locale <| Dashboard "total" ]
+                , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
+                    [ renderTotalProgress user model totals maximumValue
+                    , div [] [ text "Charts" ]
+                    ]
+                , cell [ size Desktop 8, size Tablet 5, size Phone 12 ]
+                    [ div [] [ text "Consolidated table" ]
+                    ]
                 ]
             ]
-        ]
 
         --<Subheader>Total</Subheader>
         --<div className='row'>
@@ -111,16 +122,26 @@ renderTotal user model =
         --    </div>
         --</div>
 
-getCurrentValue : String -> Array.Array (Maybe DashboardStatValue) -> Float
-getCurrentValue metrics stats =
+renderTotalProgress : CurrentUser -> Model -> Array (Maybe DashboardStatValue) -> Float -> Html Messages.Msg
+renderTotalProgress user model stats maximumValue =
     let
-        maybeItem = Array.get 0 stats
+        periods = model.dashboard.periods
+        metrics = user.settings.dashboardSort
+        value = getCurrentValue metrics stats
+        progressValue = if maximumValue == 0 then 0 else value / maximumValue * 100
     in
-        case maybeItem of
-            Nothing -> 0.0
-            Just maybeValue -> case maybeValue of
-                Nothing -> 0.0
-                Just value -> getValueByMetrics value metrics
+        div []
+            [ div []
+                [ grid []
+                    [ cell [ Typography.subhead, size All 6 ]
+                        [ text <| formatPeriod (Array.get 0 periods.current) user model ]
+                    , cell [ Typography.title, size All 6, Typography.right ]
+                        [ text <| formatMetricsValue metrics value ]
+                    , cell [ size All 12 ]
+                        [ Progress.progress progressValue ]
+                    ]
+                ]
+            ]
 
 formatPeriod : Maybe String -> CurrentUser -> Model -> String
 formatPeriod maybePeriod user model =
@@ -137,58 +158,64 @@ formatPeriod maybePeriod user model =
                         _ -> ""
                             --Just period -> format (getDateConfig model.locale)
 
-renderProgress : CurrentUser -> Model -> DashboardPeriods -> Array.Array (Maybe DashboardStatValue) -> Float -> Html Messages.Msg
-renderProgress user model periods stats maximumValue =
-    div []
-        [ div []
-            [ grid []
-                [ cell [ Typography.subhead, size All 6 ]
-                    [ text <| formatPeriod (Array.get 0 periods.current) user model ]
-                , cell [ Typography.title, size All 6, Typography.right ]
-                    [ text <| formatMetricsValue user.settings.dashboardSort (getCurrentValue user.settings.dashboardSort stats) ]
-                , cell [ size All 12 ]
-                    [ Progress.progress 14 ]
-                ]
-            ]
-        ]
-            --<div style={{padding: gtTheme.theme.appBar.padding}}>
-            --    <div className="row between-xs">
-            --        <div className="col-xs-6">
-            --            <div className="box">
-            --                {formatter.formatDashboardPeriod(this.props.periodType, this.props.periods.current[0], 'current')}
-            --            </div>
-            --        </div>
-            --        <div className="col-xs-6 end-xs">
-            --            <div className="box">
-            --                {formatter.formatValue(currentValue, sortBy)}
-            --            </div>
-            --        </div>
-            --        <LinearProgress
-            --            color={colorManager.getChartColor(sortBy)}
-            --            mode="determinate"
-            --            value={currentValue / this.props.maximumValue * 100}
-            --        />
-            --    </div>
-            --    <Delta value={formatter.formatValue(currentValue - comparisonValue, sortBy)} />
-            --    <span> (<Delta value={`${comparisonValue == 0 ? 0 : Math.round(currentValue / comparisonValue * 100) - 100}%`} />)</span>
-            --    <div className="row between-xs" style={{paddingTop: gtTheme.theme.padding.sm}}>
-            --        <div className="col-xs-6">
-            --            <div className="box">
-            --                {formatter.formatDashboardPeriod(this.props.periodType, this.props.periods.comparison[0], 'previous')}
-            --            </div>
-            --        </div>
-            --        <div className="col-xs-6 end-xs">
-            --            <div className="box">
-            --                {formatter.formatValue(comparisonValue, sortBy)}
-            --            </div>
-            --        </div>
-            --        <LinearProgress
-            --            color={gtTheme.theme.palette.disabledColor}
-            --            mode="determinate"
-            --            value={comparisonValue / this.props.maximumValue * 100}
-            --        />
-            --    </div>
-            --</div>
+getCurrentValue : String -> Array (Maybe DashboardStatValue) -> Float
+getCurrentValue metrics stats =
+    let
+        maybeItem = Array.get 0 stats
+    in
+        case maybeItem of
+            Nothing -> 0.0
+            Just maybeValue -> case maybeValue of
+                Nothing -> 0.0
+                Just value -> getValueByMetrics metrics value
+
+
+getSortedStats : String -> Array ProjectStats -> Array ProjectStats
+getSortedStats metrics stats =
+    Array.toList stats
+    |> List.sortWith
+        (\a b ->
+            let
+                getValue v = case v of
+                    Nothing -> 0.0
+                    Just value -> getValueByMetrics metrics value
+                getMaxValue v = case v of
+                    Nothing -> 0.0
+                    Just v -> v
+                maxA = Array.map (\maybeValue -> getValue maybeValue) a.values
+                |> Array.toList
+                |> List.maximum
+                |> getMaxValue
+                maxB = Array.map (\maybeValue -> getValue maybeValue) b.values
+                |> Array.toList
+                |> List.maximum
+                |> getMaxValue
+            in
+                case compare maxA maxB of
+                    LT -> GT
+                    EQ -> EQ
+                    GT -> LT
+        )
+    |> Array.fromList
+
+getMaximumStatsValue : String -> Array (Maybe DashboardStatValue) -> Array ProjectStats -> Float
+getMaximumStatsValue metrics totals sortedStats =
+    let
+        getValue v = case v of
+            Nothing -> 0.0
+            Just value -> getValueByMetrics metrics value
+        totalValues =
+            Array.map getValue totals |> Array.toList
+        statsValues =
+            Array.map (\v -> v.values |> Array.toList) sortedStats
+            |> Array.toList
+            |> List.concat
+            |> List.map getValue
+        maximum = List.maximum (totalValues)
+    in
+        case maximum of
+            Nothing -> 0.0
+            Just v -> v
 
 renderCurrentPeriod : CurrentUser -> Model -> Int -> (String, String) -> Html Messages.Msg
 renderCurrentPeriod user model i (period, translationId) =

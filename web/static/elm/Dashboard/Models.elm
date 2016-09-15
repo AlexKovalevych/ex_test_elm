@@ -7,8 +7,13 @@ type alias Model =
     { periods : DashboardPeriods
     , charts : DashboardCharts
     , projects : List Project
-    , stats : Array (Array (Maybe DashboardStatValue))
+    , stats : Array ProjectStats
     , totals : Array (Maybe DashboardStatValue)
+    }
+
+type alias ProjectStats =
+    { id : String
+    , values : Array (Maybe DashboardStatValue)
     }
 
 type alias DashboardCharts =
@@ -98,8 +103,8 @@ initialModel =
     , totals = Array.empty
     }
 
-getValueByMetrics : DashboardStatValue -> String -> Float
-getValueByMetrics stats metrics =
+getValueByMetrics : String -> DashboardStatValue -> Float
+getValueByMetrics metrics stats =
     case metrics of
         "authorizationsNumber" -> toFloat stats.authorizationsNumber
         "averageArpu" -> stats.averageArpu
