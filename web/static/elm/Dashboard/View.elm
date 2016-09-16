@@ -4,9 +4,12 @@ import Array exposing (..)
 import Auth.Models exposing (CurrentUser)
 import Dashboard.Messages as DashboardMessages exposing (Msg(..), OutMsg(..))
 import Dashboard.Models exposing (DashboardStatValue, DashboardPeriods, getValueByMetrics, ProjectStats)
+import Dashboard.View.Delta exposing (delta)
 import Date
+import Date.GtDate exposing (dateFromMonthString)
 import Date.Extra.Duration as Duration
 import Date.Extra.Format exposing (format)
+import Formatter exposing (formatMetricsValue)
 import Html exposing (..)
 import Material.Button as Button
 import Material.Elevation as Elevation
@@ -17,10 +20,8 @@ import Material.Toggles as Toggles
 import Material.Typography as Typography
 import Messages exposing (..)
 import Models exposing (..)
-import Translation exposing (..)
 import String
-import Date.GtDate exposing (dateFromMonthString)
-import Formatter exposing (formatMetricsValue)
+import Translation exposing (..)
 
 view : Model -> CurrentUser -> Html Messages.Msg
 view model user =
@@ -127,8 +128,9 @@ renderTotalProgress user model stats maximumValue =
     let
         periods = model.dashboard.periods
         metrics = user.settings.dashboardSort
-        value = getCurrentValue metrics stats
-        progressValue = if maximumValue == 0 then 0 else value / maximumValue * 100
+        currentValue = getCurrentValue metrics stats
+        comparisonValue = getComparisonValue metrics stats
+        progressValue = if maximumValue == 0 then 0 else currentValue / maximumValue * 100
     in
         div []
             [ div []
@@ -136,9 +138,13 @@ renderTotalProgress user model stats maximumValue =
                     [ cell [ Typography.subhead, size All 6 ]
                         [ text <| formatPeriod (Array.get 0 periods.current) user model ]
                     , cell [ Typography.title, size All 6, Typography.right ]
-                        [ text <| formatMetricsValue metrics value ]
+                        [ text <| formatMetricsValue metrics currentValue ]
                     , cell [ size All 12 ]
                         [ Progress.progress progressValue ]
+                    , cell [ size All 12 ]
+                        [ delta currentValue comparisonValue metrics ]
+                    --, cell [ size All 6, Typography.right ]
+                    --    [ percentDelta currentValue comparisonValue metrics ]
                     ]
                 ]
             ]
@@ -169,6 +175,16 @@ getCurrentValue metrics stats =
                 Nothing -> 0.0
                 Just value -> getValueByMetrics metrics value
 
+getComparisonValue : String -> Array (Maybe DashboardStatValue) -> Float
+getComparisonValue metrics stats =
+    let
+        maybeItem = Array.get 1 stats
+    in
+        case maybeItem of
+            Nothing -> 0.0
+            Just maybeValue -> case maybeValue of
+                Nothing -> 0.0
+                Just value -> getValueByMetrics metrics value
 
 getSortedStats : String -> Array ProjectStats -> Array ProjectStats
 getSortedStats metrics stats =
