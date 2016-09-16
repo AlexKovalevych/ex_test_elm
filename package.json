@@ -1,7 +1,9 @@
 {
   "dependencies": {
     "brunch": "~2.1.3",
+    "chart.js": "^2.2.2",
     "clean-css-brunch": "~1.8.0",
+    "copycat-brunch": "^1.1.0",
     "css-brunch": "~1.7.0",
     "elm": "^0.17.1",
     "elm-brunch": "^0.7.0",

@@ -25,6 +25,12 @@ module.exports = {
                 mainModules: ['web/static/elm/Main.elm'],
                 outputFolder: 'priv/static/js',
                 outputFile: 'app.js'
+            },
+            copycat:{
+                'js' : ['node_modules/chart.js/dist/Chart.min.js'],
+                // "images": ["someDirectoryInProject", "bower_components/some_package/assets/images"],
+                verbose : true, //shows each file that is copied to the destination directory
+                onlyChanged: true //only copy a file if it's modified time has changed (only effective when using brunch watch)
             }
         }
     }

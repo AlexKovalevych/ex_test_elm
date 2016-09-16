@@ -17,6 +17,7 @@ import Date.Extra.Duration as Duration
 import Date.Extra.Format exposing (format)
 import Formatter exposing (formatMetricsValue)
 import Html exposing (..)
+import Html.Attributes exposing (id)
 import Material.Button as Button
 import Material.Elevation as Elevation
 import Material.Grid exposing (grid, cell, size, Device(..))
@@ -29,6 +30,7 @@ import Messages exposing (..)
 import Models exposing (..)
 import String
 import Translation exposing (..)
+import Native.Chart
 
 view : Model -> CurrentUser -> Html Messages.Msg
 view model user =
@@ -138,25 +140,28 @@ renderTotalProgress user model stats maximumValue =
 
 renderTotalCharts : CurrentUser -> Model -> DashboardChartTotalsData -> Html Messages.Msg
 renderTotalCharts user model charts =
-    Tabs.render Mdl [10] model.mdl
-        [ Tabs.onSelectTab SelectTab
-        , Tabs.activeTab model.dashboard.activeTab
-        ]
-        [ Tabs.label
-            [ Options.center ]
-            [ Options.span [ Options.css "width" "4px" ] []
-            , text "Inout"
+    let
+        chart = Native.Chart.area "chart" []
+    in
+        Tabs.render Mdl [10] model.mdl
+            [ Tabs.onSelectTab SelectTab
+            , Tabs.activeTab model.dashboard.activeTab
             ]
-        , Tabs.label
-            [ Options.center ]
-            [ Options.span [ Options.css "width" "4px" ] []
-            , text "Netgaming"
+            [ Tabs.label
+                [ Options.center ]
+                [ Options.span [ Options.css "width" "4px" ] []
+                , text "Inout"
+                ]
+            , Tabs.label
+                [ Options.center ]
+                [ Options.span [ Options.css "width" "4px" ] []
+                , text "Netgaming"
+                ]
             ]
-        ]
-        [ case model.dashboard.activeTab of
-            0 -> text <| "inout charts"
-            _ -> text <| "netgaming charts"
-        ]
+            [ case model.dashboard.activeTab of
+                0 -> canvas [ id "chart" ] []
+                _ -> text <| "netgaming charts"
+            ]
 
 formatPeriod : Maybe String -> CurrentUser -> Model -> String
 formatPeriod maybePeriod user model =

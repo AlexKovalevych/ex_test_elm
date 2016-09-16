@@ -347,11 +347,21 @@ defmodule Gt.Manager.Dashboard do
 
     defp set_depositors(data, stats, key) do
         Enum.reduce(data, stats, fn (project_stats, acc) ->
-            put_in(acc, [Gt.Model.id_to_string(project_stats["_id"]), key, "depositorsNumber"], project_stats["depositorsNumber"])
+            depositorsNumber = if project_stats["depositorsNumber"] do
+                project_stats["depositorsNumber"]
+            else
+                0
+            end
+            put_in(acc, [Gt.Model.id_to_string(project_stats["_id"]), key, "depositorsNumber"], depositorsNumber)
         end)
     end
     defp set_depositors(data, totals, key, :total) do
-        put_in(totals, [key, "depositorsNumber"], Enum.at(data, 0)["depositorsNumber"])
+        depositorsNumber = if Enum.at(data, 0)["depositorsNumber"] do
+            Enum.at(data, 0)["depositorsNumber"]
+        else
+            0
+        end
+        put_in(totals, [key, "depositorsNumber"], depositorsNumber)
     end
 
     defp set_stats([], stats, _) do
