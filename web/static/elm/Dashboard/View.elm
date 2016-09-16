@@ -3,7 +3,13 @@ module Dashboard.View exposing (..)
 import Array exposing (..)
 import Auth.Models exposing (CurrentUser)
 import Dashboard.Messages as DashboardMessages exposing (Msg(..), OutMsg(..))
-import Dashboard.Models exposing (DashboardStatValue, DashboardPeriods, getValueByMetrics, ProjectStats)
+import Dashboard.Models exposing
+    ( DashboardStatValue
+    , DashboardPeriods
+    , getValueByMetrics
+    , ProjectStats
+    , DashboardChartTotalsData
+    )
 import Dashboard.View.Delta exposing (delta)
 import Date
 import Date.GtDate exposing (dateFromMonthString)
@@ -16,6 +22,7 @@ import Material.Elevation as Elevation
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options
 import Material.Progress as Progress
+import Material.Tabs as Tabs
 import Material.Toggles as Toggles
 import Material.Typography as Typography
 import Messages exposing (..)
@@ -82,6 +89,7 @@ renderTotal user model maximumValue =
     let
         stats = model.dashboard.stats
         totals = model.dashboard.totals
+        totalCharts = model.dashboard.charts.totals
     in
         div []
             [ grid []
@@ -89,39 +97,13 @@ renderTotal user model maximumValue =
                     [ text <| translate model.locale <| Dashboard "total" ]
                 , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
                     [ renderTotalProgress user model totals maximumValue
-                    , div [] [ text "Charts" ]
+                    , renderTotalCharts user model totalCharts
                     ]
                 , cell [ size Desktop 8, size Tablet 5, size Phone 12 ]
                     [ div [] [ text "Consolidated table" ]
                     ]
                 ]
             ]
-
-        --<Subheader>Total</Subheader>
-        --<div className='row'>
-        --    <div className='col-lg-4 col-md-4 col-xs-12'>
-        --        <DashboardProgress
-        --            sortBy={this.props.user.settings.dashboardSort}
-        --            periods={this.props.data.periods}
-        --            stats={this.props.data.totals}
-        --            periodType={this.props.user.settings.dashboardPeriod}
-        --            maximumValue={maximumValue}
-        --        />
-        --        {
-        --            this.props.data.charts && (
-        --                <DashboardCharts stats={this.props.data.charts.totals} />
-        --            )
-        --        }
-        --    </div>
-        --    <div className='col-lg-8 col-md-8 col-xs-12'>
-        --        <ConsolidatedTable
-        --            periodType={this.props.user.settings.dashboardPeriod}
-        --            periods={this.props.data.periods}
-        --            stats={this.props.data.totals}
-        --            chart={this.props.data.consolidatedChart}
-        --        />
-        --    </div>
-        --</div>
 
 renderTotalProgress : CurrentUser -> Model -> Array (Maybe DashboardStatValue) -> Float -> Html Messages.Msg
 renderTotalProgress user model stats maximumValue =
@@ -130,7 +112,8 @@ renderTotalProgress user model stats maximumValue =
         metrics = user.settings.dashboardSort
         currentValue = getCurrentValue metrics stats
         comparisonValue = getComparisonValue metrics stats
-        progressValue = if maximumValue == 0 then 0 else currentValue / maximumValue * 100
+        currentProgress = if maximumValue == 0 then 0 else currentValue / maximumValue * 100
+        comparisonProgress = if maximumValue == 0 then 0 else comparisonValue / maximumValue * 100
     in
         div []
             [ div []
@@ -140,14 +123,40 @@ renderTotalProgress user model stats maximumValue =
                     , cell [ Typography.title, size All 6, Typography.right ]
                         [ text <| formatMetricsValue metrics currentValue ]
                     , cell [ size All 12 ]
-                        [ Progress.progress progressValue ]
+                        [ Progress.progress currentProgress ]
                     , cell [ size All 12 ]
                         [ delta currentValue comparisonValue metrics ]
-                    --, cell [ size All 6, Typography.right ]
-                    --    [ percentDelta currentValue comparisonValue metrics ]
+                    , cell [ Typography.subhead, size All 6 ]
+                        [ text <| formatPeriod (Array.get 0 periods.comparison) user model ]
+                    , cell [ Typography.title, size All 6, Typography.right ]
+                        [ text <| formatMetricsValue metrics comparisonValue ]
+                    , cell [ size All 12 ]
+                        [ Progress.progress comparisonProgress ]
                     ]
                 ]
             ]
+
+renderTotalCharts : CurrentUser -> Model -> DashboardChartTotalsData -> Html Messages.Msg
+renderTotalCharts user model charts =
+    Tabs.render Mdl [10] model.mdl
+        [ Tabs.onSelectTab SelectTab
+        , Tabs.activeTab model.dashboard.activeTab
+        ]
+        [ Tabs.label
+            [ Options.center ]
+            [ Options.span [ Options.css "width" "4px" ] []
+            , text "Inout"
+            ]
+        , Tabs.label
+            [ Options.center ]
+            [ Options.span [ Options.css "width" "4px" ] []
+            , text "Netgaming"
+            ]
+        ]
+        [ case model.dashboard.activeTab of
+            0 -> text <| "inout charts"
+            _ -> text <| "netgaming charts"
+        ]
 
 formatPeriod : Maybe String -> CurrentUser -> Model -> String
 formatPeriod maybePeriod user model =

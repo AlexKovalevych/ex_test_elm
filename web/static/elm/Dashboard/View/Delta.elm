@@ -15,19 +15,20 @@ delta currentValue comparisonValue metrics =
         comparison = abs(comparisonValue)
         diff = current - comparison
         percentDelta = toString <| if comparison == 0 then 0 else round(current / comparison * 100)
+        preparedText = formatMetricsValue metrics diff ++ " | " ++ percentDelta ++ "%"
     in
         if diff > 0 then
             div []
                 [ Icon.view "trending_up" [Icon.size18]
-                , text <| formatMetricsValue metrics diff ++ " | " ++ percentDelta ++ "%"
+                , text preparedText
                 ]
         else if diff < 0 then
             div []
                 [ Icon.view "trending_down" [Icon.size18]
-                , text <| formatMetricsValue metrics diff ++ " | " ++ percentDelta ++ "%"
+                , text preparedText
                 ]
         else
             div []
                 [ Icon.view "trending_flat" [Icon.size18]
-                , text <| formatMetricsValue metrics diff ++ " | " ++ percentDelta ++ "%"
+                , text preparedText
                 ]

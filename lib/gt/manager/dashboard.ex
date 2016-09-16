@@ -60,7 +60,8 @@ defmodule Gt.Manager.Dashboard do
             charts: charts,
             periods: data.periods,
             totals: data.totals,
-            projects: projects
+            projects: projects,
+            activeTab: 0
         }
     end
 

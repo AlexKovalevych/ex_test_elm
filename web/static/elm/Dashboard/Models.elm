@@ -9,6 +9,7 @@ type alias Model =
     , projects : List Project
     , stats : Array ProjectStats
     , totals : Array (Maybe DashboardStatValue)
+    , activeTab : Int
     }
 
 type alias ProjectStats =
@@ -101,6 +102,7 @@ initialModel =
     , projects = []
     , stats = Array.empty
     , totals = Array.empty
+    , activeTab = 0
     }
 
 getValueByMetrics : String -> DashboardStatValue -> Float
