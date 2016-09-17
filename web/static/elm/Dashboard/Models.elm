@@ -8,8 +8,13 @@ type alias Model =
     , charts : DashboardCharts
     , projects : List Project
     , stats : Array ProjectStats
-    , totals : Array (Maybe DashboardStatValue)
+    , totals : TotalStats
     , activeTab : Int
+    }
+
+type alias TotalStats =
+    { current : Maybe DashboardStatValue
+    , comparison : Maybe DashboardStatValue
     }
 
 type alias ProjectStats =
@@ -101,29 +106,48 @@ initialModel =
     , charts = emptyCharts
     , projects = []
     , stats = Array.empty
-    , totals = Array.empty
+    , totals = { current = Nothing, comparison = Nothing }
     , activeTab = 0
     }
 
 getValueByMetrics : String -> DashboardStatValue -> Float
 getValueByMetrics metrics stats =
     case metrics of
-        "authorizationsNumber" -> toFloat stats.authorizationsNumber
-        "averageArpu" -> stats.averageArpu
-        "averageDeposit" -> stats.averageDeposit
-        "averageFirstDeposit" -> stats.averageFirstDeposit
-        "betsAmount" -> toFloat stats.betsAmount
-        "cashoutsAmount" -> toFloat stats.cashoutsAmount
-        "cashoutsNumber" -> toFloat stats.cashoutsNumber
-        "depositorsNumber" -> toFloat stats.depositorsNumber
-        "depositsAmount" -> toFloat stats.depositsAmount
-        "depositsNumber" -> toFloat stats.depositsNumber
-        "firstDepositorsNumber" -> toFloat stats.firstDepositorsNumber
-        "firstDepositsAmount" -> toFloat stats.firstDepositsAmount
-        "netgamingAmount" -> toFloat stats.netgamingAmount
-        "paymentsAmount" -> toFloat stats.paymentsAmount
-        "paymentsNumber" -> toFloat stats.paymentsNumber
-        "rakeAmount" -> toFloat stats.rakeAmount
-        "signupsNumber" -> toFloat stats.signupsNumber
-        "winsAmount" -> toFloat stats.winsAmount
-        _ -> 0.0
+        "authorizationsNumber"
+            -> toFloat stats.authorizationsNumber
+        "averageArpu"
+            -> stats.averageArpu
+        "averageDeposit"
+            -> stats.averageDeposit
+        "averageFirstDeposit"
+            -> stats.averageFirstDeposit
+        "betsAmount"
+            -> toFloat stats.betsAmount
+        "cashoutsAmount"
+            -> toFloat stats.cashoutsAmount
+        "cashoutsNumber"
+            -> toFloat stats.cashoutsNumber
+        "depositorsNumber"
+            -> toFloat stats.depositorsNumber
+        "depositsAmount"
+            -> toFloat stats.depositsAmount
+        "depositsNumber"
+            -> toFloat stats.depositsNumber
+        "firstDepositorsNumber"
+            -> toFloat stats.firstDepositorsNumber
+        "firstDepositsAmount"
+            -> toFloat stats.firstDepositsAmount
+        "netgamingAmount"
+            -> toFloat stats.netgamingAmount
+        "paymentsAmount"
+            -> toFloat stats.paymentsAmount
+        "paymentsNumber"
+            -> toFloat stats.paymentsNumber
+        "rakeAmount"
+            -> toFloat stats.rakeAmount
+        "signupsNumber"
+            -> toFloat stats.signupsNumber
+        "winsAmount"
+            -> toFloat stats.winsAmount
+        _
+            -> 0.0

@@ -226,7 +226,7 @@ defmodule Gt.Manager.Dashboard do
         %{
             stats: Enum.map(stats, fn {id, values} -> %{id: id, values: Map.values(values)} end),
             periods: %{current: current_period, comparison: comparison_period},
-            totals: Map.values(totals)
+            totals: totals
         }
 
     end

@@ -7,6 +7,7 @@ import Dashboard.Models exposing
     ( DashboardStatValue
     , DashboardPeriods
     , getValueByMetrics
+    , TotalStats
     , ProjectStats
     , DashboardChartTotalsData
     )
@@ -17,7 +18,7 @@ import Date.Extra.Duration as Duration
 import Date.Extra.Format exposing (format)
 import Formatter exposing (formatMetricsValue)
 import Html exposing (..)
-import Html.Attributes exposing (id)
+import Html.Attributes exposing (id, height)
 import Material.Button as Button
 import Material.Elevation as Elevation
 import Material.Grid exposing (grid, cell, size, Device(..))
@@ -31,6 +32,8 @@ import Models exposing (..)
 import String
 import Translation exposing (..)
 import Native.Chart
+import Dashboard.View.Spline exposing (..)
+import Json.Encode as JE
 
 view : Model -> CurrentUser -> Html Messages.Msg
 view model user =
@@ -107,13 +110,13 @@ renderTotal user model maximumValue =
                 ]
             ]
 
-renderTotalProgress : CurrentUser -> Model -> Array (Maybe DashboardStatValue) -> Float -> Html Messages.Msg
+renderTotalProgress : CurrentUser -> Model -> TotalStats -> Float -> Html Messages.Msg
 renderTotalProgress user model stats maximumValue =
     let
         periods = model.dashboard.periods
         metrics = user.settings.dashboardSort
-        currentValue = getCurrentValue metrics stats
-        comparisonValue = getComparisonValue metrics stats
+        currentValue = getValue metrics stats.current
+        comparisonValue = getValue metrics stats.comparison
         currentProgress = if maximumValue == 0 then 0 else currentValue / maximumValue * 100
         comparisonProgress = if maximumValue == 0 then 0 else comparisonValue / maximumValue * 100
     in
@@ -141,7 +144,11 @@ renderTotalProgress user model stats maximumValue =
 renderTotalCharts : CurrentUser -> Model -> DashboardChartTotalsData -> Html Messages.Msg
 renderTotalCharts user model charts =
     let
-        chart = Native.Chart.area "chart" []
+        dailyPaymentsId = splineId user "paymentsAmount" Nothing Dashboard.View.Spline.Daily
+        dailyPaymentsData = Array.map (dailyChartData "paymentsAmount" >> JE.int) model.dashboard.charts.totals.daily
+        |> JE.array
+        |> JE.encode 0
+        dailyPaymentsChart = Native.Chart.area dailyPaymentsId dailyPaymentsData
     in
         Tabs.render Mdl [10] model.mdl
             [ Tabs.onSelectTab SelectTab
@@ -159,7 +166,12 @@ renderTotalCharts user model charts =
                 ]
             ]
             [ case model.dashboard.activeTab of
-                0 -> canvas [ id "chart" ] []
+                0 ->
+                    canvas
+                        [ id dailyPaymentsId
+                        , height 40
+                        ]
+                        []
                 _ -> text <| "netgaming charts"
             ]
 
@@ -178,45 +190,20 @@ formatPeriod maybePeriod user model =
                         _ -> ""
                             --Just period -> format (getDateConfig model.locale)
 
-getCurrentValue : String -> Array (Maybe DashboardStatValue) -> Float
-getCurrentValue metrics stats =
-    let
-        maybeItem = Array.get 0 stats
-    in
-        case maybeItem of
-            Nothing -> 0.0
-            Just maybeValue -> case maybeValue of
-                Nothing -> 0.0
-                Just value -> getValueByMetrics metrics value
-
-getComparisonValue : String -> Array (Maybe DashboardStatValue) -> Float
-getComparisonValue metrics stats =
-    let
-        maybeItem = Array.get 1 stats
-    in
-        case maybeItem of
-            Nothing -> 0.0
-            Just maybeValue -> case maybeValue of
-                Nothing -> 0.0
-                Just value -> getValueByMetrics metrics value
-
 getSortedStats : String -> Array ProjectStats -> Array ProjectStats
 getSortedStats metrics stats =
     Array.toList stats
     |> List.sortWith
         (\a b ->
             let
-                getValue v = case v of
-                    Nothing -> 0.0
-                    Just value -> getValueByMetrics metrics value
                 getMaxValue v = case v of
                     Nothing -> 0.0
                     Just v -> v
-                maxA = Array.map (\maybeValue -> getValue maybeValue) a.values
+                maxA = Array.map (\maybeValue -> getValue metrics maybeValue) a.values
                 |> Array.toList
                 |> List.maximum
                 |> getMaxValue
-                maxB = Array.map (\maybeValue -> getValue maybeValue) b.values
+                maxB = Array.map (\maybeValue -> getValue metrics maybeValue) b.values
                 |> Array.toList
                 |> List.maximum
                 |> getMaxValue
@@ -228,14 +215,19 @@ getSortedStats metrics stats =
         )
     |> Array.fromList
 
-getMaximumStatsValue : String -> Array (Maybe DashboardStatValue) -> Array ProjectStats -> Float
+getValue : String -> Maybe DashboardStatValue -> Float
+getValue metrics v = case v of
+    Nothing -> 0.0
+    Just value -> getValueByMetrics metrics value
+
+getMaximumStatsValue : String -> TotalStats -> Array ProjectStats -> Float
 getMaximumStatsValue metrics totals sortedStats =
     let
         getValue v = case v of
             Nothing -> 0.0
             Just value -> getValueByMetrics metrics value
         totalValues =
-            Array.map getValue totals |> Array.toList
+            [ getValue totals.current, getValue totals.comparison ]
         statsValues =
             Array.map (\v -> v.values |> Array.toList) sortedStats
             |> Array.toList
