@@ -10,13 +10,14 @@ import Dashboard.Models exposing
     , TotalStats
     , ProjectStats
     , DashboardChartTotalsData
+    , getDailyChartValueByMetrics
     )
 import Dashboard.View.Delta exposing (delta)
 import Date
 import Date.GtDate exposing (dateFromMonthString)
 import Date.Extra.Duration as Duration
 import Date.Extra.Format exposing (format)
-import Formatter exposing (formatMetricsValue)
+import Formatter exposing (formatMetricsValue, dayFormat, monthFormat)
 import Html exposing (..)
 import Html.Attributes exposing (id, height, style)
 import Html.Events exposing (onMouseLeave)
@@ -152,7 +153,16 @@ renderTotalCharts user model charts =
         |> JE.encode 0
         dailyPaymentsChart = Native.Chart.area dailyPaymentsId dailyPaymentsData
         tooltipIndex = if model.dashboard.splineTooltip.canvasId == dailyPaymentsId then
-            toString model.dashboard.splineTooltip.index
+            let
+                index = model.dashboard.splineTooltip.index
+                maybeDate = Array.get index model.dashboard.charts.totals.daily
+                formatDate = format (getDateConfig model.locale) dayFormat
+            in
+                case maybeDate of
+                    Nothing -> ""
+                    Just chartValue ->
+                        formatMetricsValue "paymentsAmount" (toFloat <| getDailyChartValueByMetrics "paymentsAmount" chartValue) ++
+                            " (" ++ formatDate (dateFromMonthString chartValue.date) ++ ")"
         else
             ""
     in
@@ -194,7 +204,7 @@ formatPeriod maybePeriod user model =
                     date = dateFromMonthString period
                 in
                     case user.settings.dashboardPeriod of
-                        "month" -> format (getDateConfig model.locale) "%b %Y" date
+                        "month" -> format (getDateConfig model.locale) monthFormat date
                         "year" -> ""
                         "days30" -> ""
                         _ -> ""

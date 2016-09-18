@@ -117,6 +117,22 @@ initialModel =
     , splineTooltip = { canvasId = "", index = 0 }
     }
 
+getDailyChartValueByMetrics : String -> DashboardDailyChartValue -> Int
+getDailyChartValueByMetrics metrics stats =
+    let
+        value = case metrics of
+            "betsAmount" -> stats.betsAmount
+            "cashoutsAmount" -> stats.cashoutsAmount
+            "depositsAmount" -> stats.depositsAmount
+            "netgamingAmount" -> stats.netgamingAmount
+            "paymentsAmount" -> stats.paymentsAmount
+            "rakeAmount" -> stats.rakeAmount
+            "winsAmount" -> stats.winsAmount
+            _ -> Nothing
+    in case value of
+        Nothing -> 0
+        Just v -> v
+
 getValueByMetrics : String -> DashboardStatValue -> Float
 getValueByMetrics metrics stats =
     case metrics of

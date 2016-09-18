@@ -2,6 +2,13 @@ module Formatter exposing (..)
 
 import List
 import Numeral exposing (format)
+import Translation exposing (getDateConfig)
+
+dayFormat : String
+dayFormat = "%b %e, %Y"
+
+monthFormat : String
+monthFormat = "%b %Y"
 
 cashValues : List String
 cashValues =
