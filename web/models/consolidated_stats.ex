@@ -341,15 +341,15 @@ defmodule Gt.Model.ConsolidatedStats do
                 "winsAmount" => %{"$sum" => "$winsAmount"}
             }},
             %{"$project" => %{
-                "_id" => 1,
-                "date" => "$_id",
-                "paymentsAmount" => 1,
-                "depositsAmount" => 1,
-                "cashoutsAmount" => 1,
-                "netgamingAmount" => %{"$add" => ["$netgamingAmount", "$rakeAmount"]},
-                "rakeAmount" => "$rakeAmount",
-                "betsAmount" => 1,
-                "winsAmount" => 1
+                _id: 1,
+                date: "$_id",
+                paymentsAmount: 1,
+                depositsAmount: 1,
+                cashoutsAmount: 1,
+                netgamingAmount: %{"$add" => ["$netgamingAmount", "$rakeAmount"]},
+                rakeAmount: "$rakeAmount",
+                betsAmount: 1,
+                winsAmount: 1
             }},
             %{
                 "$sort" => %{"_id" => 1}

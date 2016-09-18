@@ -31,7 +31,7 @@ defmodule Gt.Manager.ConsolidatedStats do
         end
     end
 
-    @spec update_daily_stats(String.t, String.t, [Mongo.Ecto.ObjectID]) :: Atom
+    @spec update_daily_stats(String.t, String.t, [Mongo.Ecto.ObjectID]) :: atom
     def update_daily_stats(from, to, project_ids) do
         Logger.configure([level: :info])
         process_data("payments", Payment.dashboard_stats(from, to, project_ids))

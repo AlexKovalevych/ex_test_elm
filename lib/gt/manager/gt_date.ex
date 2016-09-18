@@ -16,7 +16,7 @@ defmodule Gt.Manager.Date do
     end
 
     def yesterday do
-        today |> Timex.shift(days: 1)
+        today |> Timex.shift(days: -1)
     end
 
     def format(date, _) when is_bitstring(date) do
@@ -56,6 +56,9 @@ defmodule Gt.Manager.Date do
 
     def diff(start_date, end_date, :months) do
         Timex.diff(start_date, end_date, :months)
+    end
+    def diff(start_date, end_date, :days) do
+        Timex.diff(start_date, end_date, :days)
     end
 
     def convert(date, :stat_day, :date) do

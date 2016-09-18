@@ -244,17 +244,27 @@ defmodule Gt.Manager.Dashboard do
         get_stats(get_period(:months12), project_ids)
     end
 
+    @spec get_charts([String.t], [String.t], [Mongo.Ecto.ObjectID]) :: map
     def get_charts([daily_from, daily_to], [monthly_from, monthly_to], project_ids) do
+        period_from = GtDate.parse(daily_from, :date)
+        days_diff = GtDate.diff(period_from, GtDate.parse(daily_to, :date), :days)
+        initial_daily_data = Enum.into(0..days_diff, Keyword.new, fn n ->
+            date = Timex.shift(period_from, days: n) |> GtDate.format(:date)
+            {String.to_atom(date), initial_chart_data(date)}
+        end)
         daily_charts = Enum.reduce(project_ids, [], fn (project_id, acc) ->
+            initial_data = initial_daily_data
             id = Gt.Model.id_to_string(project_id)
             data = ConsolidatedStats
             |> ConsolidatedStats.dashboard_charts
             |> ConsolidatedStats.project_id(id)
             |> ConsolidatedStats.period(daily_from, daily_to)
             |> Repo.all
-            |> Enum.reduce([], fn (daily_stat, acc) ->
-                acc ++ [daily_stat]
+            |> Enum.reduce(initial_data, fn (daily_stat, acc) ->
+                Keyword.put(acc, String.to_atom(daily_stat.date), daily_stat)
             end)
+            |> Keyword.values
+            |> Enum.sort(&(&1.date < &2.date))
             acc ++ [%{project: id, values: data}]
         end)
 
@@ -271,10 +281,17 @@ defmodule Gt.Manager.Dashboard do
             acc ++ [%{project: id, values: data}]
         end)
 
-        total_daily_charts = ConsolidatedStats.dashboard_charts_period(daily_from, daily_to, project_ids)
-        |> Enum.reduce([], fn (daily_stat, acc) ->
-            acc ++ [daily_stat]
+        initial_daily_data = Enum.into(0..days_diff, Keyword.new, fn n ->
+            date = Timex.shift(period_from, days: n) |> GtDate.format(:date)
+            initial_data = for {k, v} <- initial_chart_data(date), into: %{}, do: {to_string(k), v}
+            {String.to_atom(date), initial_data}
         end)
+        total_daily_charts = ConsolidatedStats.dashboard_charts_period(daily_from, daily_to, project_ids)
+        |> Enum.reduce(initial_daily_data, fn (daily_stat, acc) ->
+            Keyword.put(acc, String.to_atom(daily_stat["date"]), daily_stat)
+        end)
+        |> Keyword.values
+        |> Enum.sort(&(&1["date"] < &2["date"]))
 
         total_monthly_charts = ConsolidatedStatsMonthly.dashboard_charts_period(monthly_from, monthly_to, project_ids)
         |> Enum.reduce([], fn (monthly_stat, acc) ->
@@ -383,5 +400,18 @@ defmodule Gt.Manager.Dashboard do
         metrics_stats = Map.drop(Enum.at(data, 0), ["_id"])
         total_period_stats = get_in(totals, [key])
         put_in(totals, [key], Map.merge(total_period_stats, metrics_stats))
+    end
+
+    defp initial_chart_data(date) do
+        %{
+            betsAmount: 0,
+            cashoutsAmount: 0,
+            date: date,
+            depositsAmount: 0,
+            netgamingAmount: 0,
+            paymentsAmount: 0,
+            rakeAmount: 0,
+            winsAmount: 0
+        }
     end
 end
