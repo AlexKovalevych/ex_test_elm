@@ -5,6 +5,7 @@ import Dashboard.Models exposing (..)
 import Json.Encode as JE
 import Socket.Messages as SocketMessages exposing (InternalMsg(DecodeCurrentUser), PushModel)
 import Update.Never exposing (never)
+import Models.Metrics exposing (typeToString)
 import Task
 
 update : Dashboard.Messages.InternalMsg -> Model -> ( Model, Cmd Msg )
@@ -19,7 +20,7 @@ update message model =
 
         SetDashboardSort msg ->
             model !
-                [ Task.perform never ForParent (Task.succeed <| UpdateDashboardSort msg ) ]
+                [ Task.perform never ForParent (Task.succeed <| UpdateDashboardSort <| typeToString msg ) ]
 
         SetDashboardCurrentPeriod msg ->
             model !

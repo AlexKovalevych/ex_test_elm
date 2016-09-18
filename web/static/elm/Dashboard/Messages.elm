@@ -1,11 +1,12 @@
 module Dashboard.Messages exposing (..)
 
 import Dashboard.Models exposing (..)
+import Models.Metrics exposing (..)
 
 type InternalMsg
     = LoadDashboardData Model
     | SetDashboardProjectsType String
-    | SetDashboardSort String
+    | SetDashboardSort Metrics
     | SetDashboardCurrentPeriod String
     | SetDashboardComparisonPeriod Int
     | SetSplineTooltip SplineTooltip

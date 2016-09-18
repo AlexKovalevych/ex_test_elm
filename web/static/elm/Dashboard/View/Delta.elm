@@ -7,8 +7,9 @@ import Material.Typography as Typography
 import Material.Options as Options
 import Material.Icon as Icon
 import Messages exposing (..)
+import Models.Metrics exposing (Metrics)
 
-delta : Float -> Float -> String -> Html Messages.Msg
+delta : Float -> Float -> Metrics -> Html Messages.Msg
 delta currentValue comparisonValue metrics =
     let
         current = abs(currentValue)

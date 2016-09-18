@@ -2,6 +2,7 @@ module Dashboard.Models exposing (..)
 
 import Array exposing (..)
 import Project.Models exposing (Project)
+import Models.Metrics exposing (Metrics(..))
 
 type alias Model =
     { periods : DashboardPeriods
@@ -117,60 +118,61 @@ initialModel =
     , splineTooltip = { canvasId = "", index = 0 }
     }
 
-getDailyChartValueByMetrics : String -> DashboardDailyChartValue -> Int
+getDailyChartValueByMetrics : Metrics -> DashboardDailyChartValue -> Int
 getDailyChartValueByMetrics metrics stats =
     let
         value = case metrics of
-            "betsAmount" -> stats.betsAmount
-            "cashoutsAmount" -> stats.cashoutsAmount
-            "depositsAmount" -> stats.depositsAmount
-            "netgamingAmount" -> stats.netgamingAmount
-            "paymentsAmount" -> stats.paymentsAmount
-            "rakeAmount" -> stats.rakeAmount
-            "winsAmount" -> stats.winsAmount
+            BetsAmount -> stats.betsAmount
+            CashoutsAmount -> stats.cashoutsAmount
+            DepositsAmount -> stats.depositsAmount
+            NetgamingAmount -> stats.netgamingAmount
+            PaymentsAmount -> stats.paymentsAmount
+            RakeAmount -> stats.rakeAmount
+            WinsAmount -> stats.winsAmount
             _ -> Nothing
     in case value of
         Nothing -> 0
         Just v -> v
 
-getValueByMetrics : String -> DashboardStatValue -> Float
-getValueByMetrics metrics stats =
-    case metrics of
-        "authorizationsNumber"
-            -> toFloat stats.authorizationsNumber
-        "averageArpu"
-            -> stats.averageArpu
-        "averageDeposit"
-            -> stats.averageDeposit
-        "averageFirstDeposit"
-            -> stats.averageFirstDeposit
-        "betsAmount"
-            -> toFloat stats.betsAmount
-        "cashoutsAmount"
-            -> toFloat stats.cashoutsAmount
-        "cashoutsNumber"
-            -> toFloat stats.cashoutsNumber
-        "depositorsNumber"
-            -> toFloat stats.depositorsNumber
-        "depositsAmount"
-            -> toFloat stats.depositsAmount
-        "depositsNumber"
-            -> toFloat stats.depositsNumber
-        "firstDepositorsNumber"
-            -> toFloat stats.firstDepositorsNumber
-        "firstDepositsAmount"
-            -> toFloat stats.firstDepositsAmount
-        "netgamingAmount"
-            -> toFloat stats.netgamingAmount
-        "paymentsAmount"
-            -> toFloat stats.paymentsAmount
-        "paymentsNumber"
-            -> toFloat stats.paymentsNumber
-        "rakeAmount"
-            -> toFloat stats.rakeAmount
-        "signupsNumber"
-            -> toFloat stats.signupsNumber
-        "winsAmount"
-            -> toFloat stats.winsAmount
-        _
+getStatValue : Metrics -> Maybe DashboardStatValue -> Float
+getStatValue metrics v = case v of
+    Nothing -> 0.0
+    Just value -> case metrics of
+        AuthorizationsNumber
+            -> toFloat value.authorizationsNumber
+        AverageArpu
+            -> value.averageArpu
+        AverageDeposit
+            -> value.averageDeposit
+        AverageFirstDeposit
+            -> value.averageFirstDeposit
+        BetsAmount
+            -> toFloat value.betsAmount
+        CashoutsAmount
+            -> toFloat value.cashoutsAmount
+        CashoutsNumber
+            -> toFloat value.cashoutsNumber
+        DepositorsNumber
+            -> toFloat value.depositorsNumber
+        DepositsAmount
+            -> toFloat value.depositsAmount
+        DepositsNumber
+            -> toFloat value.depositsNumber
+        FirstDepositorsNumber
+            -> toFloat value.firstDepositorsNumber
+        FirstDepositsAmount
+            -> toFloat value.firstDepositsAmount
+        NetgamingAmount
+            -> toFloat value.netgamingAmount
+        PaymentsAmount
+            -> toFloat value.paymentsAmount
+        PaymentsNumber
+            -> toFloat value.paymentsNumber
+        RakeAmount
+            -> toFloat value.rakeAmount
+        SignupsNumber
+            -> toFloat value.signupsNumber
+        WinsAmount
+            -> toFloat value.winsAmount
+        NoOp
             -> 0.0

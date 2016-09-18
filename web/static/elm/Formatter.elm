@@ -1,6 +1,7 @@
 module Formatter exposing (..)
 
 import List
+import Models.Metrics exposing (Metrics(..))
 import Numeral exposing (format)
 import Translation exposing (getDateConfig)
 
@@ -10,27 +11,21 @@ dayFormat = "%b %e, %Y"
 monthFormat : String
 monthFormat = "%b %Y"
 
-cashValues : List String
-cashValues =
-    [ "averageArpu"
-    , "averageDeposit"
-    , "averageFirstDeposit"
-    , "betsAmount"
-    , "cashoutsAmount"
-    , "depositsAmount"
-    , "firstDepositsAmount"
-    , "netgamingAmount"
-    , "paymentsAmount"
-    , "rakeAmount"
-    , "winsAmount"
-    ]
-
-formatMetricsValue : String -> Float -> String
+formatMetricsValue : Metrics -> Float -> String
 formatMetricsValue metrics value =
-    if List.member metrics cashValues then
-        formatCashValue value
-    else
-        formatNumberValue value
+    case metrics of
+        AverageArpu -> formatCashValue value
+        AverageDeposit -> formatCashValue value
+        AverageFirstDeposit -> formatCashValue value
+        BetsAmount -> formatCashValue value
+        CashoutsAmount -> formatCashValue value
+        DepositsAmount -> formatCashValue value
+        FirstDepositsAmount -> formatCashValue value
+        NetgamingAmount -> formatCashValue value
+        PaymentsAmount -> formatCashValue value
+        RakeAmount -> formatCashValue value
+        WinsAmount -> formatCashValue value
+        _ -> formatNumberValue value
 
 formatCashValue : Float -> String
 formatCashValue value =
