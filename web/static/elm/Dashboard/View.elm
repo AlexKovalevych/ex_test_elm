@@ -153,19 +153,23 @@ renderTotalCharts user model charts =
             [ Tabs.label
                 [ Options.center ]
                 [ Options.span [ Options.css "width" "4px" ] []
-                , text "Inout"
+                , text <| translate model.locale <| Dashboard "inout"
                 ]
             , Tabs.label
                 [ Options.center ]
                 [ Options.span [ Options.css "width" "4px" ] []
-                , text "Netgaming"
+                , text <| translate model.locale <| Dashboard "netgaming"
                 ]
             ]
             <| case model.dashboard.activeTab of
                 0 ->
-                    [ div [ style [ ("height", "10px") ] ] [ text tooltip ]
+                    [ div [ style [ ("height", "10px") ] ]
+                        [ text <| (translate model.locale (Dashboard "inout") ++ tooltip)
+                        ]
                     , div []
                         [ areaChart user model Metrics.PaymentsAmount Nothing stats
+                        , areaChart user model Metrics.DepositsAmount Nothing stats
+                        , areaChart user model Metrics.CashoutsAmount Nothing stats
                         ]
                     ]
                 _ -> [ text <| "netgaming charts" ]

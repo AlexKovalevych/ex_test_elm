@@ -99,6 +99,10 @@ translate lang trans =
                 _ -> TranslationSet "" ""
 
             Dashboard msg -> case msg of
+                "inout" -> TranslationSet "Inout" "Inout"
+                "deposits" -> TranslationSet "Deposits" "Депозиты"
+                "withdrawal" -> TranslationSet "Withdrawal" "Выплаты"
+                "netgaming" -> TranslationSet "Netgaming" "Netgaming"
                 "projects_type" -> TranslationSet "Projects:" "Проекты:"
                 "default_projects" -> TranslationSet "Our" "Наши"
                 "partner_projects" -> TranslationSet "Partner" "Партнерские"

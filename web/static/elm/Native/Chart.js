@@ -1,12 +1,16 @@
 var _user$project$Native_Chart = function() {
     function renderAreaChart(canvasId, data)
     {
-        var interval = setInterval(function() {
-            var ctx = document.getElementById(canvasId);
-            if (ctx === null || ctx.classList.contains('rendered')) {
-                return;
-            }
+        var ctx = document.getElementById(canvasId);
+        if (ctx === null) {
+            return;
+        }
+        if (ctx.classList.contains('rendered')) {
+            // clearInterval(interval);
+            return;
+        }
 
+        // var interval = setInterval(function() {
             ctx.setAttribute('class', 'rendered');
             var points = JSON.parse(data);
             var labels = [];
@@ -31,6 +35,7 @@ var _user$project$Native_Chart = function() {
                     }]
                 },
                 options: {
+                    responsive: false,
                     scales: {
                         xAxes: [{
                             display: false
@@ -58,8 +63,8 @@ var _user$project$Native_Chart = function() {
                     }
                 }
             });
-            clearInterval(interval);
-        }, 100);
+            // clearInterval(interval);
+        // }, 100);
     }
 
     return {
