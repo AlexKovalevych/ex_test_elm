@@ -61,7 +61,8 @@ defmodule Gt.Manager.Dashboard do
             periods: data.periods,
             totals: data.totals,
             projects: projects,
-            activeTab: 0
+            activeTab: 0,
+            splineTooltip: %{"canvasId" => "", "index" => 0}
         }
     end
 

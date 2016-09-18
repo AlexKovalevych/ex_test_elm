@@ -71,6 +71,7 @@ subscriptions model =
         Sub.map SocketMsg (Phoenix.Socket.listen model.socket.phxSocket SocketMessages.PhoenixMsg),
         Sub.map AuthMsg (loggedUser AuthMessages.LoadCurrentUser),
         Sub.map DashboardMsg (dashboardData DashboardMessages.LoadDashboardData),
+        Sub.map DashboardMsg (splineTooltip DashboardMessages.SetSplineTooltip),
         Layout.subs Mdl model.mdl,
         Sub.map AuthMsg (every second AuthMessages.Tick),
         Material.subscriptions Mdl model
@@ -79,3 +80,5 @@ subscriptions model =
 port loggedUser : (CurrentUser -> msg) -> Sub msg
 
 port dashboardData : (DashboardModels.Model -> msg) -> Sub msg
+
+port splineTooltip : (DashboardModels.SplineTooltip -> msg) -> Sub msg

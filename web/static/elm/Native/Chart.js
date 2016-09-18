@@ -41,7 +41,12 @@ var _user$project$Native_Chart = function() {
                     tooltips: {
                         enabled: false,
                         custom: function(tooltip) {
-                            console.log(tooltip);
+                            if (tooltip.body) {
+                                app.ports.splineTooltip.send({
+                                    canvasId: canvasId,
+                                    index: parseInt(tooltip.title[0])
+                                });
+                            }
                         }
                     },
                     title: {

@@ -29,6 +29,9 @@ update message model =
             model !
                 [ Task.perform never ForParent (Task.succeed <| UpdateDashboardComparisonPeriod msg ) ]
 
+        SetSplineTooltip splineTooltip ->
+            { model | splineTooltip = splineTooltip } ! []
+
         _ ->
             model ! []
 

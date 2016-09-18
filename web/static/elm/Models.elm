@@ -6,6 +6,7 @@ import Date
 import Hop.Types exposing (Address)
 import Material
 import Material.Snackbar as Snackbar
+import Material.Tooltip as Tooltip
 import Messages exposing (..)
 import Native.GtDate
 import Routing exposing (Route(..), Menu(..), getMenu)
@@ -24,6 +25,7 @@ type alias Model =
     , auth : Auth.Model
     , snackbar : Snackbar.Model Msg
     , currentDate : Date.Date
+    , tooltip : Tooltip.Model
     }
 
 initialModel : Route -> Address -> Model
@@ -39,5 +41,6 @@ initialModel route address =
     , snackbar = Snackbar.model
     , menu = getMenu route
     , currentDate = Native.GtDate.now ()
+    , tooltip = Tooltip.defaultModel
     --, nextPage = Nothing
     }

@@ -1,29 +1,28 @@
 module Update exposing (..)
 
-import Dashboard.Update
-import Debug
-import Navigation
-import Hop
-import Models exposing (..)
-import Routing exposing (..)
-import Messages exposing (..)
-import Socket.Messages as SocketMessages
-import Socket.Update
-import LocalStorage exposing (..)
 import Auth.Update
 import Auth.Messages as AuthMessages
-import Auth.Models as AuthModels
-import Material
-import Task
 import Auth.Models exposing (User(Guest, LoggedUser))
-import Material.Snackbar as Snackbar
+import Dashboard.Update
+import Debug
+import Dict
+import Hop
 import Json.Decode as JD
 import Json.Encode as JE
-import Translation exposing (..)
+import LocalStorage exposing (..)
+import Material
+import Material.Snackbar as Snackbar
+import Material.Tooltip as Tooltip
+import Messages exposing (..)
+import Models exposing (..)
+import Navigation
 import Phoenix.Push
-import Dict
 import Phoenix.Socket
-import Translation exposing (translate)
+import Routing exposing (..)
+import Socket.Messages as SocketMessages
+import Socket.Update
+import Task
+import Translation exposing (..)
 import Update.Snackbar as UpdateSnackbar
 import Update.Never exposing (never)
 
@@ -62,6 +61,12 @@ update message model =
                 translatedMsg = translate model.locale msg
             in
                 UpdateSnackbar.addToast translatedMsg model
+
+        TooltipMsg msg ->
+            let
+                updated = fst <| (Tooltip.update msg model.tooltip)
+            in
+                { model | tooltip = updated } ! []
 
         AuthMsg subMsg ->
             let

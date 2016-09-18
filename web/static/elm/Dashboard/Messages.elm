@@ -8,6 +8,7 @@ type InternalMsg
     | SetDashboardSort String
     | SetDashboardCurrentPeriod String
     | SetDashboardComparisonPeriod Int
+    | SetSplineTooltip SplineTooltip
     | NoOp
 
 type OutMsg

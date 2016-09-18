@@ -10,6 +10,12 @@ type alias Model =
     , stats : Array ProjectStats
     , totals : TotalStats
     , activeTab : Int
+    , splineTooltip : SplineTooltip
+    }
+
+type alias SplineTooltip =
+    { canvasId : String
+    , index : Int
     }
 
 type alias TotalStats =
@@ -108,6 +114,7 @@ initialModel =
     , stats = Array.empty
     , totals = { current = Nothing, comparison = Nothing }
     , activeTab = 0
+    , splineTooltip = { canvasId = "", index = 0 }
     }
 
 getValueByMetrics : String -> DashboardStatValue -> Float

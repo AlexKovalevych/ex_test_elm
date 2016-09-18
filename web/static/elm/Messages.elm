@@ -4,6 +4,7 @@ import Auth.Messages
 import Dashboard.Messages
 import Material
 import Material.Snackbar as Snackbar
+import Material.Tooltip as Tooltip
 import Routing exposing (Route, Menu)
 import Socket.Messages
 import Translation exposing (Language, TranslationId)
@@ -14,6 +15,7 @@ type Msg
     | AddToast TranslationId
     | SetLocale Language
     | UpdateLocale String
+    | TooltipMsg Tooltip.Msg
 
     --Socket messages
     | SocketMsg Socket.Messages.InternalMsg

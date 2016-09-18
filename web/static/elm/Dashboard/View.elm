@@ -2,7 +2,7 @@ module Dashboard.View exposing (..)
 
 import Array exposing (..)
 import Auth.Models exposing (CurrentUser)
-import Dashboard.Messages as DashboardMessages exposing (Msg(..), OutMsg(..))
+import Dashboard.Messages as DashboardMessages exposing (Msg(..), OutMsg(..), InternalMsg(..))
 import Dashboard.Models exposing
     ( DashboardStatValue
     , DashboardPeriods
@@ -18,12 +18,14 @@ import Date.Extra.Duration as Duration
 import Date.Extra.Format exposing (format)
 import Formatter exposing (formatMetricsValue)
 import Html exposing (..)
-import Html.Attributes exposing (id, height)
+import Html.Attributes exposing (id, height, style)
+import Html.Events exposing (onMouseLeave)
 import Material.Button as Button
 import Material.Elevation as Elevation
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options
 import Material.Progress as Progress
+import Material.Tooltip as Tooltip
 import Material.Tabs as Tabs
 import Material.Toggles as Toggles
 import Material.Typography as Typography
@@ -149,6 +151,10 @@ renderTotalCharts user model charts =
         |> JE.array
         |> JE.encode 0
         dailyPaymentsChart = Native.Chart.area dailyPaymentsId dailyPaymentsData
+        tooltipIndex = if model.dashboard.splineTooltip.canvasId == dailyPaymentsId then
+            toString model.dashboard.splineTooltip.index
+        else
+            ""
     in
         Tabs.render Mdl [10] model.mdl
             [ Tabs.onSelectTab SelectTab
@@ -165,15 +171,19 @@ renderTotalCharts user model charts =
                 , text "Netgaming"
                 ]
             ]
-            [ case model.dashboard.activeTab of
+            <| case model.dashboard.activeTab of
                 0 ->
-                    canvas
-                        [ id dailyPaymentsId
-                        , height 40
+                    [ div [ style [ ("height", "10px") ] ] [ text tooltipIndex ]
+                    , div []
+                        [ canvas
+                            [ id dailyPaymentsId
+                            , height 40
+                            , onMouseLeave <| DashboardMsg (SetSplineTooltip {canvasId = "", index = 0})
+                            ]
+                            []
                         ]
-                        []
-                _ -> text <| "netgaming charts"
-            ]
+                    ]
+                _ -> [ text <| "netgaming charts" ]
 
 formatPeriod : Maybe String -> CurrentUser -> Model -> String
 formatPeriod maybePeriod user model =
