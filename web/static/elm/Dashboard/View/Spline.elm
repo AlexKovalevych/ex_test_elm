@@ -31,9 +31,6 @@ splineId metrics maybeProject splineType =
 dailyChartData : Metrics -> DashboardDailyChartValue -> Int
 dailyChartData metrics chartValue =
     let
-        getValue v = case v of
-            Nothing -> 0
-            Just value -> value
         maybeValue = case metrics of
             BetsAmount -> chartValue.betsAmount
             CashoutsAmount -> chartValue.cashoutsAmount
@@ -43,8 +40,13 @@ dailyChartData metrics chartValue =
             RakeAmount -> chartValue.rakeAmount
             WinsAmount -> chartValue.winsAmount
             _ -> Nothing
+        value = case maybeValue of
+            Nothing -> 0
+            Just value -> value
     in
-        getValue maybeValue
+        case metrics of
+            CashoutsAmount -> abs value
+            _ -> value
 
 areaChart : CurrentUser -> Model -> Metrics -> Maybe String -> Array DashboardDailyChartValue -> Html Msg
 areaChart user model metrics maybeProjectId stats =

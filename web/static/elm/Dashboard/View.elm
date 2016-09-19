@@ -145,6 +145,7 @@ renderTotalCharts user model charts =
     let
         stats = model.dashboard.charts.totals.daily
         tooltip = areaChartTooltip user model Nothing stats
+        labelStyle = [ style [ ("height", "20px") ] ]
     in
         Tabs.render Mdl [10] model.mdl
             [ Tabs.onSelectTab SelectTab
@@ -163,13 +164,21 @@ renderTotalCharts user model charts =
             ]
             <| case model.dashboard.activeTab of
                 0 ->
-                    [ div [ style [ ("height", "10px") ] ]
+                    [ div labelStyle
                         [ text <| (translate model.locale (Dashboard "inout") ++ tooltip)
                         ]
                     , div []
                         [ areaChart user model Metrics.PaymentsAmount Nothing stats
-                        , areaChart user model Metrics.DepositsAmount Nothing stats
-                        , areaChart user model Metrics.CashoutsAmount Nothing stats
+                        ]
+                    , div labelStyle
+                        [ text <| (translate model.locale (Dashboard "deposits") ++ tooltip) ]
+                    , div []
+                        [ areaChart user model Metrics.DepositsAmount Nothing stats
+                        ]
+                    , div labelStyle
+                        [ text <| (translate model.locale (Dashboard "withdrawal") ++ tooltip) ]
+                    , div []
+                        [ areaChart user model Metrics.CashoutsAmount Nothing stats
                         ]
                     ]
                 _ -> [ text <| "netgaming charts" ]
