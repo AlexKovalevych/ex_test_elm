@@ -1,3 +1,9 @@
+window.onresize = function() {
+    for (var i in Chart.instances) {
+        Chart.instances[i].chart.controller.resize();
+    }
+};
+
 var _user$project$Native_Chart = function() {
     function renderAreaChart(canvasId, data)
     {
@@ -35,7 +41,7 @@ var _user$project$Native_Chart = function() {
                     }]
                 },
                 options: {
-                    responsive: false,
+                    insertIframe: false,
                     scales: {
                         xAxes: [{
                             display: false
