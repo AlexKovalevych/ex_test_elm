@@ -4,6 +4,31 @@ window.onresize = function() {
     }
 };
 
+var charts = {};
+
+var getDatasets = function(points) {
+    return [{
+        label: '',
+        fill: true,
+        data: points,
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        borderColor: 'rgba(255,99,132,1)',
+        borderWidth: 1,
+        pointRadius: 1,
+        pointBorderWidth: 0,
+        pointHoverBorderWidth: 3,
+        pointHitRadius: 10
+    }];
+};
+
+var getLabels = function(points) {
+    var labels = [];
+    for (var i = 0; i < points.length; i++) {
+        labels.push(i);
+    }
+    return labels;
+};
+
 var _user$project$Native_Chart = function() {
     function renderAreaChart(canvasId, data)
     {
@@ -11,34 +36,25 @@ var _user$project$Native_Chart = function() {
         if (ctx === null) {
             return;
         }
-        if (ctx.classList.contains('rendered')) {
+        if (charts[canvasId] !== undefined && charts[canvasId].data == data) {
             // clearInterval(interval);
             return;
         }
 
-        // var interval = setInterval(function() {
+        var points = JSON.parse(data);
+        if (ctx.classList.contains('rendered')) {
+            charts[canvasId].data = data;
+            charts[canvasId].chart.data.labels = getLabels(points);
+            charts[canvasId].chart.data.datasets = getDatasets(points);
+            charts[canvasId].chart.update();
+        } else {
             ctx.setAttribute('class', 'rendered');
-            var points = JSON.parse(data);
-            var labels = [];
-            for (var i = 0; i < points.length; i++) {
-                labels.push(i);
-            }
-            var myChart = new Chart(ctx, {
+            charts[canvasId] = {data: data};
+            charts[canvasId]['chart'] = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '',
-                        fill: true,
-                        data: points,
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255,99,132,1)',
-                        borderWidth: 1,
-                        pointRadius: 1,
-                        pointBorderWidth: 0,
-                        pointHoverBorderWidth: 3,
-                        pointHitRadius: 10
-                    }]
+                    labels: getLabels(points),
+                    datasets: getDatasets(points)
                 },
                 options: {
                     insertIframe: false,
@@ -69,6 +85,9 @@ var _user$project$Native_Chart = function() {
                     }
                 }
             });
+        }
+
+        // var interval = setInterval(function() {
             // clearInterval(interval);
         // }, 100);
     }

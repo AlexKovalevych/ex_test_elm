@@ -3,7 +3,10 @@ module Dashboard.Update exposing (..)
 import Dashboard.Messages exposing (..)
 import Dashboard.Models exposing (..)
 import Json.Encode as JE
-import Socket.Messages as SocketMessages exposing (InternalMsg(DecodeCurrentUser), PushModel)
+import Socket.Messages as SocketMessages exposing
+    (InternalMsg(DecodeCurrentUser, DecodeDashboardData)
+    , PushModel
+    )
 import Update.Never exposing (never)
 import Models.Metrics exposing (typeToString)
 import Task
@@ -24,11 +27,13 @@ update message model =
 
         SetDashboardCurrentPeriod msg ->
             model !
-                [ Task.perform never ForParent (Task.succeed <| UpdateDashboardCurrentPeriod msg ) ]
+                [ Task.perform never ForParent (Task.succeed <| UpdateDashboardData <| Just msg )
+                , Task.perform never ForParent (Task.succeed <| UpdateDashboardCurrentPeriod msg ) ]
 
         SetDashboardComparisonPeriod msg ->
             model !
-                [ Task.perform never ForParent (Task.succeed <| UpdateDashboardComparisonPeriod msg ) ]
+                [ Task.perform never ForParent (Task.succeed <| UpdateDashboardData Nothing )
+                , Task.perform never ForParent (Task.succeed <| UpdateDashboardComparisonPeriod msg ) ]
 
         SetSplineTooltip splineTooltip ->
             { model | splineTooltip = splineTooltip } ! []
@@ -38,6 +43,7 @@ update message model =
 
 type alias TranslationDictionary msg =
     { onInternalMessage : Dashboard.Messages.InternalMsg -> msg
+    , onUpdateDashboardData : PushModel -> msg
     , onSetDashboardSort : PushModel -> msg
     , onSetDashboardCurrentPeriod : PushModel -> msg
     , onSetDashboardComparisongPeriod : PushModel -> msg
@@ -50,6 +56,7 @@ type alias Translator msg =
 translator : TranslationDictionary msg -> Translator msg
 translator
     { onInternalMessage
+    , onUpdateDashboardData
     , onSetDashboardSort
     , onSetDashboardCurrentPeriod
     , onSetDashboardComparisongPeriod
@@ -59,11 +66,21 @@ translator
         ForSelf internal ->
             onInternalMessage internal
 
+        ForParent (UpdateDashboardData maybePeriod) ->
+            let
+                payload = case maybePeriod of
+                    Nothing -> JE.null
+                    Just period -> JE.string period
+                success = DecodeDashboardData
+                error = (\e -> SocketMessages.NoOp)
+                pushModel = PushModel "dashboard_stats" "users" payload success error
+            in
+                onUpdateDashboardData pushModel
+
         ForParent (UpdateDashboardSort value) ->
             let
                 payload = JE.string <| value
-                _ = Debug.log "here: " payload
-                success = DecodeCurrentUser
+                success = DecodeDashboardData
                 error = (\e -> SocketMessages.NoOp)
                 pushModel = PushModel "dashboard_sort" "users" payload success error
             in

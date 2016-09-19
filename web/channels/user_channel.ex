@@ -12,9 +12,9 @@ defmodule Gt.UserChannel do
         end
     end
 
-    def handle_in("dashboard_stats", params, socket) do
+    def handle_in("dashboard_stats", period, socket) do
         current_user = Repo.get(User, socket.assigns.current_user)
-        data = Dashboard.load_data(current_user, Map.get(params, "period"))
+        data = Dashboard.load_data(current_user, period)
         {:reply, {:ok, data}, socket}
     end
     def handle_in("locale", locale, socket) do

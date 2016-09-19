@@ -1,6 +1,8 @@
 module Socket.Update exposing (..)
 
 import Auth.Decoders exposing (userDecoder)
+import Dashboard.Decoders exposing (dashboardDecoder)
+import Dashboard.Models
 import Auth.Models exposing (CurrentUser)
 import Debug
 import Dict
@@ -68,6 +70,13 @@ update message model =
                 Err error ->
                     model ! []
 
+        DecodeDashboardData raw ->
+            case JD.decodeValue dashboardDecoder raw of
+                Ok dashboardData ->
+                    model ! [ Task.perform never ForParent (Task.succeed <| UpdateDashboardData dashboardData) ]
+                Err error ->
+                    model ! []
+
         RemoveSocket ->
             initialModel ! []
 
@@ -78,13 +87,19 @@ type alias TranslationDictionary msg =
     { onInternalMessage : InternalMsg -> msg
     , onSetLocale : Language -> msg
     , onUpdateCurrentUser : CurrentUser -> msg
+    , onUpdateDashboardData : Dashboard.Models.Model -> msg
     }
 
 type alias Translator msg =
     Msg -> msg
 
 translator : TranslationDictionary msg -> Translator msg
-translator { onInternalMessage, onSetLocale, onUpdateCurrentUser } msg =
+translator
+    { onInternalMessage
+    , onSetLocale
+    , onUpdateCurrentUser
+    , onUpdateDashboardData
+    } msg =
     case msg of
         ForSelf internal ->
             onInternalMessage internal
@@ -92,13 +107,15 @@ translator { onInternalMessage, onSetLocale, onUpdateCurrentUser } msg =
         ForParent (UpdateCurrentUser value) ->
             onUpdateCurrentUser value
 
+        ForParent (UpdateDashboardData value) ->
+            onUpdateDashboardData value
+
         ForParent (SetLocale locale) ->
             onSetLocale locale
 
 initPhxSocket : String -> Phoenix.Socket.Socket InternalMsg
 initPhxSocket server =
     Phoenix.Socket.init server
-    |> Phoenix.Socket.withDebug
 
 getChannelShortName : String -> String
 getChannelShortName name =

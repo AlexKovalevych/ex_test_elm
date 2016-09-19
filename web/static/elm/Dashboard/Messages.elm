@@ -13,7 +13,8 @@ type InternalMsg
     | NoOp
 
 type OutMsg
-    = UpdateDashboardSort String
+    = UpdateDashboardData (Maybe String)
+    | UpdateDashboardSort String
     | UpdateDashboardCurrentPeriod String
     | UpdateDashboardComparisonPeriod Int
     | UpdateDashboardProjectsType String

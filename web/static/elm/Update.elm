@@ -4,6 +4,7 @@ import Auth.Update
 import Auth.Messages as AuthMessages
 import Auth.Models exposing (User(Guest, LoggedUser))
 import Dashboard.Update
+import Dashboard.Messages as DashboardMessages
 import Debug
 import Dict
 import Hop
@@ -28,7 +29,7 @@ import Update.Never exposing (never)
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
-    case Debug.log "message: " message of
+    case message of
         Mdl msg ->
             Material.update msg model
 
@@ -139,12 +140,14 @@ socketTranslator =
     { onInternalMessage = SocketMsg
     , onSetLocale = SetLocale
     , onUpdateCurrentUser = AuthMsg << AuthMessages.UpdateCurrentUser
+    , onUpdateDashboardData = DashboardMsg << DashboardMessages.LoadDashboardData
     }
 
 dashboardTranslator : Dashboard.Update.Translator Msg
 dashboardTranslator =
     Dashboard.Update.translator
     { onInternalMessage = DashboardMsg
+    , onUpdateDashboardData = SocketMsg << SocketMessages.PushMessage
     , onSetDashboardSort = SocketMsg << SocketMessages.PushMessage
     , onSetDashboardCurrentPeriod = SocketMsg << SocketMessages.PushMessage
     , onSetDashboardComparisongPeriod = SocketMsg << SocketMessages.PushMessage

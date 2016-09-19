@@ -1,6 +1,7 @@
 module Socket.Messages exposing (..)
 
 import Auth.Models exposing (CurrentUser)
+import Dashboard.Models
 import Json.Decode exposing (Decoder)
 import Json.Encode exposing (Value)
 import Phoenix.Socket
@@ -22,12 +23,14 @@ type InternalMsg
     | SubscribeToUsersChannel String
     | SubscribeToAdminsChannel String
     | DecodeCurrentUser Value
+    | DecodeDashboardData Value
     | PhoenixMsg (Phoenix.Socket.Msg InternalMsg)
     | NoOp
 
 type OutMsg
     = SetLocale Language
     | UpdateCurrentUser CurrentUser
+    | UpdateDashboardData Dashboard.Models.Model
 
 type Msg
     = ForSelf InternalMsg
