@@ -121,6 +121,8 @@ translate lang trans =
                 "period_days30" -> TranslationSet "Last 30 days" "Последние 30 дней"
                 "period_months12" -> TranslationSet "Last 12 months" "Последние 12 месяцев"
                 "total" -> TranslationSet "Total" "Всего"
+                "current" -> TranslationSet "Current" "Текущий"
+                "previous" -> TranslationSet "Previous" "Предыдущий"
                 _ -> TranslationSet "" ""
 
             --PaymentCheck msg -> case msg of

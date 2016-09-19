@@ -149,7 +149,7 @@ getStatValue metrics v = case v of
         BetsAmount
             -> toFloat value.betsAmount
         CashoutsAmount
-            -> toFloat value.cashoutsAmount
+            -> abs <| toFloat value.cashoutsAmount
         CashoutsNumber
             -> toFloat value.cashoutsNumber
         DepositorsNumber

@@ -1,15 +1,17 @@
 module Dashboard.Update exposing (..)
 
+import Char
 import Dashboard.Messages exposing (..)
 import Dashboard.Models exposing (..)
 import Json.Encode as JE
+import Models.Metrics exposing (typeToString)
 import Socket.Messages as SocketMessages exposing
     (InternalMsg(DecodeCurrentUser, DecodeDashboardData)
     , PushModel
     )
-import Update.Never exposing (never)
-import Models.Metrics exposing (typeToString)
+import String
 import Task
+import Update.Never exposing (never)
 
 update : Dashboard.Messages.InternalMsg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -22,8 +24,13 @@ update message model =
                 [ Task.perform never ForParent (Task.succeed <| UpdateDashboardProjectsType msg ) ]
 
         SetDashboardSort msg ->
-            model !
-                [ Task.perform never ForParent (Task.succeed <| UpdateDashboardSort <| typeToString msg ) ]
+            let
+                metrics = case String.uncons <| typeToString msg of
+                    Nothing -> ""
+                    Just value -> String.cons (Char.toLower <| fst value) (snd value)
+            in
+                model !
+                    [ Task.perform never ForParent (Task.succeed <| UpdateDashboardSort metrics) ]
 
         SetDashboardCurrentPeriod msg ->
             model !
@@ -80,7 +87,7 @@ translator
         ForParent (UpdateDashboardSort value) ->
             let
                 payload = JE.string <| value
-                success = DecodeDashboardData
+                success = DecodeCurrentUser
                 error = (\e -> SocketMessages.NoOp)
                 pushModel = PushModel "dashboard_sort" "users" payload success error
             in

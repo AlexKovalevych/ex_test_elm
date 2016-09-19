@@ -37,7 +37,6 @@ var _user$project$Native_Chart = function() {
             return;
         }
         if (charts[canvasId] !== undefined && charts[canvasId].data == data) {
-            // clearInterval(interval);
             return;
         }
 
@@ -86,10 +85,6 @@ var _user$project$Native_Chart = function() {
                 }
             });
         }
-
-        // var interval = setInterval(function() {
-            // clearInterval(interval);
-        // }, 100);
     }
 
     return {

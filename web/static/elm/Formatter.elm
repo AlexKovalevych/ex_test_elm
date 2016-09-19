@@ -11,6 +11,9 @@ dayFormat = "%b %e, %Y"
 monthFormat : String
 monthFormat = "%b %Y"
 
+yearFormat : String
+yearFormat = "%Y"
+
 formatMetricsValue : Metrics -> Float -> String
 formatMetricsValue metrics value =
     case metrics of
@@ -18,7 +21,7 @@ formatMetricsValue metrics value =
         AverageDeposit -> formatCashValue value
         AverageFirstDeposit -> formatCashValue value
         BetsAmount -> formatCashValue value
-        CashoutsAmount -> formatCashValue value
+        CashoutsAmount -> formatCashValue <| abs value
         DepositsAmount -> formatCashValue value
         FirstDepositsAmount -> formatCashValue value
         NetgamingAmount -> formatCashValue value

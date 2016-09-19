@@ -64,31 +64,24 @@ areaChart user model metrics maybeProjectId stats =
             ]
             []
 
-areaMetrics : List Metrics
-areaMetrics = [PaymentsAmount, DepositsAmount, CashoutsAmount]
-
-areaChartTooltip : CurrentUser -> Model -> Maybe String -> Array DashboardDailyChartValue -> String
-areaChartTooltip user model maybeProjectId stats =
+areaChartTooltip : Model -> Metrics -> Maybe String -> Array DashboardDailyChartValue -> String
+areaChartTooltip model metrics maybeProjectId stats =
     let
         canvasId = model.dashboard.splineTooltip.canvasId
-        maybeMetrics = List.filter
-            (\metrics -> splineId metrics maybeProjectId Daily == canvasId)
-            areaMetrics
-            |> List.head
     in
-        case maybeMetrics of
-            Just metrics ->
-                let
-                    index = model.dashboard.splineTooltip.index
-                    maybeDate = Array.get index stats
-                    formatDate = format (getDateConfig model.locale) dayFormat
-                    value = toFloat << (getDailyChartValueByMetrics metrics)
-                in
-                    case maybeDate of
-                        Nothing -> ""
-                        Just chartValue ->
-                            formatMetricsValue metrics (value chartValue)
-                            ++ " ("
-                            ++ formatDate (dateFromMonthString chartValue.date)
-                            ++ ")"
-            Nothing -> ""
+        if splineId metrics maybeProjectId Daily == canvasId then
+            let
+                index = model.dashboard.splineTooltip.index
+                maybeDate = Array.get index stats
+                formatDate = format (getDateConfig model.locale) dayFormat
+                value = toFloat << (getDailyChartValueByMetrics metrics)
+            in
+                case maybeDate of
+                    Nothing -> ""
+                    Just chartValue ->
+                        formatMetricsValue metrics (value chartValue)
+                        ++ " ("
+                        ++ formatDate (dateFromMonthString chartValue.date)
+                        ++ ")"
+        else
+            ""

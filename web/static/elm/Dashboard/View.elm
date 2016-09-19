@@ -17,7 +17,7 @@ import Date
 import Date.GtDate exposing (dateFromMonthString)
 import Date.Extra.Duration as Duration
 import Date.Extra.Format exposing (format)
-import Formatter exposing (formatMetricsValue, dayFormat, monthFormat)
+import Formatter exposing (formatMetricsValue, dayFormat, monthFormat, yearFormat)
 import Html exposing (..)
 import Html.Attributes exposing (id, height, style)
 import Material.Button as Button
@@ -123,7 +123,7 @@ renderTotalProgress user model stats maximumValue =
             [ div []
                 [ grid []
                     [ cell [ Typography.subhead, size All 6 ]
-                        [ text <| formatPeriod (Array.get 0 periods.current) user model ]
+                        [ text <| formatPeriod (Array.get 0 periods.current) user model True ]
                     , cell [ Typography.title, size All 6, Typography.right ]
                         [ text <| formatMetricsValue metrics currentValue ]
                     , cell [ size All 12 ]
@@ -131,7 +131,7 @@ renderTotalProgress user model stats maximumValue =
                     , cell [ size All 12 ]
                         [ delta currentValue comparisonValue metrics ]
                     , cell [ Typography.subhead, size All 6 ]
-                        [ text <| formatPeriod (Array.get 0 periods.comparison) user model ]
+                        [ text <| formatPeriod (Array.get 0 periods.comparison) user model False ]
                     , cell [ Typography.title, size All 6, Typography.right ]
                         [ text <| formatMetricsValue metrics comparisonValue ]
                     , cell [ size All 12 ]
@@ -144,8 +144,9 @@ renderTotalCharts : CurrentUser -> Model -> DashboardChartTotalsData -> Html Mes
 renderTotalCharts user model charts =
     let
         stats = model.dashboard.charts.totals.daily
-        tooltip = areaChartTooltip user model Nothing stats
+        tooltip metrics = areaChartTooltip model metrics Nothing stats
         labelStyle = [ style [ ("height", "20px") ] ]
+        blockLabel key = translate model.locale (Dashboard key)
     in
         Tabs.render Mdl [10] model.mdl
             [ Tabs.onSelectTab SelectTab
@@ -165,26 +166,26 @@ renderTotalCharts user model charts =
             <| case model.dashboard.activeTab of
                 0 ->
                     [ div labelStyle
-                        [ text <| (translate model.locale (Dashboard "inout") ++ tooltip)
+                        [ text <| (blockLabel "inout" ++ tooltip Metrics.PaymentsAmount)
                         ]
                     , div []
                         [ areaChart user model Metrics.PaymentsAmount Nothing stats
                         ]
                     , div labelStyle
-                        [ text <| (translate model.locale (Dashboard "deposits") ++ tooltip) ]
+                        [ text <| (blockLabel "deposits" ++ tooltip Metrics.DepositsAmount) ]
                     , div []
                         [ areaChart user model Metrics.DepositsAmount Nothing stats
                         ]
                     , div labelStyle
-                        [ text <| (translate model.locale (Dashboard "withdrawal") ++ tooltip) ]
+                        [ text <| (blockLabel "withdrawal" ++ tooltip Metrics.CashoutsAmount) ]
                     , div []
                         [ areaChart user model Metrics.CashoutsAmount Nothing stats
                         ]
                     ]
                 _ -> [ text <| "netgaming charts" ]
 
-formatPeriod : Maybe String -> CurrentUser -> Model -> String
-formatPeriod maybePeriod user model =
+formatPeriod : Maybe String -> CurrentUser -> Model -> Bool -> String
+formatPeriod maybePeriod user model isCurrent =
         case maybePeriod of
             Nothing -> ""
             Just period ->
@@ -193,10 +194,9 @@ formatPeriod maybePeriod user model =
                 in
                     case user.settings.dashboardPeriod of
                         "month" -> format (getDateConfig model.locale) monthFormat date
-                        "year" -> ""
-                        "days30" -> ""
-                        _ -> ""
-                            --Just period -> format (getDateConfig model.locale)
+                        "year" -> format (getDateConfig model.locale) yearFormat date
+                        "days30" -> translate model.locale <| Dashboard <| if isCurrent then "current" else "previous"
+                        _ -> translate model.locale <| Dashboard <| if isCurrent then "current" else "previous"
 
 getSortedStats : Metrics.Metrics -> Array ProjectStats -> Array ProjectStats
 getSortedStats metrics stats =
