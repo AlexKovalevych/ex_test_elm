@@ -134,6 +134,22 @@ getDailyChartValueByMetrics metrics stats =
         Nothing -> 0
         Just v -> v
 
+getMonthlyChartValueByMetrics : Metrics -> DashboardMonthlyChartValue -> Int
+getMonthlyChartValueByMetrics metrics stats =
+    let
+        value = case metrics of
+            BetsAmount -> stats.betsAmount
+            CashoutsAmount -> stats.cashoutsAmount
+            DepositsAmount -> stats.depositsAmount
+            NetgamingAmount -> stats.netgamingAmount
+            PaymentsAmount -> stats.paymentsAmount
+            RakeAmount -> stats.rakeAmount
+            WinsAmount -> stats.winsAmount
+            _ -> Nothing
+    in case value of
+        Nothing -> 0
+        Just v -> v
+
 getStatValue : Metrics -> Maybe DashboardStatValue -> Float
 getStatValue metrics v = case v of
     Nothing -> 0.0

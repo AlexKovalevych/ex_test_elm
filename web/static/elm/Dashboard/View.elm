@@ -13,6 +13,7 @@ import Dashboard.Models exposing
     , getDailyChartValueByMetrics
     )
 import Dashboard.View.Delta exposing (delta)
+import Dashboard.View.Spline exposing (..)
 import Date
 import Date.GtDate exposing (dateFromMonthString)
 import Date.Extra.Duration as Duration
@@ -30,9 +31,8 @@ import Material.Toggles as Toggles
 import Material.Typography as Typography
 import Messages exposing (..)
 import Models exposing (..)
-import Translation exposing (..)
-import Dashboard.View.Spline exposing (..)
 import Models.Metrics as Metrics
+import Translation exposing (..)
 
 view : Model -> CurrentUser -> Html Messages.Msg
 view model user =
@@ -143,8 +143,10 @@ renderTotalProgress user model stats maximumValue =
 renderTotalCharts : CurrentUser -> Model -> DashboardChartTotalsData -> Html Messages.Msg
 renderTotalCharts user model charts =
     let
-        stats = model.dashboard.charts.totals.daily
-        tooltip metrics = areaChartTooltip model metrics Nothing stats
+        dailyStats = model.dashboard.charts.totals.daily
+        monthlyStats = model.dashboard.charts.totals.monthly
+        dailyTooltip metrics = areaChartTooltip model metrics Nothing dailyStats
+        monthlyTooltip metrics = barChartTooltip model metrics Nothing monthlyStats
         labelStyle = [ style [ ("height", "20px") ] ]
         blockLabel key = translate model.locale (Dashboard key)
     in
@@ -166,20 +168,23 @@ renderTotalCharts user model charts =
             <| case model.dashboard.activeTab of
                 0 ->
                     [ div labelStyle
-                        [ text <| (blockLabel "inout" ++ tooltip Metrics.PaymentsAmount)
+                        [ text <| (blockLabel "inout" ++ dailyTooltip Metrics.PaymentsAmount ++ monthlyTooltip Metrics.PaymentsAmount)
                         ]
                     , div []
-                        [ areaChart user model Metrics.PaymentsAmount Nothing stats
-                        ]
-                    , div labelStyle
-                        [ text <| (blockLabel "deposits" ++ tooltip Metrics.DepositsAmount) ]
-                    , div []
-                        [ areaChart user model Metrics.DepositsAmount Nothing stats
+                        [ areaChart user model Metrics.PaymentsAmount Nothing dailyStats
+                        , barChart user model Metrics.PaymentsAmount Nothing monthlyStats
                         ]
                     , div labelStyle
-                        [ text <| (blockLabel "withdrawal" ++ tooltip Metrics.CashoutsAmount) ]
+                        [ text <| (blockLabel "deposits" ++ dailyTooltip Metrics.DepositsAmount ++ monthlyTooltip Metrics.DepositsAmount) ]
                     , div []
-                        [ areaChart user model Metrics.CashoutsAmount Nothing stats
+                        [ areaChart user model Metrics.DepositsAmount Nothing dailyStats
+                        , barChart user model Metrics.DepositsAmount Nothing monthlyStats
+                        ]
+                    , div labelStyle
+                        [ text <| (blockLabel "withdrawal" ++ dailyTooltip Metrics.CashoutsAmount ++ monthlyTooltip Metrics.CashoutsAmount) ]
+                    , div []
+                        [ areaChart user model Metrics.CashoutsAmount Nothing dailyStats
+                        , barChart user model Metrics.CashoutsAmount Nothing monthlyStats
                         ]
                     ]
                 _ -> [ text <| "netgaming charts" ]
