@@ -86,14 +86,13 @@ view model user =
                     ]
                 , cell [ size All 12, Elevation.e4 ]
                     [ renderTotal user model maximumValue
-                    ]
+                    ] ++ List.map (renderProject user model maximumValue) model.dashboard.projects
                 ]
             ]
 
 renderTotal : CurrentUser -> Model -> Float -> Html Messages.Msg
 renderTotal user model maximumValue =
     let
-        stats = model.dashboard.stats
         totals = model.dashboard.totals
         totalCharts = model.dashboard.charts.totals
     in
@@ -104,6 +103,26 @@ renderTotal user model maximumValue =
                 , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
                     [ renderTotalProgress user model totals maximumValue
                     , renderTotalCharts user model totalCharts
+                    ]
+                , cell [ size Desktop 8, size Tablet 5, size Phone 12 ]
+                    [ div [] [ text "Consolidated table" ]
+                    ]
+                ]
+            ]
+
+renderProject : CurrentUser -> Model -> Float -> Project -> Html Messages.Msg
+renderProject user model maximumValue project =
+    let
+        stats = model.dashboard.stats
+        statCharts = model.dashboard.charts.stats
+    in
+        div []
+            [ grid []
+                [ cell [ Typography.display1, size All 12 ]
+                    [ text <| project.title ]
+                , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
+                    [ renderProjectProgress user model stats maximumValue
+                    , renderProjectCharts user model statCharts
                     ]
                 , cell [ size Desktop 8, size Tablet 5, size Phone 12 ]
                     [ div [] [ text "Consolidated table" ]
@@ -173,6 +192,10 @@ renderTotalProgress user model stats maximumValue =
                 ]
                 [ Progress.progress comparisonProgress ]
             ]
+
+--renderProjectProgress : CurrentUser -> Model -> TotalStats -> Float -> Html Messages.Msg
+--renderProjectProgress user model stats maximumValue =
+
 
 renderTotalCharts : CurrentUser -> Model -> DashboardChartTotalsData -> Html Messages.Msg
 renderTotalCharts user model charts =
