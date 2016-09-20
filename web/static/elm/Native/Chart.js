@@ -36,7 +36,7 @@ var _user$project$Native_Chart = function() {
         if (ctx === null) {
             return;
         }
-        if (charts[canvasId] !== undefined && charts[canvasId].data == data) {
+        if (charts[canvasId] !== undefined && charts[canvasId].data.length == data.length && ctx.classList.contains('rendered')) {
             return;
         }
 
@@ -119,7 +119,7 @@ var _user$project$Native_Chart = function() {
         if (ctx === null) {
             return;
         }
-        if (charts[canvasId] !== undefined && charts[canvasId].data == data) {
+        if (charts[canvasId] !== undefined && charts[canvasId].data.length == data.length && ctx.classList.contains('rendered')) {
             return;
         }
 

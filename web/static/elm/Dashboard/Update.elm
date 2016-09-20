@@ -45,6 +45,9 @@ update message model =
         SetSplineTooltip splineTooltip ->
             { model | splineTooltip = splineTooltip } ! []
 
+        SetActiveTab tab ->
+            { model | activeTab = tab } ! []
+
         _ ->
             model ! []
 

@@ -10,6 +10,7 @@ type InternalMsg
     | SetDashboardCurrentPeriod String
     | SetDashboardComparisonPeriod Int
     | SetSplineTooltip SplineTooltip
+    | SetActiveTab Int
     | NoOp
 
 type OutMsg

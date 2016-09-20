@@ -2,6 +2,8 @@ module Dashboard.View exposing (..)
 
 import Array exposing (..)
 import Auth.Models exposing (CurrentUser)
+import Color
+import ColorManager exposing (dashboardMetricsColor, rgbaToString)
 import Dashboard.Messages as DashboardMessages exposing (Msg(..), OutMsg(..), InternalMsg(..))
 import Dashboard.Models exposing
     ( DashboardStatValue
@@ -119,25 +121,57 @@ renderTotalProgress user model stats maximumValue =
         currentProgress = if maximumValue == 0 then 0 else currentValue / maximumValue * 100
         comparisonProgress = if maximumValue == 0 then 0 else comparisonValue / maximumValue * 100
     in
-        div []
-            [ div []
-                [ grid []
-                    [ cell [ Typography.subhead, size All 6 ]
-                        [ text <| formatPeriod (Array.get 0 periods.current) user model True ]
-                    , cell [ Typography.title, size All 6, Typography.right ]
-                        [ text <| formatMetricsValue metrics currentValue ]
-                    , cell [ size All 12 ]
-                        [ Progress.progress currentProgress ]
-                    , cell [ size All 12 ]
-                        [ delta currentValue comparisonValue metrics ]
-                    , cell [ Typography.subhead, size All 6 ]
-                        [ text <| formatPeriod (Array.get 0 periods.comparison) user model False ]
-                    , cell [ Typography.title, size All 6, Typography.right ]
-                        [ text <| formatMetricsValue metrics comparisonValue ]
-                    , cell [ size All 12 ]
-                        [ Progress.progress comparisonProgress ]
-                    ]
+        grid
+            [ Options.css "padding-top" "0px"
+            , Options.css "padding-bottom" "0px"
+            ]
+            [ cell
+                [ Typography.subhead
+                , size All 6
+                , Options.css "margin-top" "0px"
+                , Options.css "margin-bottom" "0px"
                 ]
+                [ text <| formatPeriod (Array.get 0 periods.current) user model True ]
+            , cell
+                [ Typography.title
+                , size All 6
+                , Typography.right
+                , Options.css "margin-top" "0px"
+                , Options.css "margin-bottom" "0px"
+                ]
+                [ text <| formatMetricsValue metrics currentValue ]
+            , cell
+                [ size All 12
+                , Options.css "margin-top" "0px"
+                , Options.css "margin-bottom" "0px"
+                ]
+                [ Progress.progress currentProgress ]
+            , cell
+                [ size All 12
+                , Options.css "margin-top" "0px"
+                ]
+                [ delta currentValue comparisonValue metrics ]
+            , cell
+                [ Typography.subhead
+                , size All 6
+                , Options.css "margin-top" "0px"
+                , Options.css "margin-bottom" "0px"
+                ]
+                [ text <| formatPeriod (Array.get 0 periods.comparison) user model False ]
+            , cell
+                [ Typography.title
+                , size All 6
+                , Typography.right
+                , Options.css "margin-top" "0px"
+                , Options.css "margin-bottom" "0px"
+                ]
+                [ text <| formatMetricsValue metrics comparisonValue ]
+            , cell
+                [ size All 12
+                , Options.css "margin-top" "0px"
+                , Options.css "margin-bottom" "0px"
+                ]
+                [ Progress.progress comparisonProgress ]
             ]
 
 renderTotalCharts : CurrentUser -> Model -> DashboardChartTotalsData -> Html Messages.Msg
@@ -150,44 +184,74 @@ renderTotalCharts user model charts =
         labelStyle = [ style [ ("height", "20px") ] ]
         blockLabel key = translate model.locale (Dashboard key)
     in
-        Tabs.render Mdl [10] model.mdl
-            [ Tabs.onSelectTab SelectTab
-            , Tabs.activeTab model.dashboard.activeTab
+        grid
+            [ Options.css "padding-top" "0px"
+            , Options.css "padding-bottom" "0px"
             ]
-            [ Tabs.label
-                [ Options.center ]
-                [ Options.span [ Options.css "width" "4px" ] []
-                , text <| translate model.locale <| Dashboard "inout"
-                ]
-            , Tabs.label
-                [ Options.center ]
-                [ Options.span [ Options.css "width" "4px" ] []
-                , text <| translate model.locale <| Dashboard "netgaming"
-                ]
-            ]
-            <| case model.dashboard.activeTab of
-                0 ->
-                    [ div labelStyle
-                        [ text <| (blockLabel "inout" ++ dailyTooltip Metrics.PaymentsAmount ++ monthlyTooltip Metrics.PaymentsAmount)
+            [ cell [ size All 12 ]
+                [ Tabs.render Mdl [10] model.mdl
+                    [ Tabs.onSelectTab <| DashboardMsg << SetActiveTab
+                    , Tabs.activeTab model.dashboard.activeTab
+                    ]
+                    [ Tabs.label
+                        [ Options.center
+                        , Options.css "cursor" "pointer"
+                        , Options.css "width" "100%"
                         ]
-                    , div []
-                        [ areaChart user model Metrics.PaymentsAmount Nothing dailyStats
-                        , barChart user model Metrics.PaymentsAmount Nothing monthlyStats
+                        [ Options.span [ Options.css "width" "4px" ] []
+                        , text <| translate model.locale <| Dashboard "inout"
                         ]
-                    , div labelStyle
-                        [ text <| (blockLabel "deposits" ++ dailyTooltip Metrics.DepositsAmount ++ monthlyTooltip Metrics.DepositsAmount) ]
-                    , div []
-                        [ areaChart user model Metrics.DepositsAmount Nothing dailyStats
-                        , barChart user model Metrics.DepositsAmount Nothing monthlyStats
+                    , Tabs.label
+                        [ Options.center
+                        , Options.css "cursor" "pointer"
+                        , Options.css "width" "100%"
                         ]
-                    , div labelStyle
-                        [ text <| (blockLabel "withdrawal" ++ dailyTooltip Metrics.CashoutsAmount ++ monthlyTooltip Metrics.CashoutsAmount) ]
-                    , div []
-                        [ areaChart user model Metrics.CashoutsAmount Nothing dailyStats
-                        , barChart user model Metrics.CashoutsAmount Nothing monthlyStats
+                        [ Options.span [ Options.css "width" "4px" ] []
+                        , text <| translate model.locale <| Dashboard "netgaming"
                         ]
                     ]
-                _ -> [ text <| "netgaming charts" ]
+                    <| case model.dashboard.activeTab of
+                        0 ->
+                            [ div labelStyle
+                                [ span
+                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.PaymentsAmount), ("margin-right", "10px") ] ]
+                                    [ text <| blockLabel "inout" ]
+                                , span
+                                    []
+                                    [ text <| dailyTooltip Metrics.PaymentsAmount ++ monthlyTooltip Metrics.PaymentsAmount ]
+                                ]
+                            , div []
+                                [ areaChart user model Metrics.PaymentsAmount Nothing dailyStats
+                                , barChart user model Metrics.PaymentsAmount Nothing monthlyStats
+                                ]
+                            , div labelStyle
+                                [ span
+                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.DepositsAmount), ("margin-right", "10px") ] ]
+                                    [ text <| blockLabel "deposits" ]
+                                , span
+                                    []
+                                    [ text <| dailyTooltip Metrics.DepositsAmount ++ monthlyTooltip Metrics.DepositsAmount ]
+                                ]
+                            , div []
+                                [ areaChart user model Metrics.DepositsAmount Nothing dailyStats
+                                , barChart user model Metrics.DepositsAmount Nothing monthlyStats
+                                ]
+                            , div labelStyle
+                                [ span
+                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.CashoutsAmount), ("margin-right", "10px") ] ]
+                                    [ text <| blockLabel "withdrawal" ]
+                                , span
+                                    []
+                                    [ text <| dailyTooltip Metrics.CashoutsAmount ++ monthlyTooltip Metrics.CashoutsAmount ]
+                                ]
+                            , div []
+                                [ areaChart user model Metrics.CashoutsAmount Nothing dailyStats
+                                , barChart user model Metrics.CashoutsAmount Nothing monthlyStats
+                                ]
+                            ]
+                        _ -> [ text <| "netgaming charts" ]
+                ]
+            ]
 
 formatPeriod : Maybe String -> CurrentUser -> Model -> Bool -> String
 formatPeriod maybePeriod user model isCurrent =
