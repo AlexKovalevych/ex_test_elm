@@ -249,7 +249,44 @@ renderTotalCharts user model charts =
                                 , barChart user model Metrics.CashoutsAmount Nothing monthlyStats
                                 ]
                             ]
-                        _ -> [ text <| "netgaming charts" ]
+                        _ ->
+                            [ div labelStyle
+                                [ span
+                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.NetgamingAmount), ("margin-right", "10px") ] ]
+                                    [ text <| blockLabel "netgaming" ]
+                                , span
+                                    []
+                                    [ text <| dailyTooltip Metrics.NetgamingAmount ++ monthlyTooltip Metrics.NetgamingAmount ]
+                                ]
+                            , div []
+                                [ areaChart user model Metrics.NetgamingAmount Nothing dailyStats
+                                , barChart user model Metrics.NetgamingAmount Nothing monthlyStats
+                                ]
+                            , div labelStyle
+                                [ span
+                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.BetsAmount), ("margin-right", "10px") ] ]
+                                    [ text <| blockLabel "bets" ]
+                                , span
+                                    []
+                                    [ text <| dailyTooltip Metrics.BetsAmount ++ monthlyTooltip Metrics.BetsAmount ]
+                                ]
+                            , div []
+                                [ areaChart user model Metrics.BetsAmount Nothing dailyStats
+                                , barChart user model Metrics.BetsAmount Nothing monthlyStats
+                                ]
+                            , div labelStyle
+                                [ span
+                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.WinsAmount), ("margin-right", "10px") ] ]
+                                    [ text <| blockLabel "wins" ]
+                                , span
+                                    []
+                                    [ text <| dailyTooltip Metrics.WinsAmount ++ monthlyTooltip Metrics.WinsAmount ]
+                                ]
+                            , div []
+                                [ areaChart user model Metrics.WinsAmount Nothing dailyStats
+                                , barChart user model Metrics.WinsAmount Nothing monthlyStats
+                                ]
+                            ]
                 ]
             ]
 

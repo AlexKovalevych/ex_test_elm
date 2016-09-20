@@ -103,6 +103,8 @@ translate lang trans =
                 "deposits" -> TranslationSet "Deposits" "Депозиты"
                 "withdrawal" -> TranslationSet "Withdrawal" "Выплаты"
                 "netgaming" -> TranslationSet "Netgaming" "Netgaming"
+                "bets" -> TranslationSet "Bets" "Ставки"
+                "wins" -> TranslationSet "Wins" "Выигрыши"
                 "projects_type" -> TranslationSet "Projects:" "Проекты:"
                 "default_projects" -> TranslationSet "Our" "Наши"
                 "partner_projects" -> TranslationSet "Partner" "Партнерские"
