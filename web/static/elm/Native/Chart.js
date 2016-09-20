@@ -6,13 +6,13 @@ window.onresize = function() {
 
 var charts = {};
 
-var getDatasets = function(points) {
+var getDatasets = function(points, color) {
     return [{
         label: '',
         fill: true,
         data: points,
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgba(255,99,132,1)',
+        backgroundColor: 'rgba(' + color._0 + ',' + color._1 + ',' + color._2 + ', 0.2)',
+        borderColor: 'rgba(' + color._0 + ',' + color._1 + ',' + color._2 + ', 1)',
         borderWidth: 1,
         pointRadius: 1,
         pointBorderWidth: 0,
@@ -30,7 +30,7 @@ var getLabels = function(points) {
 };
 
 var _user$project$Native_Chart = function() {
-    function renderAreaChart(canvasId, data)
+    function renderAreaChart(canvasId, color, data)
     {
         var ctx = document.getElementById(canvasId);
         if (ctx === null) {
@@ -44,7 +44,7 @@ var _user$project$Native_Chart = function() {
         if (ctx.classList.contains('rendered')) {
             charts[canvasId].data = data;
             charts[canvasId].chart.data.labels = getLabels(points);
-            charts[canvasId].chart.data.datasets = getDatasets(points);
+            charts[canvasId].chart.data.datasets = getDatasets(points, color);
             charts[canvasId].chart.update();
         } else {
             ctx.setAttribute('class', 'rendered');
@@ -53,7 +53,7 @@ var _user$project$Native_Chart = function() {
                 type: 'line',
                 data: {
                     labels: getLabels(points),
-                    datasets: getDatasets(points)
+                    datasets: getDatasets(points, color)
                 },
                 options: {
                     insertIframe: false,
@@ -88,6 +88,6 @@ var _user$project$Native_Chart = function() {
     }
 
     return {
-        area: F2(renderAreaChart)
+        area: F3(renderAreaChart)
     };
 }();

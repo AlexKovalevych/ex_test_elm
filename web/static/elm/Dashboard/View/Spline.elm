@@ -2,6 +2,7 @@ module Dashboard.View.Spline exposing (..)
 
 import Array exposing (..)
 import Auth.Models exposing (CurrentUser)
+import ColorManager exposing (dashboardMetricsColor)
 import Dashboard.Models exposing (DashboardDailyChartValue, getDailyChartValueByMetrics)
 import Dashboard.Messages exposing (InternalMsg(..))
 import Date.GtDate exposing (dateFromMonthString)
@@ -55,7 +56,7 @@ areaChart user model metrics maybeProjectId stats =
         data = Array.map (dailyChartData metrics >> JE.int) stats
         |> JE.array
         |> JE.encode 0
-        _ = Native.Chart.area canvasId data
+        _ = Native.Chart.area canvasId (dashboardMetricsColor metrics) data
     in
         canvas
             [ id canvasId
