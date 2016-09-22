@@ -12,8 +12,7 @@ import Dashboard.Models exposing
     , DashboardChartTotalsData
     , DashboardStatValue
     , ProjectStats
-    , ProjectStatsValues
-    , TotalStats
+    , PeriodStats
     , SplineTooltip
     )
 import Json.Decode exposing (..)
@@ -29,7 +28,7 @@ dashboardDecoder =
         ("charts" := chartsDecoder)
         ("projects" := list projectDecoder)
         ("stats" := array projectStatsDecoder)
-        ("totals" := totalsDecoder)
+        ("totals" := periodStatsDecoder)
         ("activeTab" := int)
         ("splineTooltip" := splineDecoder)
 
@@ -97,17 +96,11 @@ projectStatsDecoder : Decoder ProjectStats
 projectStatsDecoder =
     object2 ProjectStats
         ("id" := string)
-        ("values" := projectStatsValuesDecoder)
+        ("values" := periodStatsDecoder)
 
-projectStatsValuesDecoder : Decoder ProjectStatsValues
-projectStatsValuesDecoder =
-    object2 ProjectStatsValues
-        ("current" := maybe statValueDecoder)
-        ("comparison" := maybe statValueDecoder)
-
-totalsDecoder : Decoder TotalStats
-totalsDecoder =
-    object2 TotalStats
+periodStatsDecoder : Decoder PeriodStats
+periodStatsDecoder =
+    object2 PeriodStats
         ("current" := maybe statValueDecoder)
         ("comparison" := maybe statValueDecoder)
 

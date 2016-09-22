@@ -17,7 +17,7 @@ update : Dashboard.Messages.InternalMsg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         LoadDashboardData dashboard ->
-            dashboard ! []
+            { dashboard | activeTab = model.activeTab } ! []
 
         SetDashboardProjectsType msg ->
             model !

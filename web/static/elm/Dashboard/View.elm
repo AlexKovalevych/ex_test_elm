@@ -9,10 +9,10 @@ import Dashboard.Models exposing
     ( DashboardStatValue
     , DashboardPeriods
     , getStatValue
-    , TotalStats
+    , PeriodStats
     , ProjectStats
-    , DashboardChartTotalsData
-    , DashboardChartStatsData
+    , DashboardDailyChartValue
+    , DashboardMonthlyChartValue
     , getDailyChartValueByMetrics
     )
 import Dashboard.View.Delta exposing (delta)
@@ -49,7 +49,7 @@ view model user =
     in
         div []
             [ grid []
-                [ cell [ size All 12 ]
+                <| [ cell [ size All 12 ]
                     [ span []
                         [ text <| translate model.locale <| Dashboard "projects_type"
                         , Button.render Mdl [0] model.mdl
@@ -86,59 +86,69 @@ view model user =
                 , cell [ size Desktop 4, size Tablet 2, size Phone 12 ]
                     [ span [] [ renderPreviousPeriods user model ]
                     ]
-                , cell [ size All 12, Elevation.e4 ]
-                    [ renderTotal user model maximumValue
-                    ] -- ++ List.map (renderProject user model maximumValue) model.dashboard.projects
                 ]
+                ++ (renderTotal user model maximumValue)
+                ++ (List.concat <| Array.toList <| Array.indexedMap (renderProject user model maximumValue) sortedStats)
             ]
 
-renderTotal : CurrentUser -> Model -> Float -> Html Messages.Msg
+renderTotal : CurrentUser -> Model -> Float -> List (Material.Grid.Cell Messages.Msg)
 renderTotal user model maximumValue =
     let
         totals = model.dashboard.totals
-        totalCharts = model.dashboard.charts.totals
+        dailyCharts = model.dashboard.charts.totals.daily
+        monthlyCharts = model.dashboard.charts.totals.monthly
     in
-        div []
-            [ grid []
-                [ cell [ Typography.display1, size All 12 ]
-                    [ text <| translate model.locale <| Dashboard "total" ]
-                , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
-                    [ renderTotalProgress user model totals maximumValue
-                    , renderTotalCharts user model totalCharts
-                    ]
-                , cell [ size Desktop 8, size Tablet 5, size Phone 12 ]
-                    [ div [] [ text "Consolidated table" ]
-                    ]
-                ]
+        [ cell [ Typography.display1, size All 12 ]
+            [ text <| translate model.locale <| Dashboard "total" ]
+        , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
+            [ renderProgress user model totals maximumValue
+            , renderCharts user model "" dailyCharts monthlyCharts
             ]
+        , cell [ size Desktop 8, size Tablet 5, size Phone 12 ]
+            [ div [] [ text "Consolidated table" ]
+            ]
+        ]
 
---renderProject : CurrentUser -> Model -> Float -> Project -> Html Messages.Msg
---renderProject user model maximumValue project =
---    let
---        maybeStats = Array.filter (\v -> v.id == project.id) model.dashboard.stats
---        |> Array.get 0
---        stats = case maybeStats of
---            Nothing -> {id = project.id, values = Array.empty}
---            Just value -> value
---        --statCharts = model.dashboard.charts.stats
---    in
---        div []
---            [ grid []
---                [ cell [ Typography.display1, size All 12 ]
---                    [ text <| project.title ]
---                , cell [ size Desktop 4, size Tablet 3, size Phone 12 ]
---                    []
---                    --[ renderProjectProgress user model stats maximumValue
---                    --, renderProjectCharts user model project statCharts
---                    --]
---                , cell [ size Desktop 8, size Tablet 5, size Phone 12 ]
---                    [ div [] [ text "Consolidated table" ]
---                    ]
---                ]
---            ]
+renderProject : CurrentUser -> Model -> Float -> Int -> ProjectStats -> List (Material.Grid.Cell Messages.Msg)
+renderProject user model maximumValue index projectStats =
+    let
+        classIndex = (toString index)
+        maybeProject = List.filter (\project -> project.id == projectStats.id) model.dashboard.projects
+        |> List.head
+        projectTitle = case maybeProject of
+            Nothing -> ""
+            Just project -> project.title
+        maybeDailyCharts = Array.filter (\projectCharts -> projectCharts.project == projectStats.id ) model.dashboard.charts.stats.daily
+        |> Array.get 0
+        dailyCharts = case maybeDailyCharts of
+            Nothing -> Array.empty
+            Just value -> value.values
+        maybeMonthlyCharts = Array.filter (\projectCharts -> projectCharts.project == projectStats.id ) model.dashboard.charts.stats.monthly
+        |> Array.get 0
+        monthlyCharts = case maybeMonthlyCharts of
+            Nothing -> Array.empty
+            Just value -> value.values
+    in
+        [ cell
+            [ Typography.display1
+            , size All 12
+            ]
+            [ text projectTitle ]
+        , cell
+            [ size Desktop 4
+            , size Tablet 3
+            , size Phone 12
+            ]
+            [ renderProgress user model projectStats.values maximumValue
+            , renderCharts user model classIndex dailyCharts monthlyCharts
+            ]
+        , cell [ size Desktop 8, size Tablet 5, size Phone 12 ]
+            [ div [] [ text "Consolidated table" ]
+            ]
+        ]
 
-renderTotalProgress : CurrentUser -> Model -> TotalStats -> Float -> Html Messages.Msg
-renderTotalProgress user model stats maximumValue =
+renderProgress : CurrentUser -> Model -> PeriodStats -> Float -> Html Messages.Msg
+renderProgress user model stats maximumValue =
     let
         periods = model.dashboard.periods
         metrics = Metrics.stringToType user.settings.dashboardSort
@@ -200,77 +210,16 @@ renderTotalProgress user model stats maximumValue =
                 [ Progress.progress comparisonProgress ]
             ]
 
---renderProjectProgress : CurrentUser -> Model -> TotalStats -> Float -> Html Messages.Msg
---renderProjectProgress user model stats maximumValue =
---    let
---        periods = model.dashboard.periods
---        metrics = Metrics.stringToType user.settings.dashboardSort
---        currentValue = getStatValue metrics stats.current
---        comparisonValue = getStatValue metrics stats.comparison
---        currentProgress = if maximumValue == 0 then 0 else currentValue / maximumValue * 100
---        comparisonProgress = if maximumValue == 0 then 0 else comparisonValue / maximumValue * 100
---    in
---        grid
---            [ Options.css "padding-top" "0px"
---            , Options.css "padding-bottom" "0px"
---            ]
---            [ cell
---                [ Typography.subhead
---                , size All 6
---                , Options.css "margin-top" "0px"
---                , Options.css "margin-bottom" "0px"
---                ]
---                [ text <| formatPeriod (Array.get 0 periods.current) user model True ]
---            , cell
---                [ Typography.title
---                , size All 6
---                , Typography.right
---                , Options.css "margin-top" "0px"
---                , Options.css "margin-bottom" "0px"
---                ]
---                [ text <| formatMetricsValue metrics currentValue ]
---            , cell
---                [ size All 12
---                , Options.css "margin-top" "0px"
---                , Options.css "margin-bottom" "0px"
---                ]
---                [ Progress.progress currentProgress ]
---            , cell
---                [ size All 12
---                , Options.css "margin-top" "0px"
---                ]
---                [ delta currentValue comparisonValue metrics ]
---            , cell
---                [ Typography.subhead
---                , size All 6
---                , Options.css "margin-top" "0px"
---                , Options.css "margin-bottom" "0px"
---                ]
---                [ text <| formatPeriod (Array.get 0 periods.comparison) user model False ]
---            , cell
---                [ Typography.title
---                , size All 6
---                , Typography.right
---                , Options.css "margin-top" "0px"
---                , Options.css "margin-bottom" "0px"
---                ]
---                [ text <| formatMetricsValue metrics comparisonValue ]
---            , cell
---                [ size All 12
---                , Options.css "margin-top" "0px"
---                , Options.css "margin-bottom" "0px"
---                ]
---                [ Progress.progress comparisonProgress ]
---            ]
-
-
-renderTotalCharts : CurrentUser -> Model -> DashboardChartTotalsData -> Html Messages.Msg
-renderTotalCharts user model charts =
+renderCharts : CurrentUser
+    -> Model
+    -> String
+    -> Array DashboardDailyChartValue
+    -> Array DashboardMonthlyChartValue
+    -> Html Messages.Msg
+renderCharts user model index dailyStats monthlyStats =
     let
-        dailyStats = model.dashboard.charts.totals.daily
-        monthlyStats = model.dashboard.charts.totals.monthly
-        dailyTooltip metrics = areaChartTooltip model metrics Nothing dailyStats
-        monthlyTooltip metrics = barChartTooltip model metrics Nothing monthlyStats
+        dailyTooltip metrics = List.map text <| areaChartTooltip model metrics index dailyStats
+        monthlyTooltip metrics = List.map text <| barChartTooltip model metrics index monthlyStats
         labelStyle = [ style [ ("height", "20px") ] ]
         blockLabel key = translate model.locale (Dashboard key)
     in
@@ -308,11 +257,11 @@ renderTotalCharts user model charts =
                                     [ text <| blockLabel "inout" ]
                                 , span
                                     []
-                                    [ text <| dailyTooltip Metrics.PaymentsAmount ++ monthlyTooltip Metrics.PaymentsAmount ]
+                                    (dailyTooltip Metrics.PaymentsAmount ++ monthlyTooltip Metrics.PaymentsAmount)
                                 ]
                             , div []
-                                [ areaChart user model Metrics.PaymentsAmount Nothing dailyStats
-                                , barChart user model Metrics.PaymentsAmount Nothing monthlyStats
+                                [ areaChart user model Metrics.PaymentsAmount index dailyStats
+                                , barChart user model Metrics.PaymentsAmount index monthlyStats
                                 ]
                             , div labelStyle
                                 [ span
@@ -320,11 +269,11 @@ renderTotalCharts user model charts =
                                     [ text <| blockLabel "deposits" ]
                                 , span
                                     []
-                                    [ text <| dailyTooltip Metrics.DepositsAmount ++ monthlyTooltip Metrics.DepositsAmount ]
+                                    (dailyTooltip Metrics.DepositsAmount ++ monthlyTooltip Metrics.DepositsAmount)
                                 ]
                             , div []
-                                [ areaChart user model Metrics.DepositsAmount Nothing dailyStats
-                                , barChart user model Metrics.DepositsAmount Nothing monthlyStats
+                                [ areaChart user model Metrics.DepositsAmount index dailyStats
+                                , barChart user model Metrics.DepositsAmount index monthlyStats
                                 ]
                             , div labelStyle
                                 [ span
@@ -332,11 +281,11 @@ renderTotalCharts user model charts =
                                     [ text <| blockLabel "withdrawal" ]
                                 , span
                                     []
-                                    [ text <| dailyTooltip Metrics.CashoutsAmount ++ monthlyTooltip Metrics.CashoutsAmount ]
+                                    (dailyTooltip Metrics.CashoutsAmount ++ monthlyTooltip Metrics.CashoutsAmount)
                                 ]
                             , div []
-                                [ areaChart user model Metrics.CashoutsAmount Nothing dailyStats
-                                , barChart user model Metrics.CashoutsAmount Nothing monthlyStats
+                                [ areaChart user model Metrics.CashoutsAmount index dailyStats
+                                , barChart user model Metrics.CashoutsAmount index monthlyStats
                                 ]
                             ]
                         _ ->
@@ -346,11 +295,11 @@ renderTotalCharts user model charts =
                                     [ text <| blockLabel "netgaming" ]
                                 , span
                                     []
-                                    [ text <| dailyTooltip Metrics.NetgamingAmount ++ monthlyTooltip Metrics.NetgamingAmount ]
+                                    (dailyTooltip Metrics.NetgamingAmount ++ monthlyTooltip Metrics.NetgamingAmount)
                                 ]
                             , div []
-                                [ areaChart user model Metrics.NetgamingAmount Nothing dailyStats
-                                , barChart user model Metrics.NetgamingAmount Nothing monthlyStats
+                                [ areaChart user model Metrics.NetgamingAmount index dailyStats
+                                , barChart user model Metrics.NetgamingAmount index monthlyStats
                                 ]
                             , div labelStyle
                                 [ span
@@ -358,11 +307,11 @@ renderTotalCharts user model charts =
                                     [ text <| blockLabel "bets" ]
                                 , span
                                     []
-                                    [ text <| dailyTooltip Metrics.BetsAmount ++ monthlyTooltip Metrics.BetsAmount ]
+                                    (dailyTooltip Metrics.BetsAmount ++ monthlyTooltip Metrics.BetsAmount)
                                 ]
                             , div []
-                                [ areaChart user model Metrics.BetsAmount Nothing dailyStats
-                                , barChart user model Metrics.BetsAmount Nothing monthlyStats
+                                [ areaChart user model Metrics.BetsAmount index dailyStats
+                                , barChart user model Metrics.BetsAmount index monthlyStats
                                 ]
                             , div labelStyle
                                 [ span
@@ -370,131 +319,15 @@ renderTotalCharts user model charts =
                                     [ text <| blockLabel "wins" ]
                                 , span
                                     []
-                                    [ text <| dailyTooltip Metrics.WinsAmount ++ monthlyTooltip Metrics.WinsAmount ]
+                                    (dailyTooltip Metrics.WinsAmount ++ monthlyTooltip Metrics.WinsAmount)
                                 ]
                             , div []
-                                [ areaChart user model Metrics.WinsAmount Nothing dailyStats
-                                , barChart user model Metrics.WinsAmount Nothing monthlyStats
+                                [ areaChart user model Metrics.WinsAmount index dailyStats
+                                , barChart user model Metrics.WinsAmount index monthlyStats
                                 ]
                             ]
                 ]
             ]
-
---renderProjectCharts : CurrentUser -> Model -> String -> DashboardChartStatsData -> Html Messages.Msg
---renderProjectCharts user model project charts =
---    let
---        dailyStats = Array.filter (\projectStats -> projectStats.project == project) model.dashboard.charts.stats.daily
---        monthlyStats = model.dashboard.charts.stats.monthly
---        dailyTooltip metrics = areaChartTooltip model metrics Nothing dailyStats
---        monthlyTooltip metrics = barChartTooltip model metrics Nothing monthlyStats
---        labelStyle = [ style [ ("height", "20px") ] ]
---        blockLabel key = translate model.locale (Dashboard key)
---    in
---        grid
---            [ Options.css "padding-top" "0px"
---            , Options.css "padding-bottom" "0px"
---            ]
---            [ cell [ size All 12 ]
---                [ Tabs.render Mdl [10] model.mdl
---                    [ Tabs.onSelectTab <| DashboardMsg << SetActiveTab
---                    , Tabs.activeTab model.dashboard.activeTab
---                    ]
---                    [ Tabs.label
---                        [ Options.center
---                        , Options.css "cursor" "pointer"
---                        , Options.css "width" "100%"
---                        ]
---                        [ Options.span [ Options.css "width" "4px" ] []
---                        , text <| translate model.locale <| Dashboard "inout"
---                        ]
---                    , Tabs.label
---                        [ Options.center
---                        , Options.css "cursor" "pointer"
---                        , Options.css "width" "100%"
---                        ]
---                        [ Options.span [ Options.css "width" "4px" ] []
---                        , text <| translate model.locale <| Dashboard "netgaming"
---                        ]
---                    ]
---                    <| case model.dashboard.activeTab of
---                        0 ->
---                            [ div labelStyle
---                                [ span
---                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.PaymentsAmount), ("margin-right", "10px") ] ]
---                                    [ text <| blockLabel "inout" ]
---                                , span
---                                    []
---                                    [ text <| dailyTooltip Metrics.PaymentsAmount ++ monthlyTooltip Metrics.PaymentsAmount ]
---                                ]
---                            , div []
---                                [ areaChart user model Metrics.PaymentsAmount Nothing dailyStats
---                                , barChart user model Metrics.PaymentsAmount Nothing monthlyStats
---                                ]
---                            , div labelStyle
---                                [ span
---                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.DepositsAmount), ("margin-right", "10px") ] ]
---                                    [ text <| blockLabel "deposits" ]
---                                , span
---                                    []
---                                    [ text <| dailyTooltip Metrics.DepositsAmount ++ monthlyTooltip Metrics.DepositsAmount ]
---                                ]
---                            , div []
---                                [ areaChart user model Metrics.DepositsAmount Nothing dailyStats
---                                , barChart user model Metrics.DepositsAmount Nothing monthlyStats
---                                ]
---                            , div labelStyle
---                                [ span
---                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.CashoutsAmount), ("margin-right", "10px") ] ]
---                                    [ text <| blockLabel "withdrawal" ]
---                                , span
---                                    []
---                                    [ text <| dailyTooltip Metrics.CashoutsAmount ++ monthlyTooltip Metrics.CashoutsAmount ]
---                                ]
---                            , div []
---                                [ areaChart user model Metrics.CashoutsAmount Nothing dailyStats
---                                , barChart user model Metrics.CashoutsAmount Nothing monthlyStats
---                                ]
---                            ]
---                        _ ->
---                            [ div labelStyle
---                                [ span
---                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.NetgamingAmount), ("margin-right", "10px") ] ]
---                                    [ text <| blockLabel "netgaming" ]
---                                , span
---                                    []
---                                    [ text <| dailyTooltip Metrics.NetgamingAmount ++ monthlyTooltip Metrics.NetgamingAmount ]
---                                ]
---                            , div []
---                                [ areaChart user model Metrics.NetgamingAmount Nothing dailyStats
---                                , barChart user model Metrics.NetgamingAmount Nothing monthlyStats
---                                ]
---                            , div labelStyle
---                                [ span
---                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.BetsAmount), ("margin-right", "10px") ] ]
---                                    [ text <| blockLabel "bets" ]
---                                , span
---                                    []
---                                    [ text <| dailyTooltip Metrics.BetsAmount ++ monthlyTooltip Metrics.BetsAmount ]
---                                ]
---                            , div []
---                                [ areaChart user model Metrics.BetsAmount Nothing dailyStats
---                                , barChart user model Metrics.BetsAmount Nothing monthlyStats
---                                ]
---                            , div labelStyle
---                                [ span
---                                    [ style [ ("color", rgbaToString <| dashboardMetricsColor Metrics.WinsAmount), ("margin-right", "10px") ] ]
---                                    [ text <| blockLabel "wins" ]
---                                , span
---                                    []
---                                    [ text <| dailyTooltip Metrics.WinsAmount ++ monthlyTooltip Metrics.WinsAmount ]
---                                ]
---                            , div []
---                                [ areaChart user model Metrics.WinsAmount Nothing dailyStats
---                                , barChart user model Metrics.WinsAmount Nothing monthlyStats
---                                ]
---                            ]
---                ]
---            ]
 
 formatPeriod : Maybe String -> CurrentUser -> Model -> Bool -> String
 formatPeriod maybePeriod user model isCurrent =
@@ -533,7 +366,7 @@ getSortedStats metrics stats =
         )
     |> Array.fromList
 
-getMaximumStatsValue : Metrics.Metrics -> TotalStats -> Array ProjectStats -> Float
+getMaximumStatsValue : Metrics.Metrics -> PeriodStats -> Array ProjectStats -> Float
 getMaximumStatsValue metrics totals sortedStats =
     let
         totalValues =

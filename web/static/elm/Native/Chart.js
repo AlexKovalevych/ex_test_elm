@@ -34,24 +34,30 @@ var getLabels = function(points) {
 };
 
 var _user$project$Native_Chart = function() {
-    function renderAreaChart(canvasId, colors, data)
+    function renderAreaChart(canvasId, colors, index, data)
     {
         var ctx = document.getElementById(canvasId);
         if (ctx === null) {
             return;
         }
-        if (charts[canvasId] !== undefined && charts[canvasId].data.length == data.length && ctx.classList.contains('rendered')) {
+        if (charts[canvasId] !== undefined
+            && charts[canvasId].data == data
+            && ctx.classList.contains('rendered')
+            && (!index || ctx.classList.contains(index))
+        ) {
             return;
         }
 
         var datasets = JSON.parse(data);
         if (ctx.classList.contains('rendered')) {
+            console.log('Rerender: ', index);
             charts[canvasId].data = data;
             charts[canvasId].chart.data.labels = getLabels(datasets[0]);
             charts[canvasId].chart.data.datasets = getDatasets(datasets, colors);
             charts[canvasId].chart.update();
+            ctx.setAttribute('class', 'rendered ' + index);
         } else {
-            ctx.setAttribute('class', 'rendered');
+            ctx.setAttribute('class', 'rendered ' + index);
             charts[canvasId] = {data: data};
             charts[canvasId]['chart'] = new Chart(ctx, {
                 type: 'line',
@@ -75,7 +81,6 @@ var _user$project$Native_Chart = function() {
                                 bottom: 0
                             },
                             ticks: {
-                                // autoSkip: false,
                                 display: false,
                                 maxTicksLimit: 20
                             }
@@ -99,12 +104,13 @@ var _user$project$Native_Chart = function() {
                     },
                     tooltips: {
                         enabled: false,
+                        mode: 'x-axis',
                         custom: function(tooltip) {
                             if (tooltip.body) {
-                                app.ports.splineTooltip.send({
-                                    canvasId: canvasId,
-                                    index: parseInt(tooltip.title[0])
-                                });
+                                // app.ports.splineTooltip.send({
+                                //     canvasId: canvasId,
+                                //     index: parseInt(tooltip.title[0])
+                                // });
                             }
                         }
                     },
@@ -117,13 +123,17 @@ var _user$project$Native_Chart = function() {
         }
     }
 
-    function renderBarChart(canvasId, colors, data)
+    function renderBarChart(canvasId, colors, index, data)
     {
         var ctx = document.getElementById(canvasId);
         if (ctx === null) {
             return;
         }
-        if (charts[canvasId] !== undefined && charts[canvasId].data.length == data.length && ctx.classList.contains('rendered')) {
+        if (charts[canvasId] !== undefined
+            && charts[canvasId].data == data
+            && ctx.classList.contains('rendered')
+            && (!index || ctx.classList.contains(index))
+        ) {
             return;
         }
 
@@ -133,8 +143,9 @@ var _user$project$Native_Chart = function() {
             charts[canvasId].chart.data.labels = getLabels(datasets[0]);
             charts[canvasId].chart.data.datasets = getDatasets(datasets, colors);
             charts[canvasId].chart.update();
+            ctx.setAttribute('class', 'rendered ' + index);
         } else {
-            ctx.setAttribute('class', 'rendered');
+            ctx.setAttribute('class', 'rendered ' + index);
             charts[canvasId] = {data: data};
             charts[canvasId]['chart'] = new Chart(ctx, {
                 type: 'bar',
@@ -186,12 +197,13 @@ var _user$project$Native_Chart = function() {
                     },
                     tooltips: {
                         enabled: false,
+                        mode: 'x-axis',
                         custom: function(tooltip) {
                             if (tooltip.body) {
-                                app.ports.splineTooltip.send({
-                                    canvasId: canvasId,
-                                    index: parseInt(tooltip.title[0])
-                                });
+                                // app.ports.splineTooltip.send({
+                                //     canvasId: canvasId,
+                                //     index: parseInt(tooltip.title[0])
+                                // });
                             }
                         }
                     },
@@ -205,7 +217,7 @@ var _user$project$Native_Chart = function() {
     }
 
     return {
-        area: F3(renderAreaChart),
-        bar: F3(renderBarChart)
+        area: F4(renderAreaChart),
+        bar: F4(renderBarChart)
     };
 }();

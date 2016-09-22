@@ -9,7 +9,7 @@ type alias Model =
     , charts : DashboardCharts
     , projects : List Project
     , stats : Array ProjectStats
-    , totals : TotalStats
+    , totals : PeriodStats
     , activeTab : Int
     , splineTooltip : SplineTooltip
     }
@@ -19,19 +19,14 @@ type alias SplineTooltip =
     , index : Int
     }
 
-type alias TotalStats =
+type alias PeriodStats =
     { current : Maybe DashboardStatValue
     , comparison : Maybe DashboardStatValue
     }
 
 type alias ProjectStats =
     { id : String
-    , values : ProjectStatsValues
-    }
-
-type alias ProjectStatsValues =
-    { current : Maybe DashboardStatValue
-    , comparison : Maybe DashboardStatValue
+    , values : PeriodStats
     }
 
 type alias DashboardCharts =
