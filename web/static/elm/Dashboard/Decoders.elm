@@ -12,6 +12,7 @@ import Dashboard.Models exposing
     , DashboardChartTotalsData
     , DashboardStatValue
     , ProjectStats
+    , ProjectStatsValues
     , TotalStats
     , SplineTooltip
     )
@@ -96,7 +97,13 @@ projectStatsDecoder : Decoder ProjectStats
 projectStatsDecoder =
     object2 ProjectStats
         ("id" := string)
-        ("values" := array (maybe statValueDecoder))
+        ("values" := projectStatsValuesDecoder)
+
+projectStatsValuesDecoder : Decoder ProjectStatsValues
+projectStatsValuesDecoder =
+    object2 ProjectStatsValues
+        ("current" := maybe statValueDecoder)
+        ("comparison" := maybe statValueDecoder)
 
 totalsDecoder : Decoder TotalStats
 totalsDecoder =

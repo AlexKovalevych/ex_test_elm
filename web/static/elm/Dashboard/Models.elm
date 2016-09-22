@@ -26,7 +26,12 @@ type alias TotalStats =
 
 type alias ProjectStats =
     { id : String
-    , values : Array (Maybe DashboardStatValue)
+    , values : ProjectStatsValues
+    }
+
+type alias ProjectStatsValues =
+    { current : Maybe DashboardStatValue
+    , comparison : Maybe DashboardStatValue
     }
 
 type alias DashboardCharts =

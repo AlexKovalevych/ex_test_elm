@@ -225,7 +225,7 @@ defmodule Gt.Manager.Dashboard do
         |> set_stats(totals, "comparison", :total)
 
         %{
-            stats: Enum.map(stats, fn {id, values} -> %{id: id, values: Map.values(values)} end),
+            stats: Enum.map(stats, fn {id, values} -> %{id: id, values: values} end),
             periods: %{current: current_period, comparison: comparison_period},
             totals: totals
         }

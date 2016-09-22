@@ -13,8 +13,8 @@ var getDatasets = function(datasets, colors) {
             label: '',
             fill: true,
             data: datasets[i],
-            backgroundColor: 'rgba(' + colors[i]._0 + ',' + colors[i]._1 + ',' + colors[i]._2 + ', 0.2)',
-            borderColor: 'rgba(' + colors[i]._0 + ',' + colors[i]._1 + ',' + colors[i]._2 + ', 1)',
+            backgroundColor: 'rgba(' + colors.table[i]._0 + ',' + colors.table[i]._1 + ',' + colors.table[i]._2 + ', 0.2)',
+            borderColor: 'rgba(' + colors.table[i]._0 + ',' + colors.table[i]._1 + ',' + colors.table[i]._2 + ', 1)',
             borderWidth: 1,
             pointRadius: 1,
             pointBorderWidth: 0,
@@ -22,6 +22,7 @@ var getDatasets = function(datasets, colors) {
             pointHitRadius: 10
         });
     }
+    return data;
 };
 
 var getLabels = function(points) {
@@ -46,7 +47,7 @@ var _user$project$Native_Chart = function() {
         var datasets = JSON.parse(data);
         if (ctx.classList.contains('rendered')) {
             charts[canvasId].data = data;
-            charts[canvasId].chart.data.labels = getLabels(datasets._0);
+            charts[canvasId].chart.data.labels = getLabels(datasets[0]);
             charts[canvasId].chart.data.datasets = getDatasets(datasets, colors);
             charts[canvasId].chart.update();
         } else {
@@ -129,7 +130,7 @@ var _user$project$Native_Chart = function() {
         var datasets = JSON.parse(data);
         if (ctx.classList.contains('rendered')) {
             charts[canvasId].data = data;
-            charts[canvasId].chart.data.labels = getLabels(datasets);
+            charts[canvasId].chart.data.labels = getLabels(datasets[0]);
             charts[canvasId].chart.data.datasets = getDatasets(datasets, colors);
             charts[canvasId].chart.update();
         } else {
@@ -138,7 +139,7 @@ var _user$project$Native_Chart = function() {
             charts[canvasId]['chart'] = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: getLabels(datasets),
+                    labels: getLabels(datasets[0]),
                     datasets: getDatasets(datasets, colors)
                 },
                 options: {

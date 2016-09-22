@@ -78,10 +78,13 @@ areaChart : CurrentUser -> Model -> Metrics -> Maybe String -> Array DashboardDa
 areaChart user model metrics maybeProjectId stats =
     let
         canvasId = splineId metrics maybeProjectId Daily
-        data = Array.map (dailyChartData metrics >> JE.int) stats
+        data = [ stats ]
+        |> List.map (\dataset -> Array.map (dailyChartData metrics >> JE.int) dataset)
+        |> Array.fromList
+        |> Array.map JE.array
         |> JE.array
         |> JE.encode 0
-        _ = Native.Chart.area canvasId (dashboardMetricsColor metrics) data
+        _ = Native.Chart.area canvasId (Array.fromList [dashboardMetricsColor metrics]) data
     in
         canvas
             [ style [ ("margin-bottom", "5px") ]
@@ -95,10 +98,13 @@ barChart : CurrentUser -> Model -> Metrics -> Maybe String -> Array DashboardMon
 barChart user model metrics maybeProjectId stats =
     let
         canvasId = splineId metrics maybeProjectId Monthly
-        data = Array.map (monthlyChartData metrics >> JE.int) stats
+        data = [ stats ]
+        |> List.map (\dataset -> Array.map (monthlyChartData metrics >> JE.int) dataset)
+        |> Array.fromList
+        |> Array.map JE.array
         |> JE.array
         |> JE.encode 0
-        _ = Native.Chart.bar canvasId (dashboardMetricsColor metrics) data
+        _ = Native.Chart.bar canvasId (Array.fromList [dashboardMetricsColor metrics]) data
     in
         canvas
             [ id canvasId
