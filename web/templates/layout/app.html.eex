@@ -13,6 +13,7 @@
 
     <body>
         <script src="<%= static_path(@conn, "/js/Chart.min.js") %>"></script>
+        <script src="<%= static_path(@conn, "/js/canvasjs.min.js") %>"></script>
         <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
         <%= render @view_module, @view_template, assigns %>
     </body>
