@@ -11,4 +11,19 @@ a:focus {
     outline: 0;
 }
 
+.canvasjs-chart-credit {
+   display: none;
+}
+
+.mdl-progress {
+    width: auto;
+}
+
+.canvasjs-chart-tooltip{
+    right: 5px !important;
+    left: auto !important;
+    top: -25px !important;
+    bottom: auto !important;
+}
+
 font-family: 'Roboto', sans-serif;

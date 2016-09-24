@@ -29,7 +29,7 @@ splineId : Metrics -> String -> SplineType -> String
 splineId metrics index splineType =
     (typeToString metrics) ++ index ++ (toString splineType)
 
-dailyChartData : Metrics -> DashboardDailyChartValue -> Int
+dailyChartData : Metrics -> DashboardDailyChartValue -> Float
 dailyChartData metrics chartValue =
     let
         maybeValue = case metrics of
@@ -46,10 +46,10 @@ dailyChartData metrics chartValue =
             Just value -> value
     in
         case metrics of
-            CashoutsAmount -> abs value
-            _ -> value
+            CashoutsAmount -> toFloat <| abs value
+            _ -> toFloat value
 
-monthlyChartData : Metrics -> DashboardMonthlyChartValue -> Int
+monthlyChartData : Metrics -> DashboardMonthlyChartValue -> Float
 monthlyChartData metrics chartValue =
     let
         maybeValue = case metrics of
@@ -66,23 +66,27 @@ monthlyChartData metrics chartValue =
             Just value -> value
     in
         case metrics of
-            CashoutsAmount -> abs value
-            _ -> value
+            CashoutsAmount -> toFloat <| abs value
+            _ -> toFloat value
 
 areaChart : CurrentUser -> Model -> Metrics -> String -> Array DashboardDailyChartValue -> Html Msg
 areaChart user model metrics index stats =
     let
+        formatDate = format (getDateConfig model.locale) dayFormat
         canvasId = splineId metrics index Daily
         data = [ stats ]
-        |> List.map (\dataset -> Array.map (dailyChartData metrics >> JE.int) dataset)
+        |> List.map (\dataset -> Array.map (dailyChartData metrics >> formatMetricsValue metrics >> JE.string) dataset)
         |> Array.fromList
         |> Array.map JE.array
         |> JE.array
         |> JE.encode 0
-        _ = Native.Chart.area canvasId (Array.fromList [dashboardMetricsColor metrics]) index data
+        labels = Array.map (\v -> JE.string <| formatDate <| dateFromMonthString v.date) stats
+        |> JE.array
+        |> JE.encode 0
+        _ = Native.Chart.area canvasId (Array.fromList [dashboardMetricsColor metrics]) index data labels
     in
-        canvas
-            [ style [ ("margin-bottom", "5px") ]
+        div
+            [ style [ ("margin-bottom", "5px"), ("width", "100%"), ("height", "40px") ]
             , id canvasId
             , height 25
             , onMouseLeave <| DashboardMsg (SetSplineTooltip {canvasId = "", index = 0})
@@ -92,17 +96,22 @@ areaChart user model metrics index stats =
 barChart : CurrentUser -> Model -> Metrics -> String -> Array DashboardMonthlyChartValue -> Html Msg
 barChart user model metrics index stats =
     let
+        formatDate = format (getDateConfig model.locale) monthFormat
         canvasId = splineId metrics index Monthly
         data = [ stats ]
-        |> List.map (\dataset -> Array.map (monthlyChartData metrics >> JE.int) dataset)
+        |> List.map (\dataset -> Array.map (monthlyChartData metrics >> formatMetricsValue metrics >> JE.string) dataset)
         |> Array.fromList
         |> Array.map JE.array
         |> JE.array
         |> JE.encode 0
-        _ = Native.Chart.bar canvasId (Array.fromList [dashboardMetricsColor metrics]) index data
+        labels = Array.map (\v -> JE.string <| formatDate <| dateFromMonthString <| v.month) stats
+        |> JE.array
+        |> JE.encode 0
+        _ = Native.Chart.bar canvasId (Array.fromList [dashboardMetricsColor metrics]) index data labels
     in
-        canvas
-            [ id canvasId
+        div
+            [ style [ ("width", "100%"), ("height", "40px") ]
+            , id canvasId
             , height 25
             , onMouseLeave <| DashboardMsg (SetSplineTooltip {canvasId = "", index = 0})
             ]
