@@ -27,7 +27,7 @@ module.exports = {
                 outputFile: 'app.js'
             },
             copycat:{
-                'js' : ['node_modules/chart.js/dist/Chart.min.js', 'node_modules/canvasjs/dist/canvasjs.min.js'],
+                'js' : ['node_modules/chart.js/src/chart.js', 'web/static/js/canvasjs.min.js'],
                 // "images": ["someDirectoryInProject", "bower_components/some_package/assets/images"],
                 verbose : true, //shows each file that is copied to the destination directory
                 onlyChanged: true //only copy a file if it's modified time has changed (only effective when using brunch watch)

@@ -51,6 +51,7 @@ defmodule Gt.Mixfile do
             {:progress_bar, "~> 1.5"},
             {:parallel_stream, "~> 1.0"},
             {:amqp, "~> 0.1.4"},
+            {:amqp_client, git: "https://github.com/dsrosario/amqp_client.git", branch: "erlang_otp_19", override: true},
             {:pot, "~>0.9.5"}
             # {:nio_google_authenticator, "~> 1.0.1"} Required newer ecto
         ]

@@ -29,7 +29,7 @@ defmodule Gt.Amqp.Connections.Default do
                 Enum.each(@producers, fn {_name, config} ->
                     if config.connection == :default do
                         Queue.declare(channel, config.queue, durable: true)
-                        Exchange.fanout(channel, config.exchange, durable: true)
+                        Exchange.direct(channel, config.exchange, durable: true)
                         Queue.bind(channel, config.queue, config.exchange)
                     end
                 end)
